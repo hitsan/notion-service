@@ -1,0 +1,8 @@
+version: '3.5'
+services:
+  notion-test:
+    image: node:slim
+    volumes:
+    - ./src:/src
+    working_dir: /src
+    tty: true
