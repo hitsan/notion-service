@@ -1,8 +1,17 @@
 version: '3.5'
+
 services:
-  notion-test:
-    image: node:slim
+  notion:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
     volumes:
-    - ./src:/src
-    working_dir: /src
+      - ./app:/app:cached
+    ports:
+      - 9099:9099 # Auth
+      - 4000:4000 # Emulator Suite UI
+      - 5001:5001 # Cloud Functions
+      - 8080:8080 # Cloud Firestore
+    working_dir: /app
     tty: true
+
