@@ -40,7 +40,7 @@ const featchWeatherInfo = async (date: string) => {
 
     return weatherInfo;
   } catch (error) {
-    functions.logger.info("Faile getting the weather", {structuredData: true});
+    functions.logger.info("Failed getting the weather", {structuredData: true});
     return "";
   }
 };
@@ -89,9 +89,9 @@ const postWeatherInfo = (date:string, title:string, wheatherInfo: string) => {
         },
       },
     });
-    functions.logger.info("Success! Entry added.", {structuredData: true});
+    functions.logger.info("Success! added lifelog", {structuredData: true});
   } catch (error) {
-    functions.logger.info("Faile posting the weather", {structuredData: true});
+    functions.logger.info("Failed! added lifelog", {structuredData: true});
   }
 };
 
