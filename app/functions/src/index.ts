@@ -1,7 +1,9 @@
 import axios from "axios";
 import * as functions from "firebase-functions";
 import {Client} from "@notionhq/client";
-import {format} from "date-fns";
+import {formatInTimeZone} from "date-fns-tz";
+
+const JST = "Asia/Tokyo";
 
 const weatherCodeToIcon = (weatherCode: string): string => {
   // TODO edit weather
@@ -49,7 +51,7 @@ const featchWeatherInfo = async (date: string) => {
 const postWeatherInfo = (date:string, wheatherInfo: string) => {
   const notion = new Client({auth: process.env.NOTION_TOKEN});
   const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID || "";
-  const title = format(new Date(), "yyyy/MM/dd");
+  const title = formatInTimeZone(new Date(), JST, "yyyy/MM/dd");
 
   const timelineURL = process.env.GOOGLE_MAP_TIMELINE_URL || "";
   const url = timelineURL.replace("_DATE_", date);
@@ -99,14 +101,14 @@ const postWeatherInfo = (date:string, wheatherInfo: string) => {
 
 export const helloWorld = functions.https.onRequest(
   async (request, response) => {
-    const date = format(new Date(), "yyyy-MM-dd");
+    const date = formatInTimeZone(new Date(), JST, "yyyy-MM-dd");
     const watherInfo = await featchWeatherInfo(date);
     postWeatherInfo(date, watherInfo);
     response.send("Add a page to Life Log!");
   });
 
 exports.scheduledFunctionCrontab = functions.pubsub.schedule("0 0 * * *")
-  .timeZone("Asia/Tokyo")
+  .timeZone(JST)
   .onRun(() => {
     functions.logger.info("Add a page to Life Log!", {structuredData: true});
   });
