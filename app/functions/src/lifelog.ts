@@ -1,7 +1,6 @@
 import axios from "axios";
 import * as functions from "firebase-functions";
 import {Client} from "@notionhq/client";
-import {formatInTimeZone} from "date-fns-tz";
 
 const weatherCodeToIcon = (weatherCode: string): string => {
   // TODO edit weather
@@ -46,10 +45,9 @@ const featchWeatherInfo = async (date: string) => {
   }
 };
 
-const postWeatherInfo = (date:string, jst:string, wheatherInfo: string) => {
+const postWeatherInfo = (date:string, title:string, wheatherInfo: string) => {
   const notion = new Client({auth: process.env.NOTION_TOKEN});
   const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID || "";
-  const title = formatInTimeZone(new Date(), jst, "yyyy/MM/dd");
 
   const timelineURL = process.env.GOOGLE_MAP_TIMELINE_URL || "";
   const url = timelineURL.replace("_DATE_", date);
@@ -97,8 +95,7 @@ const postWeatherInfo = (date:string, jst:string, wheatherInfo: string) => {
   }
 };
 
-export const addPageToLifelog = async (jst:string) => {
-  const date = formatInTimeZone(new Date(), jst, "yyyy-MM-dd");
+export const addPageToLifelog = async (title:string, date:string) => {
   const watherInfo = await featchWeatherInfo(date);
-  postWeatherInfo(date, jst, watherInfo);
+  postWeatherInfo(date, title, watherInfo);
 };
