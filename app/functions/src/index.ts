@@ -20,7 +20,7 @@ export const notionDairy = functions.region("asia-northeast1").https.onRequest(
 
 exports.scheduledFunctionCrontab = functions
   .region("asia-northeast1").pubsub
-  .schedule("0 0 * * *")
+  .schedule("0 9 * * *")
   .timeZone(jst)
   .onRun(() => {
     dairyTask();
