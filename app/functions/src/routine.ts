@@ -33,6 +33,6 @@ const postRoutinePage = (date:string, title:string) => {
   }
 };
 
-export const addPageToRoutine= (title:string, date:string) => {
+export const addPageToRoutine = async (title:string, date:string) => {
   postRoutinePage(date, title);
 };

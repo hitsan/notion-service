@@ -5,7 +5,7 @@ import {addPageToRoutine} from "./routine";
 
 const jst = "Asia/Tokyo";
 
-const dairyTask = async () => {
+const dairyTask = () => {
   const date = formatInTimeZone(new Date(), jst, "yyyy-MM-dd");
   const title = formatInTimeZone(new Date(), jst, "yyyy/MM/dd");
   addPageToLifelog(title, date);
