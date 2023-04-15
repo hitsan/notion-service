@@ -2,25 +2,26 @@ import axios from "axios";
 import * as functions from "firebase-functions";
 import {Client} from "@notionhq/client";
 
-const weatherCodeToIcon = (weatherCode: string): string => {
+const weatherCodeToIcon = (weatherCode: number): string => {
   // Weather Icon ☀️🌧️☁️❄️🌩️🌫️🌪️;
-  const weatherNumber = Number(weatherCode);
-  if (weatherNumber ) {
-    return "🌩️";
-  } else if (weatherNumber >= 0 && weatherNumber <= 2) {
-    return "❄️";
-  } else if (weatherNumber >= 0 && weatherNumber <= 2) {
+  if (weatherCode >= 0 &&  weatherCode <= 1) {
     return "☀️";
-  }  else if (weatherNumber >= 3) {
+  } else if (weatherCode >= 2 && weatherCode <= 3) {
     return "☁️";
-  } else if (weatherNumber >= 4 && weatherNumber <= 29) {
+  } else if (weatherCode >= 4 && weatherCode <= 59) {
     return "🌫️";
-  } else if (weatherNumber >= 30 && weatherNumber <= 49) {
-    return "🌪️";
-  } else if (weatherNumber >= 50 && weatherNumber <= 99) {
+  } else if (weatherCode >= 60 && weatherCode <= 69) {
     return "🌧️";
+  } else if (weatherCode >= 70 && weatherCode <= 79) {
+    return "❄️";
+  } else if (weatherCode >= 80 && weatherCode <= 84) {
+    return "🌧️";
+  } else if (weatherCode >= 85 && weatherCode <= 94) {
+    return "❄️";
+  } else if (weatherCode >= 95 && weatherCode <= 99) {
+    return "🌩️";
   }
-  return "";
+  return "";    
 };
 
 const featchWeatherInfo = async (date: string) => {
@@ -34,7 +35,7 @@ const featchWeatherInfo = async (date: string) => {
 
     timeframes.forEach((timeframe) => {
       const time = timeZone[timeframe];
-      const weatherCode = weatherItems.hourly.weathercode[time];
+      const weatherCode = Number(weatherItems.hourly.weathercode[time]);
       const weatherIcon = weatherCodeToIcon(weatherCode);
       const temp = weatherItems.hourly.temperature_2m[time];
       weatherInfo += `${timeframe}${weatherIcon}${temp}℃ `;
