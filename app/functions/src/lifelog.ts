@@ -4,7 +4,7 @@ import {Client} from "@notionhq/client";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
   // Weather Icon ☀️🌧️☁️❄️🌩️🌫️🌪️;
-  if (weatherCode >= 0 &&  weatherCode <= 1) {
+  if (weatherCode >= 0 && weatherCode <= 1) {
     return "☀️";
   } else if (weatherCode >= 2 && weatherCode <= 3) {
     return "☁️";
@@ -21,7 +21,7 @@ const weatherCodeToIcon = (weatherCode: number): string => {
   } else if (weatherCode >= 95 && weatherCode <= 99) {
     return "🌩️";
   }
-  return "";    
+  return "";
 };
 
 const featchWeatherInfo = async (date: string) => {
@@ -30,7 +30,7 @@ const featchWeatherInfo = async (date: string) => {
     const responseWheather = await axios.get(url);
     const weatherItems = JSON.parse(JSON.stringify(responseWheather.data));
     let weatherInfo = "";
-    const timeZone:{[timeFrame:string]: number} = {"朝":9, "昼":12, "夜":18};
+    const timeZone:{[timeFrame:string]: number} = {"朝": 9, "昼": 12, "夜": 18};
     const timeframes = Object.keys(timeZone);
 
     timeframes.forEach((timeframe) => {
