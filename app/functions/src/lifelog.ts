@@ -3,17 +3,21 @@ import * as functions from "firebase-functions";
 import {Client} from "@notionhq/client";
 
 const weatherCodeToIcon = (weatherCode: string): string => {
-  // Weather Icon = "☀️🌧️☁️🌨️🌩️🌫️";
+  // Weather Icon ☀️🌧️☁️❄️🌩️🌫️🌪️;
   const weatherNumber = Number(weatherCode);
-  if (weatherNumber == 17 ||
-    weatherNumber == 29 ||
-    (weatherNumber >= 91 && weatherNumber <= 99)) {
+  if (weatherNumber ) {
     return "🌩️";
-  } else if (weatherNumber >= 0 && weatherNumber <= 3) {
+  } else if (weatherNumber >= 0 && weatherNumber <= 2) {
+    return "❄️";
+  } else if (weatherNumber >= 0 && weatherNumber <= 2) {
     return "☀️";
+  }  else if (weatherNumber >= 3) {
+    return "☁️";
   } else if (weatherNumber >= 4 && weatherNumber <= 29) {
     return "🌫️";
-  } else if (weatherNumber >= 60 && weatherNumber <= 69) {
+  } else if (weatherNumber >= 30 && weatherNumber <= 49) {
+    return "🌪️";
+  } else if (weatherNumber >= 50 && weatherNumber <= 99) {
     return "🌧️";
   }
   return "";
