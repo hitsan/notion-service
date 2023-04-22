@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import {formatInTimeZone} from "date-fns-tz";
 import {addPageToLifelog} from "./lifelog";
 import {addPageToRoutine} from "./routine";
+import {featchBookInfo} from "./book-info"
 
 const jst = "Asia/Tokyo";
 
@@ -16,6 +17,13 @@ export const notionDairy = functions.region("asia-northeast1").https.onRequest(
   (request, response) => {
     dairyTask();
     response.send("Run dairy task");
+  });
+
+export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
+  (request, response) => {
+    const title = "文豪たちの悪口本";
+    featchBookInfo(title);
+    response.send("Get book info");
   });
 
 exports.scheduledFunctionCrontab = functions
