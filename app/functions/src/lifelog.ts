@@ -30,15 +30,14 @@ const featchWeatherInfo = async (date: string) => {
     const responseWheather = await axios.get(url);
     const weatherItems = JSON.parse(JSON.stringify(responseWheather.data));
     let weatherInfo = "";
-    const timeZone:{[timeFrame:string]: number} = {"朝": 9, "昼": 12, "夜": 18};
-    const timeframes = Object.keys(timeZone);
+    const timeframes: number[] = [9, 14, 19];
 
     timeframes.forEach((timeframe) => {
-      const time = timeZone[timeframe];
-      const weatherCode = Number(weatherItems.hourly.weathercode[time]);
+      const weatherCode = Number(weatherItems.hourly.weathercode[timeframe]);
       const weatherIcon = weatherCodeToIcon(weatherCode);
-      const temp = weatherItems.hourly.temperature_2m[time];
-      weatherInfo += `${timeframe}${weatherIcon}${temp}℃ `;
+      const temp = weatherItems.hourly.temperature_2m[timeframe];
+      const roundTemp = Math.floor(temp)
+      weatherInfo += `${weatherIcon}${roundTemp}℃`;
     });
 
     return weatherInfo;
