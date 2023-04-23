@@ -1,46 +1,40 @@
 import * as functions from "firebase-functions";
 import axios from "axios";
 
-export const featchBookInfo = async (title: string) => {
+interface BookInfo {
+  authors: string;
+  cover?: string;
+  publishedDate: string;
+}
 
-  const featchIsbn = async (title: string): Promise<string | Error> => {
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${title}`;
-    try {
-      const googleBookdata = await axios.get(url);
-      const bookJsonData = JSON.parse(JSON.stringify(googleBookdata.data));
-      const industryIdentifiers = bookJsonData.items[0].industryIdentifiers[0].identifier;
-      // const isbn = industryIdentifiers[1].identifier;
-      return industryIdentifiers;
-    } catch (error: unknown) {
-      functions.logger.info(error, {structuredData: true});
-      return new Error();
-    }
-  };
-  const fetchBookDescription = async (isbn: string) => {
-    const url = `https://api.openbd.jp/v1/get?isbn=${isbn}`;
-    try {
-      const openDbBookdata = await axios.get(url);
-      const bookJsonData = JSON.parse(JSON.stringify(openDbBookdata.data));
-      const auther = bookJsonData.DescriptiveDetail.Contributor.PersonName;
-      const imageUrl = bookJsonData.CollateralDetail.SupportingResource.ResourceLink;
-      const publishingDate = bookJsonData.PublishingDetail.PublishingDate;
-      const bookInfo = {"auther": auther, "imageUrl": imageUrl, "publishingDate": publishingDate};
-      return bookInfo;
-    } catch (error: unknown) {
-      functions.logger.info(error, {structuredData: true});
-      return new Error();
-    }
-  };
+export const featchBookInfo = async (title: string): Promise<BookInfo> => {
+  const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${title}`;
   try {
-    const isbn = await featchIsbn(title);
-    if (isbn instanceof Error) {
-      functions.logger.info("Failed getting the book info from google", {structuredData: true});
-      return "";
+    const googleBooksResponse = await axios.get(googleBooksUrl);
+    const bookInfo = googleBooksResponse.data.items[0].volumeInfo;
+    const authors = bookInfo.authors.join(",");
+    const publishedDate = bookInfo.publishedDate;
+    const isvalidDate = (date: string): boolean => {
+      const yMdDate = /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
+      const ydDate = /^[0-9]{4}-(0[1-9]|1[0-2])$/;
+      if (yMdDate.test(date)) {
+        return true;
+      } else if (ydDate.test(date)) {
+        return false;
+      }
+      return true;
     }
-    const bookInfo = await fetchBookDescription(isbn);
-    return bookInfo;
-  } catch (error) {
-    functions.logger.info("Failed getting the book info", {structuredData: true});
-    return new Error();
+
+    const industryIdentifiers = bookInfo.industryIdentifiers;
+    const isbn = industryIdentifiers.pop().identifier;
+
+    const openBDUrl = `https://api.openbd.jp/v1/get?isbn=${isbn}`;
+    const openBDResponse = await axios.get(openBDUrl);
+    const cover = openBDResponse.data[0].summary?.cover;
+
+    return {authors, cover, publishedDate};
+  } catch (error: unknown) {
+    functions.logger.error("Failed to fetch book info", error);
+    throw new Error("Failed to fetch book info");
   }
 };

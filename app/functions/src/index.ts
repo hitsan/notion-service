@@ -20,10 +20,11 @@ export const notionDairy = functions.region("asia-northeast1").https.onRequest(
   });
 
 export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
-  (request, response) => {
+  async (request, response) => {
     const title = "文豪たちの悪口本";
-    featchBookInfo(title);
-    response.send("Get book info");
+    // const title = "アフターマン";
+    const a = await featchBookInfo(title);
+    response.send(a);
   });
 
 exports.scheduledFunctionCrontab = functions
