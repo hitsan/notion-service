@@ -14,17 +14,6 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
     const bookInfo = googleBooksResponse.data.items[0].volumeInfo;
     const authors = bookInfo.authors.join(",");
     const publishedDate = bookInfo.publishedDate;
-    const isvalidDate = (date: string): boolean => {
-      const yMdDate = /^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
-      const ydDate = /^[0-9]{4}-(0[1-9]|1[0-2])$/;
-      if (yMdDate.test(date)) {
-        return true;
-      } else if (ydDate.test(date)) {
-        return false;
-      }
-      return true;
-    }
-
     const industryIdentifiers = bookInfo.industryIdentifiers;
     const isbn = industryIdentifiers.pop().identifier;
 
