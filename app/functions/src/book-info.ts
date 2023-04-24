@@ -1,5 +1,59 @@
 import * as functions from "firebase-functions";
+import {Client} from "@notionhq/client";
 import axios from "axios";
+
+export const featchWatchListBookInfo = async () => {
+  const notion = new Client({auth: process.env.NOTION_TOKEN});
+  const databaseId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
+
+  try {
+    const response = await notion.databases.query({
+      database_id: databaseId,
+      filter: {
+        and: [
+          {
+            property: "Categry",
+            select: {
+              equals: "Book"
+            },
+          },
+          {
+            or:[
+              {
+                property: "Author",
+                rich_text: {
+                  is_empty: true
+                },
+              },
+              {
+                property: "Published Date",
+                date: {
+                  is_empty: true
+                },
+              },
+              {
+                property: "Image",
+                files: {
+                  is_empty: true
+                },
+              },
+            ],
+          },
+        ],
+      },
+    });
+    functions.logger.info("Success! get watchlist.", {structuredData: true});
+    const a = response.results.map(result => {
+      if (!("properties" in result)) return;
+      if (!("title" in result.properties.Title)) return;
+      return result.id + "," + result.properties.Title.title[0].plain_text;
+    })
+    return a;
+  } catch (error) {
+    functions.logger.info("Failed! get watchlist", {structuredData: true});
+    throw new Error("Failed to get watchlist");
+  }
+}
 
 interface BookInfo {
   authors: string;

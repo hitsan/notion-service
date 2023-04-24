@@ -2,7 +2,8 @@ import * as functions from "firebase-functions";
 import {formatInTimeZone} from "date-fns-tz";
 import {addPageToLifelog} from "./lifelog";
 import {addPageToRoutine} from "./routine";
-import {featchBookInfo} from "./book-info"
+// import {featchBookInfo} from "./book-info"
+import {featchWatchListBookInfo} from "./book-info"
 
 const jst = "Asia/Tokyo";
 
@@ -21,9 +22,10 @@ export const notionDairy = functions.region("asia-northeast1").https.onRequest(
 
 export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
   async (request, response) => {
-    const title = "文豪たちの悪口本";
+    // const title = "文豪たちの悪口本";
     // const title = "アフターマン";
-    const a = await featchBookInfo(title);
+    // const a = await featchBookInfo(title);
+    const a = await featchWatchListBookInfo();
     response.send(a);
   });
 
