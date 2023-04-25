@@ -36,7 +36,7 @@ const featchWeatherInfo = async (date: string) => {
       const weatherCode = Number(weatherItems.hourly.weathercode[timeframe]);
       const weatherIcon = weatherCodeToIcon(weatherCode);
       const temp = weatherItems.hourly.temperature_2m[timeframe];
-      const roundTemp = Math.floor(temp)
+      const roundTemp = Math.floor(temp);
       weatherInfo += `${weatherIcon}${roundTemp}℃`;
     });
 

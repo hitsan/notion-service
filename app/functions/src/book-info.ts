@@ -2,39 +2,52 @@ import * as functions from "firebase-functions";
 import {Client} from "@notionhq/client";
 import axios from "axios";
 
-export const featchWatchListBookInfo = async () => {
-  const notion = new Client({auth: process.env.NOTION_TOKEN});
-  const databaseId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
+interface LackedInfoBook {
+  id: string;
+  title: string;
+}
 
+interface BookInfo {
+  id: string;
+  authors: string;
+  title: string;
+  cover?: string;
+  publishedDate: string;
+}
+
+const notion = new Client({auth: process.env.NOTION_TOKEN});
+const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
+
+export const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
   try {
     const response = await notion.databases.query({
-      database_id: databaseId,
+      database_id: watchListDBId,
       filter: {
         and: [
           {
             property: "Categry",
             select: {
-              equals: "Book"
+              equals: "Book",
             },
           },
           {
-            or:[
+            or: [
               {
                 property: "Author",
                 rich_text: {
-                  is_empty: true
+                  is_empty: true,
                 },
               },
               {
                 property: "Published Date",
                 date: {
-                  is_empty: true
+                  is_empty: true,
                 },
               },
               {
                 property: "Image",
                 files: {
-                  is_empty: true
+                  is_empty: true,
                 },
               },
             ],
@@ -42,31 +55,27 @@ export const featchWatchListBookInfo = async () => {
         ],
       },
     });
-    functions.logger.info("Success! get watchlist.", {structuredData: true});
-    const a = response.results.map(result => {
-      if (!("properties" in result)) return;
-      if (!("title" in result.properties.Title)) return;
-      return result.id + "," + result.properties.Title.title[0].plain_text;
-    })
-    return a;
+    const bookList = response.results.map((result) => {
+      if (!("properties" in result) ||
+        !("title" in result.properties.Title)) {
+          throw new Error("Ilegal data");
+      }
+      return {id: result.id, title: result.properties.Title.title[0].plain_text};
+    });
+    return bookList;
   } catch (error) {
     functions.logger.info("Failed! get watchlist", {structuredData: true});
     throw new Error("Failed to get watchlist");
   }
-}
+};
 
-interface BookInfo {
-  authors: string;
-  cover?: string;
-  publishedDate: string;
-}
-
-export const featchBookInfo = async (title: string): Promise<BookInfo> => {
-  const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${title}`;
+export const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => {
+  const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${lackedBook.title}`;
   try {
     const googleBooksResponse = await axios.get(googleBooksUrl);
     const bookInfo = googleBooksResponse.data.items[0].volumeInfo;
     const authors = bookInfo.authors.join(",");
+    const title = bookInfo.title;
     const publishedDate = bookInfo.publishedDate;
     const industryIdentifiers = bookInfo.industryIdentifiers;
     const isbn = industryIdentifiers.pop().identifier;
@@ -75,9 +84,76 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
     const openBDResponse = await axios.get(openBDUrl);
     const cover = openBDResponse.data[0].summary?.cover;
 
-    return {authors, cover, publishedDate};
+    return {id: lackedBook.id, authors, title, cover, publishedDate};
   } catch (error: unknown) {
     functions.logger.error("Failed to fetch book info", error);
     throw new Error("Failed to fetch book info");
   }
+};
+
+export const updateBookInfo = async (bookInfo: BookInfo) => {
+  const pageId = bookInfo.id;
+  const title = bookInfo.title;
+  const author = bookInfo.authors;
+  const date = bookInfo.publishedDate;
+  const cover = "https://www.subarusya.jp//images/book/505263.jpg";
+  try {
+    await notion.pages.update({
+      page_id: pageId,
+      icon: {
+        emoji: "📕",
+      },
+      properties: {
+        Title: {
+          title: [
+            {
+              text: {
+                content: title,
+              },
+            },
+          ],
+        },
+        Author: {
+          rich_text: [
+            {
+              text: {
+                content: author,
+              },
+            },
+          ],
+        },
+        "Published Date": {
+          date: {
+            start: date,
+            end: null,
+            time_zone: null,
+          },
+        },
+        Image: {
+          files: [
+            {
+              name: cover,
+              external: {
+                url: cover,
+              },
+            },
+          ],
+        },
+      },
+    });
+  } catch (error: unknown) {
+    functions.logger.error("Failed to post book info", error);
+    throw new Error("Failed to post book info");
+  }
+};
+
+export const updateBooks =async () => {
+  const lackedBooks = await featchLackedInfoBook();
+  const bookInfo = lackedBooks.map(async (book) => {
+    return await featchBookInfo(book);
+  });
+  const a = await bookInfo;
+  a.map(async (book) => {
+    await updateBookInfo(book);
+  });
 };

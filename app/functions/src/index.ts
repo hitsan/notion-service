@@ -3,7 +3,8 @@ import {formatInTimeZone} from "date-fns-tz";
 import {addPageToLifelog} from "./lifelog";
 import {addPageToRoutine} from "./routine";
 // import {featchBookInfo} from "./book-info"
-import {featchWatchListBookInfo} from "./book-info"
+// import {featchWatchListBookInfo} from "./book-info";
+// import {postBookInfo} from "./book-info";
 
 const jst = "Asia/Tokyo";
 
@@ -25,8 +26,9 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
     // const title = "文豪たちの悪口本";
     // const title = "アフターマン";
     // const a = await featchBookInfo(title);
-    const a = await featchWatchListBookInfo();
-    response.send(a);
+    // const a = await featchWatchListBookInfo();
+    // postBookInfo();
+    response.send("post info");
   });
 
 exports.scheduledFunctionCrontab = functions
