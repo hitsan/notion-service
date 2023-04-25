@@ -11,14 +11,14 @@ interface BookInfo {
   id: string;
   authors: string;
   title: string;
-  cover?: string;
+  cover: string;
   publishedDate: string;
 }
 
 const notion = new Client({auth: process.env.NOTION_TOKEN});
 const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
 
-export const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
+const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
   try {
     const response = await notion.databases.query({
       database_id: watchListDBId,
@@ -69,7 +69,7 @@ export const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
   }
 };
 
-export const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => {
+const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => {
   const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${lackedBook.title}`;
   try {
     const googleBooksResponse = await axios.get(googleBooksUrl);
@@ -91,7 +91,7 @@ export const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookIn
   }
 };
 
-export const updateBookInfo = async (bookInfo: BookInfo) => {
+const updateBookInfo = async (bookInfo: BookInfo) => {
   const pageId = bookInfo.id;
   const title = bookInfo.title;
   const author = bookInfo.authors;
@@ -147,13 +147,11 @@ export const updateBookInfo = async (bookInfo: BookInfo) => {
   }
 };
 
-export const updateBooks =async () => {
+export const updateBooks = async () => {
   const lackedBooks = await featchLackedInfoBook();
-  const bookInfo = lackedBooks.map(async (book) => {
-    return await featchBookInfo(book);
-  });
-  const a = await bookInfo;
-  a.map(async (book) => {
-    await updateBookInfo(book);
+  lackedBooks.map(book => {
+    featchBookInfo(book).then((value) => {
+      updateBookInfo(value)
+    });
   });
 };
