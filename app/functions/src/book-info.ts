@@ -79,10 +79,7 @@ const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => 
     const publishedDate = bookInfo.publishedDate;
     const industryIdentifiers = bookInfo.industryIdentifiers;
     const isbn = industryIdentifiers.pop().identifier;
-
-    const openBDUrl = `https://api.openbd.jp/v1/get?isbn=${isbn}`;
-    const openBDResponse = await axios.get(openBDUrl);
-    const cover = openBDResponse.data[0].summary?.cover;
+    const cover = `https://cover.openbd.jp/${isbn}.jpg`
 
     return {id: lackedBook.id, authors, title, cover, publishedDate};
   } catch (error: unknown) {
@@ -96,7 +93,7 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
   const title = bookInfo.title;
   const author = bookInfo.authors;
   const date = bookInfo.publishedDate;
-  const cover = "https://www.subarusya.jp//images/book/505263.jpg";
+  const cover = bookInfo.cover;
   try {
     await notion.pages.update({
       page_id: pageId,
