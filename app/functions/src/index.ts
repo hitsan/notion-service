@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import {formatInTimeZone} from "date-fns-tz";
 import {addPageToLifelog} from "./lifelog";
 import {addPageToRoutine} from "./routine";
-import {updateBooks} from "./book-info";
+import {updateBooksInfo} from "./book-info";
 
 const jst = "Asia/Tokyo";
 
@@ -21,7 +21,7 @@ export const notionDairy = functions.region("asia-northeast1").https.onRequest(
 
 export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
   async (request, response) => {
-    updateBooks();
+    updateBooksInfo();
     response.send("Run update book list");
   });
 
