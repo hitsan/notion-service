@@ -89,14 +89,9 @@ const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => 
 };
 
 const updateBookInfo = async (bookInfo: BookInfo) => {
-  const pageId = bookInfo.id;
-  const title = bookInfo.title;
-  const author = bookInfo.authors;
-  const date = bookInfo.publishedDate;
-  const cover = bookInfo.cover;
   try {
     await notion.pages.update({
-      page_id: pageId,
+      page_id: bookInfo.id,
       icon: {
         emoji: "📕",
       },
@@ -105,7 +100,7 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
           title: [
             {
               text: {
-                content: title,
+                content: bookInfo.title,
               },
             },
           ],
@@ -114,14 +109,14 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
           rich_text: [
             {
               text: {
-                content: author,
+                content: bookInfo.authors,
               },
             },
           ],
         },
         "Published Date": {
           date: {
-            start: date,
+            start: bookInfo.publishedDate,
             end: null,
             time_zone: null,
           },
@@ -129,9 +124,9 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
         Image: {
           files: [
             {
-              name: cover,
+              name: bookInfo.cover,
               external: {
-                url: cover,
+                url: bookInfo.cover,
               },
             },
           ],
@@ -145,10 +140,16 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
 };
 
 export const updateBooks = async () => {
-  const lackedBooks = await featchLackedInfoBook();
-  lackedBooks.map(book => {
-    featchBookInfo(book).then((value) => {
-      updateBookInfo(value)
-    });
-  });
+  try {
+    const lackedBooks = await featchLackedInfoBook();
+    Promise.all(lackedBooks.map(
+      async (book: LackedInfoBook) => {
+        const info = await featchBookInfo(book);
+        updateBookInfo(info);
+      }
+    ));
+  } catch (error: unknown) {
+    functions.logger.error("Failed to update book info", error);
+    throw new Error("Failed to update book info");
+  }
 };
