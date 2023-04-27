@@ -139,7 +139,7 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
   }
 };
 
-export const updateBooks = async () => {
+export const updateBooksInfo = async () => {
   try {
     const lackedBooks = await featchLackedInfoBook();
     Promise.all(lackedBooks.map(
