@@ -115,7 +115,7 @@ const postLigeLogPage = async (dairyTaskInfo: DairyTaskInfo, wheatherInfo: strin
 export const addPageToLifelog = async (dairyTaskInfo: DairyTaskInfo) => {
   try {
     const watherInfo = await featchWeatherInfo(dairyTaskInfo.date);
-    return postLigeLogPage(dairyTaskInfo, watherInfo);
+    postLigeLogPage(dairyTaskInfo, watherInfo);
   } catch (error) {
     functions.logger.error("Failed! added lifelog", {structuredData: true});
     throw new Error("Failed! added lifelog");

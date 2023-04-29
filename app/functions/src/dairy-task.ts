@@ -21,8 +21,7 @@ export const dairyTask = async (jst: string) => {
   }
   const notion = new Client({auth: notionToken});
   const dairyTaskInfo: DairyTaskInfo = {date, title, notion};
-  functions.logger.info("ssssssssssssssss", {structuredData: true});
-  try {
+  try {    
     return await Promise.all([addPageToLifelog(dairyTaskInfo), addPageToRoutine(dairyTaskInfo)]);
   } catch (error: unknown) {
     throw new Error("Failed dairyTask");
