@@ -58,9 +58,10 @@ const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
     const bookList = response.results.map((result) => {
       if (!("properties" in result) ||
         !("title" in result.properties.Title)) {
-          throw new Error("Ilegal data");
+        throw new Error("Ilegal data");
       }
-      return {id: result.id, title: result.properties.Title.title[0].plain_text};
+      const title = result.properties.Title.title[0].plain_text;
+      return {id: result.id, title: title};
     });
     return bookList;
   } catch (error) {
@@ -79,7 +80,7 @@ const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => 
     const publishedDate = bookInfo.publishedDate;
     const industryIdentifiers = bookInfo.industryIdentifiers;
     const isbn = industryIdentifiers.pop().identifier;
-    const cover = `https://cover.openbd.jp/${isbn}.jpg`
+    const cover = `https://cover.openbd.jp/${isbn}.jpg`;
 
     return {id: lackedBook.id, authors, title, cover, publishedDate};
   } catch (error: unknown) {
@@ -114,7 +115,7 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
             },
           ],
         },
-        "Published Date": {
+        PublishedDate: {
           date: {
             start: bookInfo.publishedDate,
             end: null,
