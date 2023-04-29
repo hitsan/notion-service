@@ -15,10 +15,12 @@ interface BookInfo {
   publishedDate: string;
 }
 
-const notion = new Client({auth: process.env.NOTION_TOKEN});
-const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
-
-const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
+const featchLackedInfoBook = async (notion: Client): Promise<LackedInfoBook[]> => {
+  const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID;
+  if (!watchListDBId) {
+    functions.logger.error("Do not find:NOTION_WATCHLIST_DATABASE_ID", {structuredData: true});
+    throw new Error("Do not find:NOTION_WATCHLIST_DATABASE_ID");
+  }
   try {
     const response = await notion.databases.query({
       database_id: watchListDBId,
@@ -39,7 +41,7 @@ const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
                 },
               },
               {
-                property: "Published Date",
+                property: "PublishedDate",
                 date: {
                   is_empty: true,
                 },
@@ -65,7 +67,7 @@ const featchLackedInfoBook = async (): Promise<LackedInfoBook[]> => {
     });
     return bookList;
   } catch (error) {
-    functions.logger.info("Failed! get watchlist", {structuredData: true});
+    functions.logger.error("Failed! get watchlist", {structuredData: true});
     throw new Error("Failed to get watchlist");
   }
 };
@@ -89,7 +91,7 @@ const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => 
   }
 };
 
-const updateBookInfo = async (bookInfo: BookInfo) => {
+const updateBookInfo = async (notion: Client, bookInfo: BookInfo) => {
   try {
     await notion.pages.update({
       page_id: bookInfo.id,
@@ -141,12 +143,18 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
 };
 
 export const updateBooksInfo = async () => {
+  const notionToken = process.env.NOTION_TOKEN;
+  if (!notionToken) {
+    functions.logger.error("Do not find NOTION_TOKEN", {structuredData: true});
+    throw new Error("Do not find NOTION_TOKEN");
+  }
+  const notion = new Client({auth: notionToken});
   try {
-    const lackedBooks = await featchLackedInfoBook();
-    Promise.all(lackedBooks.map(
+    const lackedBooks = await featchLackedInfoBook(notion);
+    await Promise.all(lackedBooks.map(
       async (book: LackedInfoBook) => {
         const info = await featchBookInfo(book);
-        updateBookInfo(info);
+        updateBookInfo(notion, info);
       }
     ));
   } catch (error: unknown) {
