@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import {DairyTaskInfo} from "./dairy-task"
+import {DairyTaskInfo} from "./dairy-task";
 
 export const addPageToRoutine = async (dairyTaskInfo: DairyTaskInfo) => {
   const databaseId = process.env.NOTION_ROUTINE_DATABASE_ID;

@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as functions from "firebase-functions";
-import {DairyTaskInfo} from "./dairy-task"
+import {DairyTaskInfo} from "./dairy-task";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
   // Weather Icon ☀️🌧️☁️❄️🌩️🌫️🌪️;

@@ -97,7 +97,7 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
         emoji: "📕",
       },
       properties: {
-        "Title": {
+        Title: {
           title: [
             {
               text: {
@@ -106,7 +106,7 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
             },
           ],
         },
-        "Author": {
+        Author: {
           rich_text: [
             {
               text: {
@@ -115,14 +115,14 @@ const updateBookInfo = async (bookInfo: BookInfo) => {
             },
           ],
         },
-        "Published Date": {
+        PublishedDate: {
           date: {
             start: bookInfo.publishedDate,
             end: null,
             time_zone: null,
           },
         },
-        "Image": {
+        Image: {
           files: [
             {
               name: bookInfo.cover,

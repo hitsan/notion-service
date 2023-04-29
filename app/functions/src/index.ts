@@ -17,7 +17,7 @@ exports.scheduledFunctionCrontab = functions
     try {
       await dairyTask(jst);
       functions.logger.info("Succese dairy task", {structuredData: true});
-    } catch(error: unknown) {
+    } catch (error: unknown) {
       functions.logger.error("Failed dairyTask", {structuredData: true});
     }
   });
