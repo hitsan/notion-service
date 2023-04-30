@@ -24,7 +24,6 @@
          working-directory: ./app
          run: npm install
        - name: Deploy to Firebase
-         uses: hitsan/notion-test@main
          working-directory: ./app
          run: firebase deploy --only functions
          env:
