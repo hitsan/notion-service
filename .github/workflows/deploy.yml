@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./app/functions
         run: npm install && npm run build
-      - name: Deploy to Firebase!
+      - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only functions
