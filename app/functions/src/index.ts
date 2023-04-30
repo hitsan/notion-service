@@ -1,16 +1,16 @@
 import * as functions from "firebase-functions";
-import {updateBooksInfo} from "./book-info";
+// import {updateBooksInfo} from "./book-info";
 import {dairyTask} from "./dairy-task";
 
-export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
-  async (request, response) => {
-    try {
-      await updateBooksInfo();
-      response.send("Succese update book list");
-    } catch (error: unknown) {
-      response.send("Failed update book list");
-    }
-  });
+// export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
+//   async (request, response) => {
+//     try {
+//       await updateBooksInfo();
+//       response.send("Succese update book list");
+//     } catch (error: unknown) {
+//       response.send("Failed update book list");
+//     }
+//   });
 
 const jst = "Asia/Tokyo";
 exports.scheduledFunctionCrontab = functions
