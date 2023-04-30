@@ -142,7 +142,7 @@ const updateBookInfo = async (notion: Client, bookInfo: BookInfo) => {
   }
 };
 
-export const updateBooksInfo = async () => {
+const updateBooksInfo = async () => {
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) {
     functions.logger.error("Do not find NOTION_TOKEN", {structuredData: true});
@@ -162,3 +162,13 @@ export const updateBooksInfo = async () => {
     throw new Error("Failed to update book info");
   }
 };
+
+export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
+  async (request, response) => {
+    try {
+      await updateBooksInfo();
+      response.send("Succese update book list");
+    } catch (error: unknown) {
+      response.send("Failed update book list");
+    }
+  });
