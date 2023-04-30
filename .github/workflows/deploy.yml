@@ -11,19 +11,22 @@
      runs-on: ubuntu-latest
      steps:
        - name: Checkout Repo
+         working-directory: ./app
          uses: actions/checkout@v3
        - name: Setup node
+         working-directory: ./app
          uses: actions/setup-node@v3
          with:
            node-version: 16
            cache: "npm"
-           cache-dependency-path: app/functions/package-lock.json
+           cache-dependency-path: functions/package-lock.json
        - name: Install dependencies
-         run: npm install -C app/functions
+         working-directory: ./app
+         run: npm install
        - name: Deploy to Firebase
          uses: hitsan/notion-test@main
-         with:
-           args: firebase deploy --only functions
+         working-directory: ./app
+         run: firebase deploy --only functions
          env:
            GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
            CONFIG_VALUES: ${{ secrets.CONFIG_VALUES }}
