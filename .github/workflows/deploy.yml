@@ -20,15 +20,12 @@
            cache-dependency-path: app/functions/package-lock.json
        - name: Install dependencies
          working-directory: ./app/functions
-         run: |
-           npm install
-           npm run build
+         run: npm install
        - name: Build
          working-directory: ./app/functions
          run: npm run-script build
        - name: Deploy to Firebase
-         working-directory: ./app/functions
-         run: firebase deploy --only functions
+         working-directory: ./app
+         run: firebase deploy --only functions --token $GCP_SA_KEY
          env:
            GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-           CONFIG_VALUES: ${{ secrets.CONFIG_VALUES }}
