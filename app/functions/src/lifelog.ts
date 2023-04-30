@@ -1,6 +1,7 @@
 import axios from "axios";
+import {Client} from "@notionhq/client";
+import {formatInTimeZone} from "date-fns-tz";
 import * as functions from "firebase-functions";
-import {DairyTaskInfo} from "./dairy-task";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
   // Weather Icon ☀️🌧️☁️❄️🌩️🌫️🌪️;
@@ -53,7 +54,13 @@ const featchWeatherInfo = async (date: string) => {
   }
 };
 
-const postLigeLogPage = async (dairyTaskInfo: DairyTaskInfo, wheatherInfo: string) => {
+interface LifeLogInfo {
+  date: string;
+  title: string;
+  weatherInfo: string
+}
+
+const postLigeLogPage = async (lifelogInfo: LifeLogInfo, notion: Client) => {
   const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID;
   let timelineURL = process.env.GOOGLE_MAP_TIMELINE_URL;
   if (!(databaseId && timelineURL)) {
@@ -64,12 +71,12 @@ const postLigeLogPage = async (dairyTaskInfo: DairyTaskInfo, wheatherInfo: strin
     throw new Error(message);
   }
 
-  const date = dairyTaskInfo.date;
-  const title = dairyTaskInfo.title;
-  const notion = dairyTaskInfo.notion;
+  const date = lifelogInfo.date;
+  const title = lifelogInfo.title;
+  const weatherInfo = lifelogInfo.weatherInfo;
   timelineURL = timelineURL.replace("_DATE_", date);
   try {
-    notion.pages.create({
+    await notion.pages.create({
       parent: {database_id: databaseId},
       icon: {
         emoji: "🗓️",
@@ -95,7 +102,7 @@ const postLigeLogPage = async (dairyTaskInfo: DairyTaskInfo, wheatherInfo: strin
           rich_text: [
             {
               text: {
-                content: wheatherInfo,
+                content: weatherInfo,
               },
             },
           ],
@@ -112,10 +119,19 @@ const postLigeLogPage = async (dairyTaskInfo: DairyTaskInfo, wheatherInfo: strin
   }
 };
 
-export const addPageToLifelog = async (dairyTaskInfo: DairyTaskInfo) => {
+export const addPageToLifelog = async (timeZone: string) => {
+  const notionToken = process.env.NOTION_TOKEN;
+  if (!notionToken) {
+    functions.logger.error("Do not find NOTION_TOKEN", {structuredData: true});
+    throw new Error("Do not find NOTION_TOKEN");
+  }
+  const notion = new Client({auth: notionToken});
+  const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
+  const title = formatInTimeZone(new Date(), timeZone, "yyyy/MM/dd");
   try {
-    const watherInfo = await featchWeatherInfo(dairyTaskInfo.date);
-    postLigeLogPage(dairyTaskInfo, watherInfo);
+    const weatherInfo = await featchWeatherInfo(date);
+    const lifelogInfo: LifeLogInfo = {date, title, weatherInfo};
+    await postLigeLogPage(lifelogInfo, notion);
   } catch (error) {
     functions.logger.error("Failed! added lifelog", {structuredData: true});
     throw new Error("Failed! added lifelog");
