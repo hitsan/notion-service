@@ -20,7 +20,7 @@ jobs:
           cache-dependency-path: app/functions/package-lock.json
       - name: Install dependencies
         working-directory: ./app/functions
-        run: npm install && npm build
+        run: npm install && npm run build
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@v11.9.0
         with:
