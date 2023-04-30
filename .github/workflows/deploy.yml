@@ -20,10 +20,10 @@
            cache-dependency-path: app/functions/package-lock.json
        - name: Install dependencies
          run: npm install -C app/functions
-      #  - name: Deploy to Firebase
-      #    uses: hitsan/notion-test@master
-      #    with:
-      #      args: deploy --only functions
-      #    env:
-      #      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-      #      CONFIG_VALUES: ${{ secrets.CONFIG_VALUES }}
+       - name: Deploy to Firebase
+         uses: hitsan/notion-test@main
+         with:
+           args: firebase deploy --only functions
+         env:
+           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+           CONFIG_VALUES: ${{ secrets.CONFIG_VALUES }}
