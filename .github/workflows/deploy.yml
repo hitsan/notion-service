@@ -19,7 +19,7 @@
            cache: "npm"
            cache-dependency-path: app/functions/package-lock.json
        - name: Install dependencies
-         working-directory: ./app
+         working-directory: ./app/functions
          run: npm install
        - name: Deploy to Firebase
          working-directory: ./app
