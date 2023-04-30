@@ -17,7 +17,7 @@
          with:
            node-version: 16
            cache: "npm"
-           cache-dependency-path: functions/package-lock.json
+           cache-dependency-path: app/functions/package-lock.json
        - name: Install dependencies
          working-directory: ./app
          run: npm install
