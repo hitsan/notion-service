@@ -18,8 +18,8 @@
            node-version: 16
            cache: "npm"
            cache-dependency-path: app/functions/package-lock.json
-      #  - name: Install dependencies
-      #    run: npm install -C app/functions
+       - name: Install dependencies
+         run: npm install -C app/functions
       #  - name: Deploy to Firebase
       #    uses: hitsan/notion-test@master
       #    with:
