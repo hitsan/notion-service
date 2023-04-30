@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - cicdtest
+      - main
 
 jobs:
   deploy:
