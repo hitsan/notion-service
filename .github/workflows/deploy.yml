@@ -22,7 +22,7 @@
          working-directory: ./app/functions
          run: npm install
        - name: Deploy to Firebase
-         working-directory: ./app
+         working-directory: ./app/functions
          run: firebase deploy --only functions
          env:
            GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
