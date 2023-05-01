@@ -21,11 +21,13 @@ jobs:
       - name: Install dependencies
         working-directory: ./app/functions
         run: npm install && npm run build
+      - name: Make .env
+        working-directory: ./app/functions
+        run: echo "${{ secrets.CONFIG_VALUES }}" > .env
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only functions
         env:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-          CONFIG_VALUES: $${{ secrets.CONFIG_VALUES }}
           PROJECT_PATH: ./app
