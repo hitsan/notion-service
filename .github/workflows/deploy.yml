@@ -21,6 +21,9 @@ jobs:
       - name: Install dependencies
         working-directory: ./app/functions
         run: npm install && npm run build
+      - name: Make .env
+        working-directory: ./app/functions
+        run: echo "${{ secrets.CONFIG_VALUES }}" > .env
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
