@@ -7,7 +7,8 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
     try {
       await updateBooksInfo();
       response.send("Succese update book list");
-    } catch (error: unknown) {
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
       response.send("Failed update book list");
     }
   });
@@ -21,7 +22,7 @@ exports.scheduledFunctionCrontab = functions
     try {
       await addPageToLifelog(JST);
       functions.logger.info("Succese dairy task", {structuredData: true});
-    } catch (error: unknown) {
-      functions.logger.error("Failed dairyTask", {structuredData: true});
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
     }
   });
