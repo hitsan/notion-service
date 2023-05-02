@@ -13,6 +13,17 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
     }
   });
 
+  export const notionDairy = functions.region("asia-northeast1").https.onRequest(
+    async (request, response) => {
+      try {
+        await addPageToLifelog(timeZone);
+        response.send("Succese update book list");
+      } catch (error) {
+        functions.logger.error(error, {structuredData: true});
+        response.send("Failed update book list");
+      }
+    });
+
 const timeZone = "Asia/Tokyo";
 exports.scheduledFunctionCrontab = functions
   .region("asia-northeast1").pubsub
