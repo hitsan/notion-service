@@ -67,8 +67,8 @@ const featchLackedInfoBook = async (notion: Client): Promise<LackedInfoBook[]> =
     });
     return bookList;
   } catch (error) {
-    functions.logger.error("Failed! get watchlist", {structuredData: true});
-    throw new Error("Failed to get watchlist");
+    functions.logger.error(error, {structuredData: true});
+    throw error;
   }
 };
 
@@ -85,9 +85,9 @@ const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => 
     const cover = `https://cover.openbd.jp/${isbn}.jpg`;
 
     return {id: lackedBook.id, authors, title, cover, publishedDate};
-  } catch (error: unknown) {
-    functions.logger.error("Failed to fetch book info", error);
-    throw new Error("Failed to fetch book info");
+  } catch (error) {
+    functions.logger.error(error, {structuredData: true});
+    throw error;
   }
 };
 
@@ -136,9 +136,9 @@ const updateBookInfo = async (notion: Client, bookInfo: BookInfo) => {
         },
       },
     });
-  } catch (error: unknown) {
-    functions.logger.error("Failed to post book info", error);
-    throw new Error("Failed to post book info");
+  } catch (error) {
+    functions.logger.error(error, {structuredData: true});
+    throw error;
   }
 };
 
@@ -157,8 +157,8 @@ export const updateBooksInfo = async () => {
         updateBookInfo(notion, info);
       }
     ));
-  } catch (error: unknown) {
-    functions.logger.error("Failed to update book info", error);
-    throw new Error("Failed to update book info");
+  } catch (error) {
+    functions.logger.error(error, {structuredData: true});
+    throw error;
   }
 };

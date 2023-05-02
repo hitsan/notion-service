@@ -49,8 +49,8 @@ const featchWeatherInfo = async (date: string) => {
     const weatherInfo = weatherInfoList.join("");
     return weatherInfo;
   } catch (error) {
-    functions.logger.error("Failed get the weather info", {structuredData: true});
-    throw new Error("Failed get the weather info");
+    functions.logger.error(error, {structuredData: true});
+    throw error;
   }
 };
 
@@ -114,8 +114,8 @@ const postLigeLogPage = async (lifelogInfo: LifeLogInfo, notion: Client) => {
     });
     functions.logger.info("Success! post lifelog page:" + title, {structuredData: true});
   } catch (error) {
-    functions.logger.error("Failed!  post lifelog page:" + title, {structuredData: true});
-    throw new Error("Failed!  post lifelog page:" + title);
+    functions.logger.error(error, {structuredData: true});
+    throw error;
   }
 };
 
@@ -133,7 +133,7 @@ export const addPageToLifelog = async (timeZone: string) => {
     const lifelogInfo: LifeLogInfo = {date, title, weatherInfo};
     await postLigeLogPage(lifelogInfo, notion);
   } catch (error) {
-    functions.logger.error("Failed! added lifelog", {structuredData: true});
-    throw new Error("Failed! added lifelog");
+    functions.logger.error(error, {structuredData: true});
+    throw error;
   }
 };
