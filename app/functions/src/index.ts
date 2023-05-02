@@ -13,14 +13,14 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
     }
   });
 
-const JST = "Asia/Tokyo";
+const timeZone = "Asia/Tokyo";
 exports.scheduledFunctionCrontab = functions
   .region("asia-northeast1").pubsub
   .schedule("0 6 * * *")
-  .timeZone(JST)
+  .timeZone(timeZone)
   .onRun(async () => {
     try {
-      await addPageToLifelog(JST);
+      await addPageToLifelog(timeZone);
       functions.logger.info("Succese dairy task", {structuredData: true});
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
