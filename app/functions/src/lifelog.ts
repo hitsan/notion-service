@@ -52,7 +52,8 @@ const featchWeatherInfo = async (date: string) => {
 
 const postLigeLogPage = async (date: string, weatherInfo: string,
   notion: Client, databaseId: string) => {
-  const timelineUrl = process.env.GOOGLE_MAP_TIMELINE_URL + date || "";
+  const timelineUrl = process.env.GOOGLE_MAP_TIMELINE_URL + date;
+  if(!databaseId) throw new Error("Not found GOOGLE_MAP_TIMELINE_URL");
   const title = date.replace(/-/g, "/");
   try {
     await notion.pages.create({
