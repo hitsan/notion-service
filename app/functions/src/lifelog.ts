@@ -35,8 +35,7 @@ const featchWeatherInfo = async (date: string) => {
   openewatherUrl = openewatherUrl.replace(/_DATE_/g, date);
   try {
     const responseWheather = await axios.get(openewatherUrl);
-    // const weatherItems = responseWheather.data;
-    const weatherItems = JSON.parse(JSON.stringify(responseWheather.data));
+    const weatherItems = responseWheather.data;
     const timeframes: number[] = [9, 14, 19];
 
     const weatherInfoList = timeframes.map((timeframe) => {
