@@ -1,4 +1,6 @@
 import * as functions from "firebase-functions";
+import {Client} from "@notionhq/client";
+import {formatInTimeZone} from "date-fns-tz";
 import {updateBooksInfo} from "./book-info";
 import {addPageToLifelog} from "./lifelog";
 
@@ -20,7 +22,13 @@ exports.scheduledFunctionCrontab = functions
   .timeZone(timeZone)
   .onRun(async () => {
     try {
-      await addPageToLifelog(timeZone);
+      const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID;
+      if(!databaseId) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");
+      const notionToken = process.env.NOTION_TOKEN;
+      if(!notionToken) throw new Error("Not found NOTION_TOKEN");
+      const notion = new Client({auth: notionToken});
+      const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
+      await addPageToLifelog(date, notion, databaseId);
       functions.logger.info("Succese dairy task", {structuredData: true});
     } catch (error) {
       functions.logger.error(error, {structuredData: true});

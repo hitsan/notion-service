@@ -10,3 +10,4 @@ node_modules/
 
 token.ts
 .http
+.env.local

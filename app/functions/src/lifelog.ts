@@ -1,6 +1,5 @@
 import axios from "axios";
 import {Client} from "@notionhq/client";
-import {formatInTimeZone} from "date-fns-tz";
 import * as functions from "firebase-functions";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
@@ -27,15 +26,12 @@ const weatherCodeToIcon = (weatherCode: number): string => {
 };
 
 const featchWeatherInfo = async (date: string) => {
-  let openewatherUrl = process.env.OPEN_WEATHER_URL;
-  if (!openewatherUrl) {
-    functions.logger.error("Do not find OPEN_WEATHER_URL", {structuredData: true});
-    throw new Error("Do not find OPEN_WEATHER_URL");
-  }
-  openewatherUrl = openewatherUrl.replace(/_DATE_/g, date);
+  let weatherUrl = "https://api.open-meteo.com/v1/jma?latitude=35.69&longitude=139.69&hourly=" +
+  "temperature_2m,weathercode&start_date=_DATE_&end_date=_DATE_&timezone=Asia%2FTokyo";
+  weatherUrl = weatherUrl.replace(/_DATE_/g, date);
   try {
-    const responseWheather = await axios.get(openewatherUrl);
-    const weatherItems = JSON.parse(JSON.stringify(responseWheather.data));
+    const responseWheather = await axios.get(weatherUrl);
+    const weatherItems = responseWheather.data;
     const timeframes: number[] = [9, 14, 19];
 
     const weatherInfoList = timeframes.map((timeframe) => {
@@ -54,27 +50,11 @@ const featchWeatherInfo = async (date: string) => {
   }
 };
 
-interface LifeLogInfo {
-  date: string;
-  title: string;
-  weatherInfo: string
-}
-
-const postLigeLogPage = async (lifelogInfo: LifeLogInfo, notion: Client) => {
-  const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID;
-  let timelineURL = process.env.GOOGLE_MAP_TIMELINE_URL;
-  if (!(databaseId && timelineURL)) {
-    let message = "Do not find:";
-    if (!databaseId) message += "NOTION_LIFELOG_DATABASE_ID ";
-    if (!timelineURL) message += "GOOGLE_MAP_TIMELINE_URL ";
-    functions.logger.error(message, {structuredData: true});
-    throw new Error(message);
-  }
-
-  const date = lifelogInfo.date;
-  const title = lifelogInfo.title;
-  const weatherInfo = lifelogInfo.weatherInfo;
-  timelineURL = timelineURL.replace("_DATE_", date);
+const postLigeLogPage = async (date: string, weatherInfo: string,
+  notion: Client, databaseId: string) => {
+  const timelineUrl = process.env.GOOGLE_MAP_TIMELINE_URL + date;
+  if(!databaseId) throw new Error("Not found GOOGLE_MAP_TIMELINE_URL");
+  const title = date.replace(/-/g, "/");
   try {
     await notion.pages.create({
       parent: {database_id: databaseId},
@@ -108,7 +88,7 @@ const postLigeLogPage = async (lifelogInfo: LifeLogInfo, notion: Client) => {
           ],
         },
         Timeline: {
-          url: timelineURL,
+          url: timelineUrl,
         },
       },
     });
@@ -119,19 +99,11 @@ const postLigeLogPage = async (lifelogInfo: LifeLogInfo, notion: Client) => {
   }
 };
 
-export const addPageToLifelog = async (timeZone: string) => {
-  const notionToken = process.env.NOTION_TOKEN;
-  if (!notionToken) {
-    functions.logger.error("Do not find NOTION_TOKEN", {structuredData: true});
-    throw new Error("Do not find NOTION_TOKEN");
-  }
-  const notion = new Client({auth: notionToken});
-  const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
-  const title = formatInTimeZone(new Date(), timeZone, "yyyy/MM/dd");
+export const addPageToLifelog = async (date: string, notion: Client, databaseId: string) => {
   try {
     const weatherInfo = await featchWeatherInfo(date);
-    const lifelogInfo: LifeLogInfo = {date, title, weatherInfo};
-    await postLigeLogPage(lifelogInfo, notion);
+    await postLigeLogPage(date, weatherInfo, notion, databaseId);
+    return true;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
