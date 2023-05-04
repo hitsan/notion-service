@@ -10,4 +10,4 @@ node_modules/
 
 token.ts
 .http
-.env*
+.env.local
