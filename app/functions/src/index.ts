@@ -1,4 +1,6 @@
 import * as functions from "firebase-functions";
+import {Client} from "@notionhq/client";
+import {formatInTimeZone} from "date-fns-tz";
 import {updateBooksInfo} from "./book-info";
 import {addPageToLifelog} from "./lifelog";
 
@@ -13,17 +15,6 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
     }
   });
 
-  export const notionDairy = functions.region("asia-northeast1").https.onRequest(
-    async (request, response) => {
-      try {
-        await addPageToLifelog(timeZone);
-        response.send("Succese update book list");
-      } catch (error) {
-        functions.logger.error(error, {structuredData: true});
-        response.send("Failed update book list");
-      }
-    });
-
 const timeZone = "Asia/Tokyo";
 exports.scheduledFunctionCrontab = functions
   .region("asia-northeast1").pubsub
@@ -31,7 +22,11 @@ exports.scheduledFunctionCrontab = functions
   .timeZone(timeZone)
   .onRun(async () => {
     try {
-      await addPageToLifelog(timeZone);
+      const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID || "";
+      const notionToken = process.env.NOTION_TOKEN || "";
+      const notion = new Client({auth: notionToken});
+      const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
+      await addPageToLifelog(date, notion, databaseId);
       functions.logger.info("Succese dairy task", {structuredData: true});
     } catch (error) {
       functions.logger.error(error, {structuredData: true});

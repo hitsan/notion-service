@@ -1,4 +1,5 @@
 import {addPageToLifelog} from "../../src/lifelog";
+import {Client} from "@notionhq/client";
 import axios from "axios";
 
 jest.mock("axios");
@@ -127,10 +128,14 @@ describe("Adding Life Log Test", () => {
     }
   };
 
-  (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(mockedData);
+  const date: string = "2023-05-03"
+  const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID || "";
+  const notionToken = process.env.NOTION_TOKEN || "";
+  const notion = new Client({auth: notionToken});
 
   test("Get weather info", async () => {
-    const result = await addPageToLifelog("Asia/Tokyo");
-    expect(result).toBeDefined();
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(mockedData);
+    const result = await addPageToLifelog(date, notion, databaseId);
+    expect(result).toBeTruthy();
   });
 });

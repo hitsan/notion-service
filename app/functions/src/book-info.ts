@@ -155,7 +155,7 @@ export const updateBooksInfo = async () => {
       async (book: LackedInfoBook) => {
         const info = await featchBookInfo(book);
         updateBookInfo(notion, info);
-      }
+      },
     ));
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
