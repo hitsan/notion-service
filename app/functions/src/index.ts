@@ -23,9 +23,9 @@ exports.scheduledFunctionCrontab = functions
   .onRun(async () => {
     try {
       const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID;
-      if(!databaseId) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");
+      if (!databaseId) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");
       const notionToken = process.env.NOTION_TOKEN;
-      if(!notionToken) throw new Error("Not found NOTION_TOKEN");
+      if (!notionToken) throw new Error("Not found NOTION_TOKEN");
       const notion = new Client({auth: notionToken});
       const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
       await addPageToLifelog(date, notion, databaseId);
