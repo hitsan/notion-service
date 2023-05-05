@@ -15,12 +15,7 @@ interface BookInfo {
   publishedDate: string;
 }
 
-const featchLackedInfoBook = async (notion: Client): Promise<LackedInfoBook[]> => {
-  const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID;
-  if (!watchListDBId) {
-    functions.logger.error("Do not find:NOTION_WATCHLIST_DATABASE_ID", {structuredData: true});
-    throw new Error("Do not find:NOTION_WATCHLIST_DATABASE_ID");
-  }
+const featchLackedInfoBook = async (notion: Client, watchListDBId: string): Promise<LackedInfoBook[]> => {
   try {
     const response = await notion.databases.query({
       database_id: watchListDBId,
@@ -58,8 +53,7 @@ const featchLackedInfoBook = async (notion: Client): Promise<LackedInfoBook[]> =
       },
     });
     const bookList = response.results.map((result) => {
-      if (!("properties" in result) ||
-        !("title" in result.properties.Title)) {
+      if (!("properties" in result && "title" in result.properties.Title)) {
         throw new Error("Ilegal data");
       }
       const title = result.properties.Title.title[0].plain_text;
@@ -142,21 +136,16 @@ const updateBookInfo = async (notion: Client, bookInfo: BookInfo) => {
   }
 };
 
-export const updateBooksInfo = async () => {
-  const notionToken = process.env.NOTION_TOKEN;
-  if (!notionToken) {
-    functions.logger.error("Do not find NOTION_TOKEN", {structuredData: true});
-    throw new Error("Do not find NOTION_TOKEN");
-  }
-  const notion = new Client({auth: notionToken});
+export const updateBooksInfo = async (notion: Client, watchListDBId: string) => {
   try {
-    const lackedBooks = await featchLackedInfoBook(notion);
+    const lackedBooks = await featchLackedInfoBook(notion, watchListDBId);
     await Promise.all(lackedBooks.map(
       async (book: LackedInfoBook) => {
         const info = await featchBookInfo(book);
         updateBookInfo(notion, info);
       },
     ));
+    return true;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
