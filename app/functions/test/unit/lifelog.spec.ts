@@ -136,6 +136,6 @@ describe("Adding Life Log Test", () => {
   test("Get weather info", async () => {
     (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(mockedData);
     const result = await addPageToLifelog(date, notion, databaseId);
-    expect(result).toBeFalsy();
+    expect(result).toBeTruthy();
   });
 });
