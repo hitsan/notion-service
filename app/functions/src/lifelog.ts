@@ -32,18 +32,21 @@ const featchWeatherInfo = async (date: string) => {
   try {
     const responseWheather = await axios.get(weatherUrl);
     const weatherItems = responseWheather.data;
-    const timeframes: number[] = [9, 14, 19];
 
-    const weatherInfoList = timeframes.map((timeframe) => {
-      const weatherCode = Number(weatherItems.hourly.weathercode[timeframe]);
-      const weatherIcon = weatherCodeToIcon(weatherCode);
-      const temp = weatherItems.hourly.temperature_2m[timeframe];
-      const roundTemp = Math.floor(temp);
-      return `${weatherIcon}${roundTemp}℃`;
-    });
+    const getActiveTimeData = (timeframes: number[]) => {
+      const startActiveTime = 9;
+      const endActiveTime = 22;
+      return timeframes.slice(startActiveTime, endActiveTime);
+    };
+    const weatherCodes = getActiveTimeData(weatherItems.hourly.weathercode);
+    const weatherIcon = weatherCodeToIcon(Math.max(...weatherCodes));
 
-    const weatherInfo = weatherInfoList.join("");
-    return weatherInfo;
+    const temperatureData = getActiveTimeData(weatherItems.hourly.temperature_2m);
+    const minTemperature = Math.min(...temperatureData);
+    const roundMinTemperature = Math.round(minTemperature);
+    const maxTemperature = Math.max(...temperatureData);
+    const roundMaxTemperature = Math.round(maxTemperature);
+    return `${weatherIcon}${roundMinTemperature}/${roundMaxTemperature}℃`;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
