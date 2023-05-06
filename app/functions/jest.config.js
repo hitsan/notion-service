@@ -3,5 +3,5 @@ module.exports = {
   testEnvironment: "node",
   moduleFileExtensions: ["ts", "js"],
   testMatch: ["**/*.spec.ts"],
-  setupFiles: ["dotenv/config"],
+  setupFiles: ["./test/setup-tests.ts"],
 };
