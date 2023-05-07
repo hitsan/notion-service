@@ -41,12 +41,13 @@ const featchWeatherInfo = async (date: string) => {
     const weatherCodes = getActiveTimeData(weatherItems.hourly.weathercode);
     const weatherIcon = weatherCodeToIcon(Math.max(...weatherCodes));
 
-    const temperatureData = getActiveTimeData(weatherItems.hourly.temperature_2m);
-    const minTemperature = Math.min(...temperatureData);
-    const roundMinTemperature = Math.round(minTemperature);
-    const maxTemperature = Math.max(...temperatureData);
-    const roundMaxTemperature = Math.round(maxTemperature);
-    return `${weatherIcon}${roundMinTemperature}/${roundMaxTemperature}℃`;
+    const noonTime = 13;
+    const eveningTime = 19;
+    const noonTemperature = weatherItems.hourly.temperature_2m[noonTime];
+    const roundNoonTemperature = Math.round(noonTemperature);
+    const eveningTemperature = weatherItems.hourly.temperature_2m[eveningTime];
+    const roundEveningTemperature = Math.round(eveningTemperature);
+    return `${weatherIcon}${roundNoonTemperature}-${roundEveningTemperature}℃`;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
