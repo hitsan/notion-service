@@ -33,21 +33,15 @@ const featchWeatherInfo = async (date: string) => {
     const responseWheather = await axios.get(weatherUrl);
     const weatherItems = responseWheather.data;
 
-    const getActiveTimeData = (timeframes: number[]) => {
-      const startActiveTime = 9;
-      const endActiveTime = 22;
-      return timeframes.slice(startActiveTime, endActiveTime);
-    };
-    const weatherCodes = getActiveTimeData(weatherItems.hourly.weathercode);
-    const weatherIcon = weatherCodeToIcon(Math.max(...weatherCodes));
-
     const noonTime = 13;
     const eveningTime = 19;
-    const noonTemperature = weatherItems.hourly.temperature_2m[noonTime];
-    const roundNoonTemperature = Math.round(noonTemperature);
-    const eveningTemperature = weatherItems.hourly.temperature_2m[eveningTime];
-    const roundEveningTemperature = Math.round(eveningTemperature);
-    return `${weatherIcon}${roundNoonTemperature}-${roundEveningTemperature}℃`;
+
+    const hourlyInfo = weatherItems.hourly;
+    const weatherNoonIcon = weatherCodeToIcon(hourlyInfo.weathercode[noonTime]);
+    const weatherEveningIcon = weatherCodeToIcon(hourlyInfo.weathercode[eveningTime]);
+    const roundNoonTemperature = Math.round(hourlyInfo.temperature_2m[noonTime]);
+    const roundEveningTemperature = Math.round(hourlyInfo.temperature_2m[eveningTime]);
+    return `${weatherNoonIcon}${roundNoonTemperature}${weatherEveningIcon}${roundEveningTemperature}`;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
