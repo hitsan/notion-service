@@ -1,16 +1,38 @@
-import {featchShishaPlaceId} from "../../src/restraunt";
+import {featchShishaPlaceId, featchShishaInfo, featchJpg, postShishaShopInfo} from "../../src/restraunt";
 // import {Client} from "@notionhq/client";
 // import axios from "axios";
 
 // jest.mock("axios");
-describe("Adding shisha Test", () => {
-  // const databaseId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
-  // const notionToken = process.env.NOTION_TOKEN || "";
-  // const notion = new Client({auth: notionToken});
+describe("Get shisha shop Info Test", () => {
+  test("Get shisha shop place id", async () => {
+    const shopName = "stay loose";
+    const result = await featchShishaPlaceId(shopName);
+    expect(result).toEqual("ChIJDb_3-H31GGARNYG5HNCnWEY");
+  });
 
-  test("Get shisha info", async () => {
-    // (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(mockedData);
-    const result = await featchShishaPlaceId();
+  test("Get shisha shop info", async () => {
+    const placeId = "ChIJDb_3-H31GGARNYG5HNCnWEY";
+
+    const result = await featchShishaInfo(placeId);
+    const website = result.website;
+    const googleMapUrl = result.googleMapUrl;
+    expect(website).toEqual("https://www.instagram.com/stayloose_shisha/");
+    expect(googleMapUrl).toEqual("https://maps.google.com/?cid=5068985892882448693");
+    // TODO image test
+  });
+
+  test("Get map jpg", async () => {
+    const apikey = process.env.GOOGLE_MAP_APIKEY || "";
+    const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=AZose0nZ6wocP4Dw512uPu2DpOjmx8hpUUmccvtGSJa6KmrySwctMxN5Pi9r1bPJIiX2JCAPE5-9rMsbuDVxeIH-w2r_ctS30xY75mFuLtZFK3JxqS-mzHHHwKHiY6iIu8KPsnkXiWmYYFV_ped1yBnGL7289EMr3mJpJ81tmmw2vcFFGFpD&key=${apikey}`;
+
+    const result = await featchJpg(url);
+    expect(result).toBeTruthy();
+  });
+});
+
+describe("Add shisha shop Info Test", () => {
+  test("post shisha shop info", () => {
+    const result = postShishaShopInfo();
     expect(result).toBeTruthy();
   });
 });
