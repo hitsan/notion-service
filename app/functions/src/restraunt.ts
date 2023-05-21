@@ -1,7 +1,8 @@
 import * as functions from "firebase-functions";
 import {initializeApp} from "firebase/app";
-import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
+import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
+import {Client} from "@notionhq/client";
 
 export const featchShishaPlaceId = async (shopName: string) => {
   const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
@@ -19,7 +20,7 @@ export const featchShishaPlaceId = async (shopName: string) => {
 };
 
 export interface ShopInfo {
-  website: string,
+  website?: string,
   sns?: string,
   googleMapUrl: string,
   image: string
@@ -31,8 +32,6 @@ export const featchShishaInfo = async (placeId: string): Promise<ShopInfo> => {
   if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
   const googlePlaceIdInfoUrl = `${googleMapUrl}place_id=${placeId}&key=${googleMapApiKey}`
 
-  // website,sns,googlemap,image
-  // TODO station
   try {
     const response = await axios.get(googlePlaceIdInfoUrl);
     const result = response.data.result;
@@ -52,7 +51,7 @@ export const featchJpg = async (url: string): Promise<ArrayBuffer> => {
   return response.data;
 };
 
-export const upLoadImage = async () => {
+export const upLoadImage = async (filePath:string, imageArray: ArrayBuffer): Promise<string> => {
   const storageBucket = process.env.FIRESTORAGE_BUCKET;
   const firebaseConfig = {
     storageBucket: storageBucket
@@ -60,51 +59,50 @@ export const upLoadImage = async () => {
 
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app);
-  const imageRef = ref(storage, 'images/map.jpg');
-
-  const apikey = process.env.GOOGLE_MAP_APIKEY || "";
-  const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=AZose0nZ6wocP4Dw512uPu2DpOjmx8hpUUmccvtGSJa6KmrySwctMxN5Pi9r1bPJIiX2JCAPE5-9rMsbuDVxeIH-w2r_ctS30xY75mFuLtZFK3JxqS-mzHHHwKHiY6iIu8KPsnkXiWmYYFV_ped1yBnGL7289EMr3mJpJ81tmmw2vcFFGFpD&key=${apikey}`;
+  const imageRef = ref(storage, filePath);
 
   try {
-    const file = await featchJpg(url);
-    const response = await uploadBytes(imageRef, file)
+    const response = await uploadBytes(imageRef, imageArray)
     const firestrageUrl = response.ref.toString();
     const refarense = ref(storage, firestrageUrl);
     const downloadUrl = await getDownloadURL(refarense);
     functions.logger.info(downloadUrl, {structuredData: true});
+    return downloadUrl;
   } catch (error) {
     functions.logger.error("Failed upload image", {structuredData: true});
     throw error;
   }
+};
+
+export interface PostShopInfo {
+  
+}
+
+export const postShishaShopInfo = async () => {
+  const notionToken = process.env.NOTION_TOKEN;
+  if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+  const notion = new Client({auth: notionToken});
+
+  const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
+  if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+
+  const pageId = ""; // add page id
+  const image ="./map.jpg";
+  notion.pages.update({
+    page_id: pageId,
+    properties: {
+      Image: {
+        files: [
+          {
+            name: image,
+            external: {
+              url: image
+            },
+          },
+        ],
+      },
+    },
+  });
 
   return true;
 };
-
-// export const postShishaShopInfo = async () => {
-//   const notionToken = process.env.NOTION_TOKEN;
-//   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-//   const notion = new Client({auth: notionToken});
-
-//   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
-//   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
-
-//   const pageId = ""; // add page id
-//   const image ="./map.jpg";
-//   notion.pages.update({
-//     page_id: pageId,
-//     properties: {
-//       Image: {
-//         files: [
-//           {
-//             name: image,
-//             external: {
-//               url: image
-//             },
-//           },
-//         ],
-//       },
-//     },
-//   });
-
-//   return true;
-// };

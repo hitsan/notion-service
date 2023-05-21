@@ -1,7 +1,4 @@
-// import {featchShishaPlaceId, featchShishaInfo, featchJpg, postShishaShopInfo, upLoadImage} from "../../src/restraunt";
-import {featchShishaPlaceId, featchShishaInfo, upLoadImage} from "../../src/restraunt";
-// import {Client} from "@notionhq/client";
-// import axios from "axios";
+import {featchShishaPlaceId, featchShishaInfo, upLoadImage, postShishaShopInfo} from "../../src/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
@@ -27,20 +24,22 @@ describe("Get shisha shop Info Test", () => {
   //   const url = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=AZose0nZ6wocP4Dw512uPu2DpOjmx8hpUUmccvtGSJa6KmrySwctMxN5Pi9r1bPJIiX2JCAPE5-9rMsbuDVxeIH-w2r_ctS30xY75mFuLtZFK3JxqS-mzHHHwKHiY6iIu8KPsnkXiWmYYFV_ped1yBnGL7289EMr3mJpJ81tmmw2vcFFGFpD&key=${apikey}`;
 
   //   const result = await featchJpg(url);
-  //   expect(result).toBeTruthy();
+  //   expect(result).to
   // });
 });
 
 describe("Upload Image", () => {
   test("post jpg image", async () => {
-    const result = await upLoadImage();
-    expect(result).toBeTruthy();
+    const testFilePath = "test/images/test.jpg";
+    const testImageArrayBuffer = Uint8Array.of(100,200,300,400);;
+    const result = await upLoadImage(testFilePath, testImageArrayBuffer);
+    expect(result).toContain("https");
   });
 });
 
-// describe("Add shisha shop Info Test", () => {
-//   test("post shisha shop info", () => {
-//     const result = postShishaShopInfo();
-//     expect(result).toBeTruthy();
-//   });
-// });
+describe("Add shisha shop Info Test", () => {
+  test("post shisha shop info", () => {
+    const result = postShishaShopInfo();
+    expect(result).toBeTruthy();
+  });
+});
