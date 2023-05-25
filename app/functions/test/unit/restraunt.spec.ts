@@ -1,4 +1,4 @@
-import {featchShishaPlaceId, featchShishaInfo, upLoadImage, featchLackedShopList} from "../../src/restraunt";
+import {featchShishaPlaceId, featchShishaInfo, upLoadImage, featchLackedShopList, postShishaShopInfo} from "../../src/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
@@ -55,10 +55,10 @@ describe("Featch shop info", () => {
   });
 });
 
-// describe("Add shisha shop Info Test", () => {
-//   test("post shisha shop info", () => {
-//     const result = postShishaShopInfo();
-//     expect(result).toBeTruthy();
-//   });
-// });
+describe("Add shisha shop Info Test", () => {
+  test("post shisha shop info", () => {
+    const result = postShishaShopInfo();
+    expect(result).toBeTruthy();
+  });
+});
 

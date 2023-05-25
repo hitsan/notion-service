@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import {initializeApp} from "firebase/app";
 import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
-// import {Client} from "@notionhq/client";
+import {Client} from "@notionhq/client";
 
 export const featchShishaPlaceId = async (shopName: string) => {
   const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
@@ -84,36 +84,69 @@ interface LackedShop {
 }
 
 export const featchLackedShopList = async ():Promise<LackedShop[]> => {
-  const id = process.env.SHISHA_KANNOK || "";
-  const name = "kannok";
-  return [{id, name}];
-}
+  try {
+    const notionToken = process.env.NOTION_TOKEN;
+    if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+    const notion = new Client({auth: notionToken});
+    const shopListId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
+    const response = await notion.databases.query({
+      database_id: shopListId,
+      filter: {
+        and: [
+          {
+            property: "Category",
+            select: {
+              equals: "Shisha",
+            },
+          },
+          {
+            property: "GoogleMap",
+            url: {
+              is_empty: true,
+            },
+          },
+        ],
+      },
+    });
+    const shopList = response.results.map((result) => {
+      if (!("properties" in result && "title" in result.properties.Name)) {
+        throw new Error("Ilegal data");
+      }
+      const name = result.properties.Name.title[0].plain_text;
+      return {id: result.id, name: name};
+    });
+    return shopList;
+  } catch (error) {
+    functions.logger.error(error, {structuredData: true});
+    throw error;
+  }
+};
 
-// export const postShishaShopInfo = async () => {
-//   const notionToken = process.env.NOTION_TOKEN;
-//   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-//   const notion = new Client({auth: notionToken});
+export const postShishaShopInfo = async () => {
+  const notionToken = process.env.NOTION_TOKEN;
+  if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+  const notion = new Client({auth: notionToken});
 
-//   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
-//   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+  const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
+  if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
-//   const pageId = ""; // add page id
-//   const image ="./map.jpg";
-//   notion.pages.update({
-//     page_id: pageId,
-//     properties: {
-//       Image: {
-//         files: [
-//           {
-//             name: image,
-//             external: {
-//               url: image
-//             },
-//           },
-//         ],
-//       },
-//     },
-//   });
+  const pageId = process.env.SHISHA_KANNOK || ""; // add page id
+  const image ="./map.jpg";
+  notion.pages.update({
+    page_id: pageId,
+    properties: {
+      Image: {
+        files: [
+          {
+            name: image,
+            external: {
+              url: image
+            },
+          },
+        ],
+      },
+    },
+  });
 
-//   return true;
-// };
+  return true;
+};
