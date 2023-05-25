@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import {initializeApp} from "firebase/app";
 import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
-import {Client} from "@notionhq/client";
+// import {Client} from "@notionhq/client";
 
 export const featchShishaPlaceId = async (shopName: string) => {
   const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
@@ -78,31 +78,42 @@ export interface PostShopInfo {
   
 }
 
-export const postShishaShopInfo = async () => {
-  const notionToken = process.env.NOTION_TOKEN;
-  if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-  const notion = new Client({auth: notionToken});
+interface LackedShop {
+  id: string,
+  name: string,
+}
 
-  const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
-  if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+export const featchLackedShopList = async ():Promise<LackedShop[]> => {
+  const id = process.env.SHISHA_KANNOK || "";
+  const name = "kannok";
+  return [{id, name}];
+}
 
-  const pageId = ""; // add page id
-  const image ="./map.jpg";
-  notion.pages.update({
-    page_id: pageId,
-    properties: {
-      Image: {
-        files: [
-          {
-            name: image,
-            external: {
-              url: image
-            },
-          },
-        ],
-      },
-    },
-  });
+// export const postShishaShopInfo = async () => {
+//   const notionToken = process.env.NOTION_TOKEN;
+//   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+//   const notion = new Client({auth: notionToken});
 
-  return true;
-};
+//   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
+//   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+
+//   const pageId = ""; // add page id
+//   const image ="./map.jpg";
+//   notion.pages.update({
+//     page_id: pageId,
+//     properties: {
+//       Image: {
+//         files: [
+//           {
+//             name: image,
+//             external: {
+//               url: image
+//             },
+//           },
+//         ],
+//       },
+//     },
+//   });
+
+//   return true;
+// };

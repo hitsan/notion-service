@@ -1,4 +1,4 @@
-import {featchShishaPlaceId, featchShishaInfo, upLoadImage, postShishaShopInfo} from "../../src/restraunt";
+import {featchShishaPlaceId, featchShishaInfo, upLoadImage, featchLackedShopList} from "../../src/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
@@ -37,9 +37,28 @@ describe("Upload Image", () => {
   });
 });
 
-describe("Add shisha shop Info Test", () => {
-  test("post shisha shop info", () => {
-    const result = postShishaShopInfo();
-    expect(result).toBeTruthy();
+describe("Featch shop info", () => {
+  test("Featch shop info", async () => {
+    const shopList = await featchLackedShopList();
+    shopList.forEach(shop => {
+      switch(shop.name) {
+        case "kannok":
+          expect(shop.id).toEqual(process.env.SHISHA_KANNOK);
+          return;
+        case "stay loose":
+          expect(shop.id).toEqual(process.env.SHISHA_STAY);
+          return;
+        default:
+          throw new Error("not found");
+      }
+    });
   });
 });
+
+// describe("Add shisha shop Info Test", () => {
+//   test("post shisha shop info", () => {
+//     const result = postShishaShopInfo();
+//     expect(result).toBeTruthy();
+//   });
+// });
+
