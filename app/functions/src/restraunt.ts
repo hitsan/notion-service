@@ -1,10 +1,10 @@
 import * as functions from "firebase-functions";
-import {Client} from "@notionhq/client";
+import {initializeApp} from "firebase/app";
+import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
-import * as fs from 'fs'
-import {Buffer} from "buffer";
+import {Client} from "@notionhq/client";
 
-export const featchShishaPlaceId = async (shopName: string) => {
+export const featchShishaPlaceId = async (shopName: string):Promise<string> => {
   const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
   const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
@@ -20,7 +20,7 @@ export const featchShishaPlaceId = async (shopName: string) => {
 };
 
 export interface ShopInfo {
-  website: string,
+  website?: string,
   sns?: string,
   googleMapUrl: string,
   image: string
@@ -32,8 +32,6 @@ export const featchShishaInfo = async (placeId: string): Promise<ShopInfo> => {
   if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
   const googlePlaceIdInfoUrl = `${googleMapUrl}place_id=${placeId}&key=${googleMapApiKey}`
 
-  // website,sns,googlemap,image
-  // TODO station
   try {
     const response = await axios.get(googlePlaceIdInfoUrl);
     const result = response.data.result;
@@ -48,13 +46,83 @@ export const featchShishaInfo = async (placeId: string): Promise<ShopInfo> => {
   }
 };
 
-export const featchJpg = async (url: string) => {
+export const featchJpg = async (url: string): Promise<ArrayBuffer> => {
   const response = await axios.get(url, {responseType: 'arraybuffer'});
-  fs.writeFileSync(`./map.jpg`, Buffer.from(response.data), 'binary');
-  return true;
+  return response.data;
 };
 
-export const postShishaShopInfo = async () => {
+export const upLoadImage = async (filePath:string, imageArray: ArrayBuffer): Promise<string> => {
+  const storageBucket = process.env.FIRESTORAGE_BUCKET;
+  const firebaseConfig = {
+    storageBucket: storageBucket
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const storage = getStorage(app);
+  const imageRef = ref(storage, filePath);
+
+  try {
+    const response = await uploadBytes(imageRef, imageArray)
+    const firestrageUrl = response.ref.toString();
+    const refarense = ref(storage, firestrageUrl);
+    const downloadUrl = await getDownloadURL(refarense);
+    functions.logger.info(downloadUrl, {structuredData: true});
+    return downloadUrl;
+  } catch (error) {
+    functions.logger.error("Failed upload image", {structuredData: true});
+    throw error;
+  }
+};
+
+export interface PostShopInfo {
+  
+}
+
+interface LackedShop {
+  id: string,
+  name: string,
+}
+
+export const featchLackedShopList = async ():Promise<LackedShop[]> => {
+  try {
+    const notionToken = process.env.NOTION_TOKEN;
+    if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+    const notion = new Client({auth: notionToken});
+    const shopListId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
+    const response = await notion.databases.query({
+      database_id: shopListId,
+      filter: {
+        and: [
+          {
+            property: "Category",
+            select: {
+              equals: "Shisha",
+            },
+          },
+          {
+            property: "GoogleMap",
+            url: {
+              is_empty: true,
+            },
+          },
+        ],
+      },
+    });
+    const shopList = response.results.map((result) => {
+      if (!("properties" in result && "title" in result.properties.Name)) {
+        throw new Error("Ilegal data");
+      }
+      const name = result.properties.Name.title[0].plain_text;
+      return {id: result.id, name: name};
+    });
+    return shopList;
+  } catch (error) {
+    functions.logger.error(error, {structuredData: true});
+    throw error;
+  }
+};
+
+export const postShishaShopInfo = async (pageId: string, image: string) => {
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
   const notion = new Client({auth: notionToken});
@@ -62,23 +130,48 @@ export const postShishaShopInfo = async () => {
   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
-  const pageId = ""; // add page id
-  const image ="./map.jpg";
-  notion.pages.update({
-    page_id: pageId,
-    properties: {
-      Image: {
-        files: [
-          {
-            name: image,
-            external: {
-              url: image
+  // const pageId = process.env.SHISHA_KANNOK || ""; // add page id
+  // const image ="./map.jpg";
+  try {
+    const response = await notion.pages.update({
+      page_id: pageId,
+      properties: {
+        Image: {
+          files: [
+            {
+              name: image,
+              external: {
+                url: image,
+              },
             },
-          },
-        ],
+          ],
+        },
       },
-    },
-  });
+    });
+    functions.logger.info(response, {structuredData: true});
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};
 
-  return true;
-}
+export const updateShishaShopInfo = async () => {
+  try {
+    const shopList = await featchLackedShopList();
+    await shopList.map(async (shop) => {
+      const placeId = await featchShishaPlaceId(shop.name);
+      const shopInfo = await featchShishaInfo(placeId);
+      const imageRef = shopInfo.image;
+      const apikey = process.env.GOOGLE_MAP_APIKEY || "";
+      const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${imageRef}&key=${apikey}`;
+      functions.logger.info(imageUrl, {structuredData: true});
+      const imageArray = await featchJpg(imageUrl);
+      const path = `test/images/${shop.name}.jpg`;
+      const downloadUrl = await upLoadImage(path, imageArray);
+      await postShishaShopInfo(shop.id, downloadUrl);
+    });
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};
