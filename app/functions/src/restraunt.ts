@@ -130,8 +130,6 @@ export const postShishaShopInfo = async (pageId: string, image: string) => {
   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
-  // const pageId = process.env.SHISHA_KANNOK || ""; // add page id
-  // const image ="./map.jpg";
   try {
     const response = await notion.pages.update({
       page_id: pageId,
