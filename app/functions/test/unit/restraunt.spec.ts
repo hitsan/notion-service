@@ -1,4 +1,4 @@
-import {featchShishaPlaceId, featchShishaInfo, upLoadImage, featchLackedShopList, postShishaShopInfo} from "../../src/restraunt";
+import {featchShishaPlaceId, featchShishaInfo, featchLackedShopList, updateShishaShopInfo} from "../../src/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
@@ -28,14 +28,14 @@ describe("Get shisha shop Info Test", () => {
   // });
 });
 
-describe("Upload Image", () => {
-  test("post jpg image", async () => {
-    const testFilePath = "test/images/test.jpg";
-    const testImageArrayBuffer = Uint8Array.of(100,200,300,400);;
-    const result = await upLoadImage(testFilePath, testImageArrayBuffer);
-    expect(result).toContain("https");
-  });
-});
+// describe("Upload Image", () => {
+//   test("post jpg image", async () => {
+//     const testFilePath = "test/images/test.jpg";
+//     const testImageArrayBuffer = Uint8Array.of(100,200,300,400);;
+//     const result = await upLoadImage(testFilePath, testImageArrayBuffer);
+//     expect(result).toContain("https");
+//   });
+// });
 
 describe("Featch shop info", () => {
   test("Featch shop info", async () => {
@@ -55,10 +55,16 @@ describe("Featch shop info", () => {
   });
 });
 
-describe("Add shisha shop Info Test", () => {
-  test("post shisha shop info", () => {
-    const result = postShishaShopInfo();
+// describe("Add shisha shop Info Test", () => {
+//   test("post shisha shop info", () => {
+//     const result = postShishaShopInfo();
+//     expect(result).toBeTruthy();
+//   });
+// });
+
+describe("Update shisha shop Info test", () => {
+  test("Update shisha shop info", async () => {
+    const result = await updateShishaShopInfo();
     expect(result).toBeTruthy();
   });
 });
-
