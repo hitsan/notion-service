@@ -4,7 +4,7 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
 import {Client} from "@notionhq/client";
 
-export const featchShishaPlaceId = async (shopName: string):Promise<string> => {
+export const featcPlaceId = async (shopName: string):Promise<string> => {
   const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
   const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
@@ -26,7 +26,7 @@ export interface ShopInfo {
   image: string
 }
 
-export const featchShishaInfo = async (placeId: string): Promise<ShopInfo> => {
+export const featchShopInfo = async (placeId: string): Promise<ShopInfo> => {
   const googleMapUrl = "https://maps.googleapis.com/maps/api/place/details/json?";
   const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
@@ -108,7 +108,7 @@ export const featchLackedShopList = async ():Promise<LackedShop[]> => {
   }
 };
 
-export const postShishaShopInfo = async (pageId: string, mapUrl: string, shopUrl: string, image: string) => {
+export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: string, image: string) => {
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
   const notion = new Client({auth: notionToken});
@@ -146,12 +146,12 @@ export const postShishaShopInfo = async (pageId: string, mapUrl: string, shopUrl
   }
 };
 
-export const updateShishaShopInfo = async () => {
+export const updateShopInfo = async () => {
   try {
     const shopList = await featchLackedShopList();
     await shopList.map(async (shop) => {
-      const placeId = await featchShishaPlaceId(shop.name);
-      const shopInfo = await featchShishaInfo(placeId);
+      const placeId = await featcPlaceId(shop.name);
+      const shopInfo = await featchShopInfo(placeId);
 
       const imageRef = shopInfo.image;
       const apikey = process.env.GOOGLE_MAP_APIKEY || "";
@@ -162,7 +162,7 @@ export const updateShishaShopInfo = async () => {
       const downloadUrl = await upLoadImage(path, imageArray);
 
       const shopUrl = shopInfo.website || "";
-      await postShishaShopInfo(shop.id, shopInfo.googleMapUrl, shopUrl, downloadUrl);
+      await postShopInfo(shop.id, shopInfo.googleMapUrl, shopUrl, downloadUrl);
     });
     return true;
   } catch (error) {
