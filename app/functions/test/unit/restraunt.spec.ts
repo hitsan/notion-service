@@ -1,10 +1,12 @@
-import {featcPlaceId, featchShopInfo, featchLackedShopList, updateShopInfo} from "../../src/restraunt";
+import {featcPlaceIdFromGoogleMap, featchShopInfo, featchLackedShopList, updateShopInfo} from "../../src/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
   test("Get shisha shop place id", async () => {
     const shopName = "stay loose";
-    const result = await featcPlaceId(shopName);
+    const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
+    const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY || "";
+    const result = await featcPlaceIdFromGoogleMap(shopName, googleMapSearchUrl, googleMapApiKey);
     expect(result).toEqual("ChIJDb_3-H31GGARNYG5HNCnWEY");
   });
 

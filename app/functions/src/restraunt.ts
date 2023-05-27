@@ -4,11 +4,8 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
 import {Client} from "@notionhq/client";
 
-export const featcPlaceId = async (shopName: string):Promise<string> => {
-  const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
-  const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY;
-  if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
-  const requestUrl = `${googleMapSearchUrl}query=${shopName}&key=${googleMapApiKey}`;
+export const featcPlaceIdFromGoogleMap = async (shopName: string, mapSerchUrl: string, apiKey: string):Promise<string> => {
+  const requestUrl = `${mapSerchUrl}query=${shopName}&key=${apiKey}`;
   try {
     const response = await axios.get(requestUrl);
     const placeId = response.data.results[0].place_id;
@@ -150,7 +147,11 @@ export const updateShopInfo = async () => {
   try {
     const shopList = await featchLackedShopList();
     await shopList.map(async (shop) => {
-      const placeId = await featcPlaceId(shop.name);
+      const mapSerchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
+      const apiKey = process.env.GOOGLE_MAP_APIKEY;
+      if (!apiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
+
+      const placeId = await featcPlaceIdFromGoogleMap(shop.name, mapSerchUrl, apiKey);
       const shopInfo = await featchShopInfo(placeId);
 
       const imageRef = shopInfo.image;
