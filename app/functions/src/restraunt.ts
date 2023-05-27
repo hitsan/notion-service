@@ -74,10 +74,6 @@ export const upLoadImage = async (filePath:string, imageArray: ArrayBuffer): Pro
   }
 };
 
-export interface PostShopInfo {
-  
-}
-
 interface LackedShop {
   id: string,
   name: string,
@@ -112,7 +108,7 @@ export const featchLackedShopList = async ():Promise<LackedShop[]> => {
   }
 };
 
-export const postShishaShopInfo = async (pageId: string, image: string) => {
+export const postShishaShopInfo = async (pageId: string, mapUrl: string, shopUrl: string, image: string) => {
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
   const notion = new Client({auth: notionToken});
@@ -120,6 +116,7 @@ export const postShishaShopInfo = async (pageId: string, image: string) => {
   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
+  const imageUrl = (image.length > 100) ? "https://aaaa.jpg" : image; 
   try {
     const response = await notion.pages.update({
       page_id: pageId,
@@ -127,17 +124,23 @@ export const postShishaShopInfo = async (pageId: string, image: string) => {
         Image: {
           files: [
             {
-              name: image,
+              name: imageUrl,
               external: {
-                url: image,
+                url: imageUrl,
               },
             },
           ],
         },
+        GoogleMap: {
+          url: mapUrl,
+        },
+        URL: {
+          url: shopUrl,
+        },
       },
     });
     functions.logger.info(response, {structuredData: true});
-    return true;
+    return (response.id) === "sss";
   } catch (error) {
     throw error;
   }
@@ -158,7 +161,8 @@ export const updateShishaShopInfo = async () => {
       const path = `test/images/${shop.name}.jpg`;
       const downloadUrl = await upLoadImage(path, imageArray);
 
-      await postShishaShopInfo(shop.id, downloadUrl);
+      const shopUrl = shopInfo.website || "";
+      await postShishaShopInfo(shop.id, shopInfo.googleMapUrl, shopUrl, downloadUrl);
     });
     return true;
   } catch (error) {
