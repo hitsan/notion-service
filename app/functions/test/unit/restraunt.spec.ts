@@ -1,17 +1,17 @@
-import {featchShishaPlaceId, featchShishaInfo, featchLackedShopList, updateShishaShopInfo} from "../../src/restraunt";
+import {featcPlaceId, featchShopInfo, featchLackedShopList, updateShopInfo} from "../../src/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
   test("Get shisha shop place id", async () => {
     const shopName = "stay loose";
-    const result = await featchShishaPlaceId(shopName);
+    const result = await featcPlaceId(shopName);
     expect(result).toEqual("ChIJDb_3-H31GGARNYG5HNCnWEY");
   });
 
   test("Get shisha shop info", async () => {
     const placeId = "ChIJDb_3-H31GGARNYG5HNCnWEY";
 
-    const result = await featchShishaInfo(placeId);
+    const result = await featchShopInfo(placeId);
     const website = result.website;
     const googleMapUrl = result.googleMapUrl;
     expect(website).toEqual("https://www.instagram.com/stayloose_shisha/");
@@ -63,7 +63,7 @@ describe("Featch shop info", () => {
 
 describe("Update shisha shop Info test", () => {
   test("Update shisha shop info", async () => {
-    const result = await updateShishaShopInfo();
+    const result = await updateShopInfo();
     expect(result).toBeTruthy();
   });
 });
