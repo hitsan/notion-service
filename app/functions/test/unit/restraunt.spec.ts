@@ -1,17 +1,19 @@
-import {featcPlaceId, featchShopInfo, featchLackedShopList, updateShopInfo} from "../../src/restraunt";
+import {featcPlaceIdFromGoogleMap, featchShopInfo, featchLackedShopList, updateShopInfo} from "../../src/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
+  const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY || "";
   test("Get shisha shop place id", async () => {
     const shopName = "stay loose";
-    const result = await featcPlaceId(shopName);
+    const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
+    const result = await featcPlaceIdFromGoogleMap(shopName, googleMapSearchUrl, googleMapApiKey);
     expect(result).toEqual("ChIJDb_3-H31GGARNYG5HNCnWEY");
   });
 
   test("Get shisha shop info", async () => {
     const placeId = "ChIJDb_3-H31GGARNYG5HNCnWEY";
-
-    const result = await featchShopInfo(placeId);
+    const googleMapPlaceUrl = "https://maps.googleapis.com/maps/api/place/details/json?";
+    const result = await featchShopInfo(placeId, googleMapPlaceUrl, googleMapApiKey);
     const website = result.website;
     const googleMapUrl = result.googleMapUrl;
     expect(website).toEqual("https://www.instagram.com/stayloose_shisha/");
