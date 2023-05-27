@@ -92,20 +92,10 @@ export const featchLackedShopList = async ():Promise<LackedShop[]> => {
     const response = await notion.databases.query({
       database_id: shopListId,
       filter: {
-        and: [
-          {
-            property: "Category",
-            select: {
-              equals: "Shisha",
-            },
-          },
-          {
-            property: "GoogleMap",
-            url: {
-              is_empty: true,
-            },
-          },
-        ],
+        property: "GoogleMap",
+        url: {
+          is_empty: true,
+        },
       },
     });
     const shopList = response.results.map((result) => {
@@ -159,6 +149,7 @@ export const updateShishaShopInfo = async () => {
     await shopList.map(async (shop) => {
       const placeId = await featchShishaPlaceId(shop.name);
       const shopInfo = await featchShishaInfo(placeId);
+
       const imageRef = shopInfo.image;
       const apikey = process.env.GOOGLE_MAP_APIKEY || "";
       const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${imageRef}&key=${apikey}`;
@@ -166,6 +157,7 @@ export const updateShishaShopInfo = async () => {
       const imageArray = await featchJpg(imageUrl);
       const path = `test/images/${shop.name}.jpg`;
       const downloadUrl = await upLoadImage(path, imageArray);
+
       await postShishaShopInfo(shop.id, downloadUrl);
     });
     return true;
