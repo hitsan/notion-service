@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
-import {TargetWatchList, WatchListInfo, ImageUrl} from "./watchList";
+import {TargetWatchList, WatchListInfo} from "./watchList";
+import {ImageUrl} from "../utils/imageUrl";
 import {Client} from "@notionhq/client";
 import axios from "axios";
 
