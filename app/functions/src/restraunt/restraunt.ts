@@ -4,14 +4,19 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
 import {Client} from "@notionhq/client";
 
-export interface ShopInfo {
+export interface RestrauntInfo {
   website?: string,
   sns?: string,
   googleMapUrl: string,
   image: string
 }
 
-export const featchShopInfo = async (shopName: string): Promise<ShopInfo> => {
+interface TargetRestraunt {
+  id: string,
+  name: string,
+}
+
+export const featchRestrauntInfo = async (shopName: string): Promise<RestrauntInfo> => {
   const apiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!apiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
   try {
@@ -59,12 +64,7 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-interface LackedShop {
-  id: string,
-  name: string,
-}
-
-export const featchLackedShopList = async ():Promise<LackedShop[]> => {
+export const featchTargetRestraunts = async ():Promise<TargetRestraunt[]> => {
   try {
     const notionToken = process.env.NOTION_TOKEN;
     if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
@@ -93,7 +93,7 @@ export const featchLackedShopList = async ():Promise<LackedShop[]> => {
   }
 };
 
-export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: string, imageUrl: string) => {
+export const postRestrauntnfo = async (pageId: string, mapUrl: string, shopUrl: string, imageUrl: string) => {
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
   const notion = new Client({auth: notionToken});
@@ -134,11 +134,11 @@ export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: stri
   }
 };
 
-export const updateShopInfo = async () => {
+export const updateRestrauntInfo = async () => {
   try {
-    const shopList = await featchLackedShopList();
+    const shopList = await featchTargetRestraunts();
     await shopList.map(async (shop) => {
-      const shopInfo = await featchShopInfo(shop.name);
+      const shopInfo = await featchRestrauntInfo(shop.name);
 
       const imageRef = shopInfo.image;
       const apikey = process.env.GOOGLE_MAP_APIKEY || "";
@@ -147,7 +147,7 @@ export const updateShopInfo = async () => {
 
       const imageUrl = await uploadImage(shop.name, imageRefUrl);
       const shopUrl = shopInfo.website || "";
-      await postShopInfo(shop.id, shopInfo.googleMapUrl, shopUrl, imageUrl);
+      await postRestrauntnfo(shop.id, shopInfo.googleMapUrl, shopUrl, imageUrl);
     });
     return true;
   } catch (error) {

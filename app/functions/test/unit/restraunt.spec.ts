@@ -1,10 +1,10 @@
-import {featchShopInfo, featchLackedShopList, updateShopInfo} from "../../src/restraunt";
+import {featchRestrauntInfo, featchTargetRestraunts, updateRestrauntInfo} from "../../src/restraunt/restraunt";
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
   test("Get shisha shop info", async () => {
     const shopName = "stay loose";
-    const result = await featchShopInfo(shopName);
+    const result = await featchRestrauntInfo(shopName);
     const website = result.website;
     const googleMapUrl = result.googleMapUrl;
     expect(website).toEqual("https://www.instagram.com/stayloose_shisha/");
@@ -14,7 +14,7 @@ describe("Get shisha shop Info Test", () => {
 
 describe("Featch shop info", () => {
   test("Featch shop info", async () => {
-    const shopList = await featchLackedShopList();
+    const shopList = await featchTargetRestraunts();
     shopList.forEach(shop => {
       console.log(shop.name);
       switch(shop.name) {
@@ -31,7 +31,7 @@ describe("Featch shop info", () => {
 
 describe("Update shisha shop Info test", () => {
   test("Update shisha shop info", async () => {
-    const result = await updateShopInfo();
+    const result = await updateRestrauntInfo();
     expect(result).toBeTruthy();
   });
 });
