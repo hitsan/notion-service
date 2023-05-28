@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import {initializeApp} from "firebase/app";
 import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
+import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
 import {Client} from "@notionhq/client";
 
@@ -8,7 +9,7 @@ export interface RestrauntInfo {
   website?: string,
   sns?: string,
   googleMapUrl: string,
-  image: string
+  image: ImageUrl,
 }
 
 interface TargetRestraunt {
