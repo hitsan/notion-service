@@ -162,8 +162,8 @@ export const updateBooksInfo = async (notion: Client, watchListDBId: string) => 
     const targetBooks = await featcSearchTargetBooks(notion, watchListDBId);
     await Promise.all(targetBooks.map(
       async (book: TargeBook) => {
-        const info = await featchBookInfo(book.title);
-        updateBookInfo(notion, book.id, info);
+        const BookInfo = await featchBookInfo(book.title);
+        updateBookInfo(notion, book.id, BookInfo);
       },
     ));
     return true;
