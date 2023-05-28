@@ -11,62 +11,47 @@ export interface ShopInfo {
   image: string
 }
 
-export const featcPlaceId = async (shopName: string):Promise<string> => {
-  const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
-  const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY;
-  if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
-  const requestUrl = `${googleMapSearchUrl}query=${shopName}&key=${googleMapApiKey}`;
+export const featchShopInfo = async (shopName: string): Promise<ShopInfo> => {
+  const apiKey = process.env.GOOGLE_MAP_APIKEY;
+  if (!apiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
   try {
-    const response = await axios.get(requestUrl);
-    const placeId = response.data.results[0].place_id;
-    return placeId;
-  } catch (error) {
-    functions.logger.error(error, {structuredData: true});
-    throw error;
-  }
-};
+    const mapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
+    const requestUrl = `${mapSearchUrl}query=${shopName}&key=${apiKey}`;
+    const searchedResponse = await axios.get(requestUrl);
+    const placeId = searchedResponse.data.results[0].place_id;
 
-export const featchShopInfo = async (placeId: string): Promise<ShopInfo> => {
-  const googleMapUrl = "https://maps.googleapis.com/maps/api/place/details/json?";
-  const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY;
-  if (!googleMapApiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
-  const googlePlaceIdInfoUrl = `${googleMapUrl}place_id=${placeId}&key=${googleMapApiKey}`
-
-  try {
-    const response = await axios.get(googlePlaceIdInfoUrl);
-    const result = response.data.result;
+    const mapPlaceUrl = "https://maps.googleapis.com/maps/api/place/details/json?";
+    const placeIdInfoUrl = `${mapPlaceUrl}place_id=${placeId}&key=${apiKey}`;
+    const placeResponse = await axios.get(placeIdInfoUrl);
+    const result = placeResponse.data.result;
     const googleMapUrl = result.url;
     const website = result.website;
     const image = result.photos[0].photo_reference;
 
-    return {website, googleMapUrl, image};  
+    return {website, googleMapUrl, image};
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
 
-export const featchJpg = async (url: string): Promise<ArrayBuffer> => {
-  const response = await axios.get(url, {responseType: 'arraybuffer'});
-  return response.data;
-};
-
-export const upLoadImage = async (filePath:string, imageArray: ArrayBuffer): Promise<string> => {
+export const uploadImage = async (imageName: string, imageUrl: string): Promise<string> => {
   const storageBucket = process.env.FIRESTORAGE_BUCKET;
+  if (!storageBucket) throw new Error("Do not find FIRESTORAGE_BUCKET");
   const firebaseConfig = {
-    storageBucket: storageBucket
+    storageBucket: storageBucket,
   };
-
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app);
+  const filePath = `test/images/${imageName}.jpg`;
   const imageRef = ref(storage, filePath);
 
   try {
-    const response = await uploadBytes(imageRef, imageArray)
+    const imageArray = await axios.get(imageUrl, {responseType: "arraybuffer"});
+    const response = await uploadBytes(imageRef, imageArray.data);
     const firestrageUrl = response.ref.toString();
     const refarense = ref(storage, firestrageUrl);
     const downloadUrl = await getDownloadURL(refarense);
-    functions.logger.info(downloadUrl, {structuredData: true});
     return downloadUrl;
   } catch (error) {
     functions.logger.error("Failed upload image", {structuredData: true});
@@ -108,7 +93,7 @@ export const featchLackedShopList = async ():Promise<LackedShop[]> => {
   }
 };
 
-export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: string, image: string) => {
+export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: string, imageUrl: string) => {
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
   const notion = new Client({auth: notionToken});
@@ -116,7 +101,7 @@ export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: stri
   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
-  const imageUrl = (image.length > 100) ? "https://aaaa.jpg" : image; 
+  const testimageUrl = (imageUrl.length > 100) ? "https://aaaa.jpg" : imageUrl;
   try {
     const response = await notion.pages.update({
       page_id: pageId,
@@ -124,9 +109,9 @@ export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: stri
         Image: {
           files: [
             {
-              name: imageUrl,
+              name: testimageUrl,
               external: {
-                url: imageUrl,
+                url: testimageUrl,
               },
             },
           ],
@@ -139,9 +124,9 @@ export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: stri
         },
       },
     });
-    functions.logger.info(response, {structuredData: true});
-    return (response.id) === "sss";
+    return (!!response);
   } catch (error) {
+    functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
@@ -150,22 +135,20 @@ export const updateShopInfo = async () => {
   try {
     const shopList = await featchLackedShopList();
     await shopList.map(async (shop) => {
-      const placeId = await featcPlaceId(shop.name);
-      const shopInfo = await featchShopInfo(placeId);
+      const shopInfo = await featchShopInfo(shop.name);
 
       const imageRef = shopInfo.image;
       const apikey = process.env.GOOGLE_MAP_APIKEY || "";
-      const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${imageRef}&key=${apikey}`;
-      functions.logger.info(imageUrl, {structuredData: true});
-      const imageArray = await featchJpg(imageUrl);
-      const path = `test/images/${shop.name}.jpg`;
-      const downloadUrl = await upLoadImage(path, imageArray);
+      const imageRefUrl = "https://maps.googleapis.com/maps/api/place/photo?" +
+      `maxwidth=400&photo_reference=${imageRef}&key=${apikey}`;
 
+      const imageUrl = await uploadImage(shop.name, imageRefUrl);
       const shopUrl = shopInfo.website || "";
-      await postShopInfo(shop.id, shopInfo.googleMapUrl, shopUrl, downloadUrl);
+      await postShopInfo(shop.id, shopInfo.googleMapUrl, shopUrl, imageUrl);
     });
     return true;
   } catch (error) {
+    functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
