@@ -4,6 +4,13 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import axios from "axios";
 import {Client} from "@notionhq/client";
 
+export interface ShopInfo {
+  website?: string,
+  sns?: string,
+  googleMapUrl: string,
+  image: string
+}
+
 export const featcPlaceId = async (shopName: string):Promise<string> => {
   const googleMapSearchUrl = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
   const googleMapApiKey = process.env.GOOGLE_MAP_APIKEY;
@@ -18,13 +25,6 @@ export const featcPlaceId = async (shopName: string):Promise<string> => {
     throw error;
   }
 };
-
-export interface ShopInfo {
-  website?: string,
-  sns?: string,
-  googleMapUrl: string,
-  image: string
-}
 
 export const featchShopInfo = async (placeId: string): Promise<ShopInfo> => {
   const googleMapUrl = "https://maps.googleapis.com/maps/api/place/details/json?";

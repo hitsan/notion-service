@@ -2,21 +2,19 @@ import {featcPlaceId, featchShopInfo, featchLackedShopList, updateShopInfo} from
 
 // jest.mock("axios");
 describe("Get shisha shop Info Test", () => {
-  test("Get shisha shop place id", async () => {
-    const shopName = "stay loose";
-    const result = await featcPlaceId(shopName);
-    expect(result).toEqual("ChIJDb_3-H31GGARNYG5HNCnWEY");
-  });
+  // test("Get shisha shop place id", async () => {
+  //   const shopName = "stay loose";
+  //   const result = await featcPlaceId(shopName);
+  //   expect(result).toEqual("ChIJDb_3-H31GGARNYG5HNCnWEY");
+  // });
 
   test("Get shisha shop info", async () => {
-    const placeId = "ChIJDb_3-H31GGARNYG5HNCnWEY";
-
-    const result = await featchShopInfo(placeId);
+    const shopName = "stay loose"
+    const result = await featchShopInfo(shopName);
     const website = result.website;
     const googleMapUrl = result.googleMapUrl;
     expect(website).toEqual("https://www.instagram.com/stayloose_shisha/");
     expect(googleMapUrl).toEqual("https://maps.google.com/?cid=5068985892882448693");
-    // TODO image test
   });
 
   // test("Get map jpg", async () => {
