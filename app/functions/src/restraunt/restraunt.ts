@@ -5,11 +5,16 @@ import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
 import {Client} from "@notionhq/client";
 
-export interface RestrauntInfo {
-  website?: string,
-  sns?: string,
+export interface recieverRestrauntInfo {
+  website: string,
   googleMapUrl: string,
-  image: ImageUrl,
+  imageRefUrl: string,
+}
+
+export interface SenderRestrauntInfo {
+  website: string,
+  googleMapUrl: string,
+  imageUrl: ImageUrl,
 }
 
 interface TargetRestraunt {
@@ -17,7 +22,7 @@ interface TargetRestraunt {
   name: string,
 }
 
-export const featchRestrauntInfo = async (shopName: string): Promise<RestrauntInfo> => {
+export const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
   const apiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!apiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
   try {
@@ -33,8 +38,11 @@ export const featchRestrauntInfo = async (shopName: string): Promise<RestrauntIn
     const googleMapUrl = result.url;
     const website = result.website;
     const image = result.photos[0].photo_reference;
+    const apikey = process.env.GOOGLE_MAP_APIKEY || "";
+    const imageRefUrl = "https://maps.googleapis.com/maps/api/place/photo?" +
+    `maxwidth=400&photo_reference=${image}&key=${apikey}`;
 
-    return {website, googleMapUrl, image};
+    return {website, googleMapUrl, imageRefUrl};
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
@@ -140,14 +148,8 @@ export const updateRestrauntInfo = async () => {
     const shopList = await featchTargetRestraunts();
     await shopList.map(async (shop) => {
       const shopInfo = await featchRestrauntInfo(shop.name);
-
-      const imageRef = shopInfo.image;
-      const apikey = process.env.GOOGLE_MAP_APIKEY || "";
-      const imageRefUrl = "https://maps.googleapis.com/maps/api/place/photo?" +
-      `maxwidth=400&photo_reference=${imageRef}&key=${apikey}`;
-
-      const imageUrl = await uploadImage(shop.name, imageRefUrl);
-      const shopUrl = shopInfo.website || "";
+      const imageUrl = await uploadImage(shop.name, shopInfo.imageRefUrl);
+      const shopUrl = shopInfo.website;
       await postRestrauntnfo(shop.id, shopInfo.googleMapUrl, shopUrl, imageUrl);
     });
     return true;
