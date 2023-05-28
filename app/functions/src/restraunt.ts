@@ -101,6 +101,9 @@ export const postShopInfo = async (pageId: string, mapUrl: string, shopUrl: stri
   const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
   if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
+  // TODO
+  // notion api cannot update string that length over 100.
+  // use dummy string.
   const testimageUrl = (imageUrl.length > 100) ? "https://aaaa.jpg" : imageUrl;
   try {
     const response = await notion.pages.update({
