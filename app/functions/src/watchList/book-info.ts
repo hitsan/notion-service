@@ -1,21 +1,42 @@
 import * as functions from "firebase-functions";
+import {TargetWatchList, WatchListInfo, ImageUrl} from "./watchList";
 import {Client} from "@notionhq/client";
 import axios from "axios";
 
-interface LackedInfoBook {
-  id: string;
-  title: string;
+/**
+ * Seaching target book.
+ */
+class TargeBook implements TargetWatchList {
+  /**
+  * constructor.
+  */
+  constructor(public id: string, public title: string) {
+    this.id = id;
+    this.title = title;
+  }
 }
 
-interface BookInfo {
-  id: string;
-  authors: string;
-  title: string;
-  cover: string;
-  publishedDate: string;
+/**
+ * Seached book infomation.
+ */
+class BookInfo implements WatchListInfo {
+  /**
+  * constructor.
+  */
+  constructor(
+    public authors: string,
+    public title: string,
+    public coverUrl: ImageUrl,
+    public publishedDate: string
+  ) {
+    this.authors = authors;
+    this.title = title;
+    this.coverUrl = coverUrl;
+    this.publishedDate = publishedDate;
+  }
 }
 
-const featchLackedInfoBook = async (notion: Client, watchListDBId: string): Promise<LackedInfoBook[]> => {
+const featcSearchTargetBooks = async (notion: Client, watchListDBId: string): Promise<TargeBook[]> => {
   try {
     const response = await notion.databases.query({
       database_id: watchListDBId,
@@ -66,8 +87,8 @@ const featchLackedInfoBook = async (notion: Client, watchListDBId: string): Prom
   }
 };
 
-const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => {
-  const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${lackedBook.title}`;
+export const featchBookInfo = async (title: string): Promise<BookInfo> => {
+  const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${title}`;
   try {
     const googleBooksResponse = await axios.get(googleBooksUrl);
     const bookInfo = googleBooksResponse.data.items[0].volumeInfo;
@@ -76,19 +97,19 @@ const featchBookInfo = async (lackedBook: LackedInfoBook): Promise<BookInfo> => 
     const publishedDate = bookInfo.publishedDate;
     const industryIdentifiers = bookInfo.industryIdentifiers;
     const isbn = industryIdentifiers.pop().identifier;
-    const cover = `https://cover.openbd.jp/${isbn}.jpg`;
+    const coverUrl =new ImageUrl(`https://cover.openbd.jp/${isbn}.jpg`);
 
-    return {id: lackedBook.id, authors, title, cover, publishedDate};
+    return {authors, title, coverUrl, publishedDate};
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
 
-const updateBookInfo = async (notion: Client, bookInfo: BookInfo) => {
+const updateBookInfo = async (notion: Client, pageId: string, bookInfo: BookInfo) => {
   try {
     await notion.pages.update({
-      page_id: bookInfo.id,
+      page_id: pageId,
       icon: {
         emoji: "📕",
       },
@@ -121,9 +142,9 @@ const updateBookInfo = async (notion: Client, bookInfo: BookInfo) => {
         Image: {
           files: [
             {
-              name: bookInfo.cover,
+              name: bookInfo.coverUrl.toString(),
               external: {
-                url: bookInfo.cover,
+                url: bookInfo.coverUrl.toString(),
               },
             },
           ],
@@ -138,11 +159,11 @@ const updateBookInfo = async (notion: Client, bookInfo: BookInfo) => {
 
 export const updateBooksInfo = async (notion: Client, watchListDBId: string) => {
   try {
-    const lackedBooks = await featchLackedInfoBook(notion, watchListDBId);
-    await Promise.all(lackedBooks.map(
-      async (book: LackedInfoBook) => {
-        const info = await featchBookInfo(book);
-        updateBookInfo(notion, info);
+    const targetBooks = await featcSearchTargetBooks(notion, watchListDBId);
+    await Promise.all(targetBooks.map(
+      async (book: TargeBook) => {
+        const BookInfo = await featchBookInfo(book.title);
+        updateBookInfo(notion, book.id, BookInfo);
       },
     ));
     return true;
