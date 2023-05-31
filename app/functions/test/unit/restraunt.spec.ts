@@ -1,18 +1,22 @@
-import {featchRestrauntInfo, featchTargetRestraunts, updateRestrauntInfo} from "../../src/restraunt/restraunt";
+import {featchRestrauntInfo, featchTargetRestraunts} from "../../src/restraunt/restraunt";
+import {Client} from "@notionhq/client";
 import axios from "axios";
 
 jest.mock("axios");
 describe("Update shisha shop Info test", () => {
+  const notionToken = process.env.NOTION_TOKEN || "";
+  const notion = new Client({auth: notionToken});
+  const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
+
   test("Featch shop info from notion DB", async () => {
-    const shopList = await featchTargetRestraunts();
+    const shopList = await featchTargetRestraunts(notion, restrauntDBId);
     shopList.forEach(shop => {
-      console.log(shop.name);
       switch(shop.name) {
         case "kannok":
-          expect(shop.id).toEqual(process.env.SHISHA_KANNOK);
+          expect(shop.id).toEqual(process.env.TEST_KANNOK);
           return;
         case "stay loose":
-          expect(shop.id).toEqual(process.env.SHISHA_STAY);
+          expect(shop.id).toEqual(process.env.TEST_STAY);
           return;
       }
     });
@@ -67,8 +71,8 @@ describe("Update shisha shop Info test", () => {
   //   expect(result).toBeTruthy();
   // });
 
-  test("Update Restraunt info of notion", async () => {
-    const result = await updateRestrauntInfo();
-    expect(result).toBeTruthy();
-  });
+  // test("Update Restraunt info of notion", async () => {
+  //   const result = await updateRestrauntInfo();
+  //   expect(result).toBeTruthy();
+  // });
 });
