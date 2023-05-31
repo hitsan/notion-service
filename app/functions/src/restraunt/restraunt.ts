@@ -49,7 +49,7 @@ export const featchRestrauntInfo = async (shopName: string): Promise<recieverRes
   }
 };
 
-export const uploadImage = async (imageName: string, imageUrl: string): Promise<string> => {
+export const uploadImage = async (imageName: string, imageUrl: string): Promise<ImageUrl> => {
   const storageBucket = process.env.FIRESTORAGE_BUCKET;
   if (!storageBucket) throw new Error("Do not find FIRESTORAGE_BUCKET");
   const firebaseConfig = {
@@ -66,7 +66,7 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
     const firestrageUrl = response.ref.toString();
     const refarense = ref(storage, firestrageUrl);
     const downloadUrl = await getDownloadURL(refarense);
-    return downloadUrl;
+    return new ImageUrl(downloadUrl);
   } catch (error) {
     functions.logger.error("Failed upload image", {structuredData: true});
     throw error;
@@ -102,7 +102,7 @@ export const featchTargetRestraunts = async ():Promise<TargetRestraunt[]> => {
   }
 };
 
-export const postRestrauntnfo = async (pageId: string, mapUrl: string, shopUrl: string, imageUrl: string) => {
+export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
   const notion = new Client({auth: notionToken});
@@ -113,6 +113,9 @@ export const postRestrauntnfo = async (pageId: string, mapUrl: string, shopUrl: 
   // TODO
   // notion api cannot update string that length over 100.
   // use dummy string.
+  const website = restrauntInfo.website;
+  const googleMapUrl = restrauntInfo.googleMapUrl;
+  const imageUrl = restrauntInfo.imageUrl.toString();
   const testimageUrl = (imageUrl.length > 100) ? "https://aaaa.jpg" : imageUrl;
   try {
     const response = await notion.pages.update({
@@ -129,10 +132,10 @@ export const postRestrauntnfo = async (pageId: string, mapUrl: string, shopUrl: 
           ],
         },
         GoogleMap: {
-          url: mapUrl,
+          url: googleMapUrl,
         },
         URL: {
-          url: shopUrl,
+          url: website,
         },
       },
     });
@@ -149,8 +152,10 @@ export const updateRestrauntInfo = async () => {
     await shopList.map(async (shop) => {
       const shopInfo = await featchRestrauntInfo(shop.name);
       const imageUrl = await uploadImage(shop.name, shopInfo.imageRefUrl);
-      const shopUrl = shopInfo.website;
-      await postRestrauntnfo(shop.id, shopInfo.googleMapUrl, shopUrl, imageUrl);
+      const googleMapUrl = shopInfo.googleMapUrl;
+      const website = shopInfo.website;
+      const senderRestrauntInfo: SenderRestrauntInfo = {website, googleMapUrl, imageUrl};
+      await postRestrauntnfo(shop.id, senderRestrauntInfo);
     });
     return true;
   } catch (error) {
