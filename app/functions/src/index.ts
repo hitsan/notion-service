@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import {Client} from "@notionhq/client";
 import {formatInTimeZone} from "date-fns-tz";
 import {updateBooksInfo} from "./watchList/book-info";
+import {updateRestrauntInfo} from "./restraunt/restraunt";
 import {addPageToLifelog} from "./lifelog";
 
 export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
@@ -20,7 +21,27 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
       functions.logger.error(error, {structuredData: true});
       response.send("Failed update book list");
     }
-  });
+  }
+);
+
+
+export const addRestrauntInfo = functions.region("asia-northeast1").https.onRequest(
+  async (request, response) => {
+    try {
+      const notionToken = process.env.NOTION_TOKEN;
+      if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+      const notion = new Client({auth: notionToken});
+      const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
+      if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+
+      await updateRestrauntInfo(notion, restrauntDBId);
+      response.send("Succese update restraunt list");
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
+      response.send("Failed update restraunt list");
+    }
+  }
+);
 
 const timeZone = "Asia/Tokyo";
 exports.scheduledFunctionCrontab = functions
