@@ -73,14 +73,10 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-export const featchTargetRestraunts = async ():Promise<TargetRestraunt[]> => {
+export const featchTargetRestraunts = async (notion: Client, restrauntDBId: string):Promise<TargetRestraunt[]> => {
   try {
-    const notionToken = process.env.NOTION_TOKEN;
-    if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-    const notion = new Client({auth: notionToken});
-    const shopListId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
     const response = await notion.databases.query({
-      database_id: shopListId,
+      database_id: restrauntDBId,
       filter: {
         property: "GoogleMap",
         url: {
@@ -102,13 +98,7 @@ export const featchTargetRestraunts = async ():Promise<TargetRestraunt[]> => {
   }
 };
 
-export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
-  const notionToken = process.env.NOTION_TOKEN;
-  if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-  const notion = new Client({auth: notionToken});
-
-  const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
-  if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+export const postRestrauntnfo = async (notion: Client, pageId: string, restrauntInfo: SenderRestrauntInfo) => {
 
   // TODO
   // notion api cannot update string that length over 100.
@@ -147,15 +137,21 @@ export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRest
 };
 
 export const updateRestrauntInfo = async () => {
+  const notionToken = process.env.NOTION_TOKEN;
+  if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+  const notion = new Client({auth: notionToken});
+  const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
+  if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+
   try {
-    const shopList = await featchTargetRestraunts();
+    const shopList = await featchTargetRestraunts(notion, restrauntDBId);
     await shopList.map(async (shop) => {
       const shopInfo = await featchRestrauntInfo(shop.name);
       const imageUrl = await uploadImage(shop.name, shopInfo.imageRefUrl);
       const googleMapUrl = shopInfo.googleMapUrl;
       const website = shopInfo.website;
       const senderRestrauntInfo: SenderRestrauntInfo = {website, googleMapUrl, imageUrl};
-      await postRestrauntnfo(shop.id, senderRestrauntInfo);
+      await postRestrauntnfo(notion, shop.id, senderRestrauntInfo);
     });
     return true;
   } catch (error) {
