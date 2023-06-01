@@ -11,7 +11,6 @@ node_modules/
 token.ts
 .http
 .env.local
-.env.test
 
 serviceAccountKey.json
 **/*.jpg
