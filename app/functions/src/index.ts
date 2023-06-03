@@ -1,9 +1,9 @@
 import * as functions from "firebase-functions";
 import {Client} from "@notionhq/client";
 import {formatInTimeZone} from "date-fns-tz";
-import {updateBooksInfo} from "./watchList/book-info";
-import {updateRestrauntInfo} from "./restraunt/restraunt";
-import {addPageToLifelog} from "./lifelog";
+import {updateBooksInfo} from "./service/watchList/book-info";
+import {updateRestrauntInfo} from "./service/restraunt/restraunt";
+import {addPageToLifelog} from "./service/lifelog";
 
 export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
   async (request, response) => {
