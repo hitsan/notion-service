@@ -63,4 +63,5 @@ describe("Update shisha shop Info test", () => {
     `?maxwidth=400&photo_reference=${test_ref}&key=${apiKey}`
     expect(photoReference).toEqual(testImageRef)
   });
+  // comment
 });
