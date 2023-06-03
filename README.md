@@ -1,2 +1,2 @@
-# notion-test
-notion-test
+# notion-service
+This repository is my notion services.
