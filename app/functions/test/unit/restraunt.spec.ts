@@ -64,13 +64,6 @@ describe("Update shisha shop Info test", () => {
     expect(photoReference).toEqual(testImageRef)
   });
 
-  // test("Post Restraunt info to notion", async () => {
-  //   const pageId = process.env.TEST_RESTRAUNT
-    
-  //   const result = await postRestrauntnfo(pageId, testWebsite, testWebsite);
-  //   expect(result).toBeTruthy();
-  // });
-
   // test("Update Restraunt info of notion", async () => {
   //   const result = await updateRestrauntInfo();
   //   expect(result).toBeTruthy();
