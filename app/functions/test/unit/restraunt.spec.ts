@@ -63,9 +63,4 @@ describe("Update shisha shop Info test", () => {
     `?maxwidth=400&photo_reference=${test_ref}&key=${apiKey}`
     expect(photoReference).toEqual(testImageRef)
   });
-
-  // test("Update Restraunt info of notion", async () => {
-  //   const result = await updateRestrauntInfo();
-  //   expect(result).toBeTruthy();
-  // });
 });
