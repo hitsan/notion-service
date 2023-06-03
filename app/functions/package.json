@@ -10,7 +10,7 @@
         "deploy": "firebase deploy --only functions",
         "logs": "firebase functions:log",
         "test": "jest",
-        "format": "eslint --fix src/*ts"
+        "format": "eslint --fix src/**/*ts"
     },
     "engines": {
         "node": "16"

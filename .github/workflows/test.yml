@@ -21,7 +21,7 @@ jobs:
         run: npm install && npm run build
       - name: Make .env
         working-directory: ./app/functions
-        run: echo "${{ secrets.TEST_CONFIG_VALUES }}" > .env.test
+        run: echo "${{ secrets.TEST_CONFIG_VALUES }}" > .env.local
       - name: Test
         working-directory: ./app/functions
         run: npm test
