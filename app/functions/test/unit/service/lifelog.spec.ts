@@ -1,4 +1,4 @@
-import {addPageToLifelog} from "../../src/lifelog";
+import {addPageToLifelog} from "../../../src/service/lifelog";
 import {Client} from "@notionhq/client";
 import axios from "axios";
 

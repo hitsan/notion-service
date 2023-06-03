@@ -1,4 +1,4 @@
-import {updateBooksInfo, featchBookInfo} from "../../src/watchList/book-info";
+import {updateBooksInfo, featchBookInfo} from "../../../../src/service/watchList/book-info";
 import {Client} from "@notionhq/client";
 import axios from "axios";
 

@@ -1,4 +1,4 @@
-import {featchRestrauntInfo, featchTargetRestraunts} from "../../src/restraunt/restraunt";
+import {featchRestrauntInfo, featchTargetRestraunts} from "../../../../src/service/restraunt/restraunt";
 import {Client} from "@notionhq/client";
 import axios from "axios";
 
