@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import {TargetWatchList, WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
 import {Client} from "@notionhq/client";
+import {NotionHelper} from "../../../src/helper/notion-helper";
 import axios from "axios";
 
 /**
@@ -37,50 +38,41 @@ class BookInfo implements WatchListInfo {
   }
 }
 
-const featcSearchTargetBooks = async (notion: Client, watchListDBId: string): Promise<TargeBook[]> => {
-  try {
-    const response = await notion.databases.query({
-      database_id: watchListDBId,
-      filter: {
-        and: [
+const featcSearchTargetBooks = async (watchListDBId: string): Promise<TargeBook[]> => {
+  const query = {
+    and: [
+      {
+        property: "Categry",
+        select: {
+          equals: "Book",
+        },
+      },
+      {
+        or: [
           {
-            property: "Categry",
-            select: {
-              equals: "Book",
+            property: "Author",
+            rich_text: {
+              is_empty: true,
             },
           },
           {
-            or: [
-              {
-                property: "Author",
-                rich_text: {
-                  is_empty: true,
-                },
-              },
-              {
-                property: "PublishedDate",
-                date: {
-                  is_empty: true,
-                },
-              },
-              {
-                property: "Image",
-                files: {
-                  is_empty: true,
-                },
-              },
-            ],
+            property: "PublishedDate",
+            date: {
+              is_empty: true,
+            },
+          },
+          {
+            property: "Image",
+            files: {
+              is_empty: true,
+            },
           },
         ],
       },
-    });
-    const bookList = response.results.map((result) => {
-      if (!("properties" in result && "title" in result.properties.Title)) {
-        throw new Error("Ilegal data");
-      }
-      const title = result.properties.Title.title[0].plain_text;
-      return {id: result.id, title: title};
-    });
+    ],
+  };
+  try {
+    const bookList = await NotionHelper.featchDbBookContents(watchListDBId, query);
     return bookList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
@@ -160,7 +152,7 @@ const updateBookInfo = async (notion: Client, pageId: string, bookInfo: BookInfo
 
 export const updateBooksInfo = async (notion: Client, watchListDBId: string) => {
   try {
-    const targetBooks = await featcSearchTargetBooks(notion, watchListDBId);
+    const targetBooks = await featcSearchTargetBooks(watchListDBId);
     await Promise.all(targetBooks.map(
       async (book: TargeBook) => {
         const BookInfo = await featchBookInfo(book.title);
