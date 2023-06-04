@@ -7,7 +7,7 @@ import axios from "axios";
 /**
  * Seaching target book.
  */
-class TargeBook implements TargetWatchList {
+export class TargeBook implements TargetWatchList {
   /**
   * constructor.
   */
