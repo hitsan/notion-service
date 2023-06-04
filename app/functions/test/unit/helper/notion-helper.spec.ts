@@ -11,8 +11,12 @@ describe("Notion Helper function test", () => {
     };
     const response = await NotionHelper.featchDbBookContents(watchListDBId, query);
     response.forEach((value) => {
-      console.log(`${value.id} : ${value.title}`)
+      const id = process.env.TEST_HARRY_PAGE_ID;
+      if (value.id === id) {
+        expect(value.title).toEqual("ハリー・ポッターと秘密の部屋");
+      } else {
+        throw new Error("Can not get book data!")
+      }
     })
-    expect(true).toEqual(true);
   });
 });
