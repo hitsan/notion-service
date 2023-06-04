@@ -1,14 +1,15 @@
 import {NotionHelper} from "../../../src/helper/notion-helper";
 
 describe("Notion Helper function test", () => {
+  const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
+  const query = {
+    property: "Categry",
+    select: {
+      equals: "Book",
+    },
+  };
+
   test("featch test", async () => {
-    const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
-    const query = {
-      property: "Categry",
-      select: {
-        equals: "Book",
-      },
-    };
     const response = await NotionHelper.featchDbBookContents(watchListDBId, query);
     response.forEach((value) => {
       const id = process.env.TEST_HARRY_PAGE_ID;

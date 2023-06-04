@@ -18,15 +18,32 @@ export class NotionHelper {
   })();
 
   /**
+  * Get page contents
+  * @param {string} dbId ID of DB
+  * @param {object} query Filter
+  */
+  private static async featchPageproPerties(dbId: string, query: object): Promise<object[]> {
+    const filteringQuery: SearchdQuery = {database_id: dbId, filter: query};
+    try {
+      const response = await this.notion.databases.query(filteringQuery);
+      return response.results;
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
+      throw error;
+    }
+  }
+
+  /**
   * Get book contents
   * @param {string} dbId ID of DB
   * @param {object} query Filter
   */
   static async featchDbBookContents(dbId: string, query: object): Promise<TargeBook[]> {
-    const filteringQuery: SearchdQuery = {database_id: dbId, filter: query};
+    // const filteringQuery: SearchdQuery = {database_id: dbId, filter: query};
     try {
-      const response = await this.notion.databases.query(filteringQuery);
-      const bookList = response.results.map((result) => {
+      const response = await this.featchPageproPerties(dbId, query);
+    //   const response = await this.notion.databases.query(filteringQuery);
+      const bookList = response.map((result) => {
         if (!("properties" in result && "title" in result.properties.Title)) {
           throw new Error("Ilegal data");
         }
