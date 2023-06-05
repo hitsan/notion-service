@@ -10,13 +10,13 @@ describe("Notion Helper function test", () => {
   };
 
   test("featch test", async () => {
-    const response = await NotionHelper.featchDbBookContents(watchListDBId, query);
+    const response = await NotionHelper.featchBookPageProperties(watchListDBId, query);
     response.forEach((value) => {
       const id = process.env.TEST_HARRY_PAGE_ID;
       if (value.id === id) {
         expect(value.title).toEqual("ハリー・ポッターと秘密の部屋");
       } else {
-        throw new Error("Can not get book data!")
+        throw new Error("Cannot get book data!")
       }
     })
   });
