@@ -17,7 +17,7 @@ export class NotionHelper {
   * @param {string} dbId ID of DB
   * @param {object} query Filter
   */
-  private static async featchPageProperties(dbId: string, query: object) {
+  private static async featchPageIds(dbId: string, query: object) {
     const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: query};
     try {
       const response = await this.notion.databases.query(filteringQuery);
@@ -35,15 +35,37 @@ export class NotionHelper {
   */
   static async featchBookPageProperties(dbId: string, query: object): Promise<TargeBook[]> {
     try {
-      const response = await this.featchPageProperties(dbId, query);
+      const response = await this.featchPageIds(dbId, query);
       const bookList = response.map((result) => {
-        if (!("properties" in result && "title" in result.properties.Title)) {
+        if (!("properties" in result && "title" in result.properties.Name)) {
           throw new Error("Ilegal data");
         }
-        const title = result.properties.Title.title[0].plain_text;
+        const title = result.properties.Name.title[0].plain_text;
         return {id: result.id, title: title};
       });
       return bookList;
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
+      throw error;
+    }
+  }
+
+  /**
+  * Get restraunt page properties
+  * @param {string} dbId ID of DB
+  * @param {object} query Filter
+  */
+   static async featchRestrauntPageProperties(dbId: string, query: object): Promise<TargeBook[]> {
+    try {
+      const response = await this.featchPageIds(dbId, query);
+      const restraunta = response.map((result) => {
+        if (!("properties" in result && "title" in result.properties.Name)) {
+          throw new Error("Ilegal data");
+        }
+        const title = result.properties.Name.title[0].plain_text;
+        return {id: result.id, title: title};
+      });
+      return restraunta;
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;
