@@ -43,7 +43,31 @@ describe("Notion Helper function test", () => {
   });
 
   test("Update page properties", async () => {
-    const result = await NotionHelper.updatePageProperties();
+    const DBId = process.env.TEST_UPDATE_PAGE || "";
+    const query = {
+      properties: {
+        Name: {
+          title: [
+            {
+              text: {
+                content: "test",
+              },
+            },
+          ],
+        },
+        Tags: {
+          multi_select: [
+            {
+              name: "TypeScript"
+            },
+            {
+              name: "Python"
+            },
+          ],
+        },
+      },
+    }
+    const result = await NotionHelper.updatePageProperties(DBId, query);
     expect(result).toBeTruthy();
   })
 });
