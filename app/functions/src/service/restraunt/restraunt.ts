@@ -6,13 +6,13 @@ import axios from "axios";
 import {Client} from "@notionhq/client";
 import {NotionHelper} from "../../../src/helper/notion-helper";
 
-export interface recieverRestrauntInfo {
+interface recieverRestrauntInfo {
   website: string,
   googleMapUrl: string,
   imageRefUrl: string,
 }
 
-export interface SenderRestrauntInfo {
+interface SenderRestrauntInfo {
   website: string,
   googleMapUrl: string,
   imageUrl: ImageUrl,
@@ -69,7 +69,7 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-const featchTargetRestraunts = async (notion: Client, restrauntDBId: string) => {
+const featchTargetRestraunts = async (restrauntDBId: string) => {
   const query = {
     property: "GoogleMap",
     url: {
@@ -124,7 +124,7 @@ export const postRestrauntnfo = async (notion: Client, pageId: string, restraunt
 
 export const updateRestrauntInfo = async (notion: Client, restrauntDBId: string) => {
   try {
-    const shopList = await featchTargetRestraunts(notion, restrauntDBId);
+    const shopList = await featchTargetRestraunts(restrauntDBId);
     await Promise.all(shopList.map(
       async (shop) => {
         const shopInfo = await featchRestrauntInfo(shop.name);
