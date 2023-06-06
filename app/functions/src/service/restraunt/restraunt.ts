@@ -4,6 +4,7 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
 import {Client} from "@notionhq/client";
+import {NotionHelper} from "../../../src/helper/notion-helper";
 
 export interface recieverRestrauntInfo {
   website: string,
@@ -73,24 +74,15 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-export const featchTargetRestraunts = async (notion: Client, restrauntDBId: string):Promise<TargetRestraunt[]> => {
+const featchTargetRestraunts = async (notion: Client, restrauntDBId: string):Promise<TargetRestraunt[]> => {
+  const query = {
+    property: "GoogleMap",
+    url: {
+      is_empty: true,
+    }
+  }
   try {
-    const response = await notion.databases.query({
-      database_id: restrauntDBId,
-      filter: {
-        property: "GoogleMap",
-        url: {
-          is_empty: true,
-        },
-      },
-    });
-    const shopList = response.results.map((result) => {
-      if (!("properties" in result && "title" in result.properties.Name)) {
-        throw new Error("Ilegal data");
-      }
-      const name = result.properties.Name.title[0].plain_text;
-      return {id: result.id, name: name};
-    });
+    const shopList = await NotionHelper.featchPageIds(restrauntDBId, query);
     return shopList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
