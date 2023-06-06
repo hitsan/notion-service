@@ -1,11 +1,5 @@
 import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
-import {TargeBook} from "../service/watchList/book-info";
-
-interface SearchdQuery {
-  database_id: string,
-  filter: any,
-}
 
 /**
  * Notion Helper
@@ -18,22 +12,23 @@ export class NotionHelper {
   })();
 
   /**
-  * Get book contents
+  * Get page contents
   * @param {string} dbId ID of DB
   * @param {object} query Filter
   */
-  static async featchDbBookContents(dbId: string, query: object): Promise<TargeBook[]> {
-    const filteringQuery: SearchdQuery = {database_id: dbId, filter: query};
+  static async featchPageIds(dbId: string, query: object): Promise<{id: string, name: string}[]> {
+    const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: query};
     try {
       const response = await this.notion.databases.query(filteringQuery);
-      const bookList = response.results.map((result) => {
-        if (!("properties" in result && "title" in result.properties.Title)) {
+      const properties = response.results;
+      const idList = properties.map((result) => {
+        if (!("properties" in result && "title" in result.properties.Name)) {
           throw new Error("Ilegal data");
         }
-        const title = result.properties.Title.title[0].plain_text;
-        return {id: result.id, title: title};
+        const name = result.properties.Name.title[0].plain_text;
+        return {id: result.id, name: name};
       });
-      return bookList;
+      return idList;
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;
