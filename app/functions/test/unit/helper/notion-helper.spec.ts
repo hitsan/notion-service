@@ -41,4 +41,9 @@ describe("Notion Helper function test", () => {
       }
     })
   });
+
+  test("Update page properties", async () => {
+    const result = await NotionHelper.updatePageProperties();
+    expect(result).toBeTruthy();
+  })
 });

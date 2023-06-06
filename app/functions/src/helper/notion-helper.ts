@@ -34,4 +34,11 @@ export class NotionHelper {
       throw error;
     }
   }
+
+  /**
+  * Update page properties
+  */
+  static async updatePageProperties() {
+    return true;
+  }
 }
