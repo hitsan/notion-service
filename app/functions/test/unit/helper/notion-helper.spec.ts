@@ -37,7 +37,7 @@ describe("Notion Helper function test", () => {
       } else if (value.id === stay) {
         expect(value.title).toEqual("stay loose");
       } else {
-        throw new Error("Cannot get book data!")
+        throw new Error("Cannot get restraunt data!")
       }
     })
   });
