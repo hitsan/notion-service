@@ -9,7 +9,7 @@ describe("Notion Helper function test", () => {
         equals: "Book",
       },
     };
-    const response = await NotionHelper.featchPageIds(watchListDBId, query);
+    const response = await NotionHelper.featchPageIdsFromDB(watchListDBId, query);
     response.forEach((value) => {
       const id = process.env.TEST_HARRY_PAGE_ID;
       if (value.id === id) {
@@ -28,7 +28,7 @@ describe("Notion Helper function test", () => {
         is_empty: true,
       },
     };
-    const response = await NotionHelper.featchPageIds(DBId, query);
+    const response = await NotionHelper.featchPageIdsFromDB(DBId, query);
     const kannok = process.env.TEST_KANNOK;
     const stay = process.env.TEST_STAY;
     response.forEach((value) => {

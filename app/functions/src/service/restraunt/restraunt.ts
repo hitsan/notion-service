@@ -77,7 +77,7 @@ const featchTargetRestraunts = async (restrauntDBId: string) => {
     }
   }
   try {
-    const shopList = await NotionHelper.featchPageIds(restrauntDBId, query);
+    const shopList = await NotionHelper.featchPageIdsFromDB(restrauntDBId, query);
     return shopList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});

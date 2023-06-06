@@ -16,7 +16,7 @@ export class NotionHelper {
   * @param {string} dbId ID of DB
   * @param {object} query Filter
   */
-  static async featchPageIds(dbId: string, query: object): Promise<{id: string, name: string}[]> {
+  static async featchPageIdsFromDB(dbId: string, query: object): Promise<{id: string, name: string}[]> {
     const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: query};
     try {
       const response = await this.notion.databases.query(filteringQuery);

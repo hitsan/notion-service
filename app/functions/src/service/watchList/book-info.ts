@@ -59,7 +59,7 @@ const featcSearchTargetBooks = async (watchListDBId: string) => {
     ],
   };
   try {
-    const bookList = await NotionHelper.featchPageIds(watchListDBId, query);
+    const bookList = await NotionHelper.featchPageIdsFromDB(watchListDBId, query);
     return bookList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
