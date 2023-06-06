@@ -18,11 +18,6 @@ export interface SenderRestrauntInfo {
   imageUrl: ImageUrl,
 }
 
-interface TargetRestraunt {
-  id: string,
-  name: string,
-}
-
 export const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
   const apiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!apiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
@@ -74,7 +69,7 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-const featchTargetRestraunts = async (notion: Client, restrauntDBId: string):Promise<TargetRestraunt[]> => {
+const featchTargetRestraunts = async (notion: Client, restrauntDBId: string) => {
   const query = {
     property: "GoogleMap",
     url: {

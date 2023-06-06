@@ -1,22 +1,9 @@
 import * as functions from "firebase-functions";
-import {TargetWatchList, WatchListInfo} from "./watchList";
+import {WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
 import {Client} from "@notionhq/client";
 import {NotionHelper} from "../../../src/helper/notion-helper";
 import axios from "axios";
-
-/**
- * Seaching target book.
- */
-export class TargeBook implements TargetWatchList {
-  /**
-  * constructor.
-  */
-  constructor(public id: string, public name: string) {
-    this.id = id;
-    this.name = name;
-  }
-}
 
 /**
  * Seached book infomation.
@@ -38,7 +25,7 @@ class BookInfo implements WatchListInfo {
   }
 }
 
-const featcSearchTargetBooks = async (watchListDBId: string): Promise<TargeBook[]> => {
+const featcSearchTargetBooks = async (watchListDBId: string) => {
   const query = {
     and: [
       {
@@ -154,7 +141,7 @@ export const updateBooksInfo = async (notion: Client, watchListDBId: string) => 
   try {
     const targetBooks = await featcSearchTargetBooks(watchListDBId);
     await Promise.all(targetBooks.map(
-      async (book: TargeBook) => {
+      async (book) => {
         const BookInfo = await featchBookInfo(book.name);
         updateBookInfo(notion, book.id, BookInfo);
       },
