@@ -2,7 +2,7 @@ import {ImageUrl} from "../utils/imageUrl";
 
 export interface TargetWatchList {
   id: string;
-  title: string;
+  name: string;
 }
 
 export interface WatchListInfo {

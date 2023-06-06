@@ -12,9 +12,9 @@ export class TargeBook implements TargetWatchList {
   /**
   * constructor.
   */
-  constructor(public id: string, public title: string) {
+  constructor(public id: string, public name: string) {
     this.id = id;
-    this.title = title;
+    this.name = name;
   }
 }
 
@@ -155,7 +155,7 @@ export const updateBooksInfo = async (notion: Client, watchListDBId: string) => 
     const targetBooks = await featcSearchTargetBooks(watchListDBId);
     await Promise.all(targetBooks.map(
       async (book: TargeBook) => {
-        const BookInfo = await featchBookInfo(book.title);
+        const BookInfo = await featchBookInfo(book.name);
         updateBookInfo(notion, book.id, BookInfo);
       },
     ));

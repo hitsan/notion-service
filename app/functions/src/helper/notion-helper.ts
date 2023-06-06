@@ -1,6 +1,6 @@
 import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
-import {TargeBook} from "../service/watchList/book-info";
+import {TargetWatchList} from "../service/watchList/watchList"
 
 /**
  * Notion Helper
@@ -33,15 +33,15 @@ export class NotionHelper {
   * @param {string} dbId ID of DB
   * @param {object} query Filter
   */
-  static async featchBookPageProperties(dbId: string, query: object): Promise<TargeBook[]> {
+  static async featchBookPageProperties(dbId: string, query: object): Promise<TargetWatchList[]> {
     try {
       const response = await this.featchPageIds(dbId, query);
       const bookList = response.map((result) => {
         if (!("properties" in result && "title" in result.properties.Name)) {
           throw new Error("Ilegal data");
         }
-        const title = result.properties.Name.title[0].plain_text;
-        return {id: result.id, title: title};
+        const name = result.properties.Name.title[0].plain_text;
+        return {id: result.id, name: name};
       });
       return bookList;
     } catch (error) {
@@ -55,15 +55,15 @@ export class NotionHelper {
   * @param {string} dbId ID of DB
   * @param {object} query Filter
   */
-   static async featchRestrauntPageProperties(dbId: string, query: object): Promise<TargeBook[]> {
+   static async featchRestrauntPageProperties(dbId: string, query: object): Promise<TargetWatchList[]> {
     try {
       const response = await this.featchPageIds(dbId, query);
       const restraunta = response.map((result) => {
         if (!("properties" in result && "title" in result.properties.Name)) {
           throw new Error("Ilegal data");
         }
-        const title = result.properties.Name.title[0].plain_text;
-        return {id: result.id, title: title};
+        const name = result.properties.Name.title[0].plain_text;
+        return {id: result.id, name: name};
       });
       return restraunta;
     } catch (error) {
