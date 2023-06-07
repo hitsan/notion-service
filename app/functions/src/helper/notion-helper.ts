@@ -18,6 +18,7 @@ export class NotionHelper {
   */
   static async featchPageIdsFromDB(dbId: string, query: object): Promise<{id: string, name: string}[]> {
     const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: query};
+    console.log(filteringQuery);
     try {
       const response = await this.notion.databases.query(filteringQuery);
       const properties = response.results;
@@ -41,8 +42,8 @@ export class NotionHelper {
   static async updatePageProperties(dbId: string, properties: object) {
     const updatinggQuery: {page_id: string, properties: any,} = {page_id: dbId, properties};
     try {
-      await this.notion.pages.update(updatinggQuery);
-      return true;
+      const response = await this.notion.pages.update(updatinggQuery);
+      return (response.id===dbId);
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;
