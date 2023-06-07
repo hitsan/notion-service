@@ -26,7 +26,7 @@ class BookInfo implements WatchListInfo {
 }
 
 const featcSearchTargetBooks = async (watchListDBId: string) => {
-  const query = {
+  const properties = {
     and: [
       {
         property: "Categry",
@@ -59,7 +59,7 @@ const featcSearchTargetBooks = async (watchListDBId: string) => {
     ],
   };
   try {
-    const bookList = await NotionHelper.featchPageIdsFromDB(watchListDBId, query);
+    const bookList = await NotionHelper.featchPageIdsFromDB(watchListDBId, properties);
     return bookList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});

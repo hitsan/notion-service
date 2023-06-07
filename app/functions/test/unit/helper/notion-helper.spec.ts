@@ -3,13 +3,13 @@ import {NotionHelper} from "../../../src/helper/notion-helper";
 describe("Notion Helper function test", () => {
   test("featch book test", async () => {
     const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
-    const query = {
+    const properties = {
       property: "Categry",
       select: {
         equals: "Book",
       },
     };
-    const response = await NotionHelper.featchPageIdsFromDB(watchListDBId, query);
+    const response = await NotionHelper.featchPageIdsFromDB(watchListDBId, properties);
     response.forEach((value) => {
       const id = process.env.TEST_HARRY_PAGE_ID;
       if (value.id === id) {
@@ -22,13 +22,13 @@ describe("Notion Helper function test", () => {
 
   test("featch restraunt test", async () => {
     const DBId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
-    const query = {
+    const properties = {
       property: "GoogleMap",
       url: {
         is_empty: true,
       },
     };
-    const response = await NotionHelper.featchPageIdsFromDB(DBId, query);
+    const response = await NotionHelper.featchPageIdsFromDB(DBId, properties);
     const kannok = process.env.TEST_KANNOK;
     const stay = process.env.TEST_STAY;
     response.forEach((value) => {
