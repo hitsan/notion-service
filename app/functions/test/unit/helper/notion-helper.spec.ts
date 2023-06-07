@@ -43,7 +43,7 @@ describe("Notion Helper function test", () => {
   });
 
   test("Update page properties", async () => {
-    const DBId = process.env.TEST_UPDATE_PAGE || "";
+    const pageId = process.env.TEST_UPDATE_PAGE || "";
     const properties = {
       Name: {
         title: [
@@ -65,7 +65,7 @@ describe("Notion Helper function test", () => {
         ],
       },
     };
-    const result = await NotionHelper.updatePageProperties(DBId, properties);
+    const result = await NotionHelper.updatePageProperties(pageId, properties);
     expect(result).toBeTruthy();
   })
 });

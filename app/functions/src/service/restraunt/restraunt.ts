@@ -74,8 +74,8 @@ const featchTargetRestraunts = async (restrauntDBId: string) => {
     property: "GoogleMap",
     url: {
       is_empty: true,
-    }
-  }
+    },
+  };
   try {
     const shopList = await NotionHelper.featchPageIdsFromDB(restrauntDBId, query);
     return shopList;

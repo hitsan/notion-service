@@ -37,12 +37,14 @@ export class NotionHelper {
 
   /**
   * Update page properties
+  * @param {string} pageId ID of page
+  * @param {object} properties Filtering properties
   */
-  static async updatePageProperties(dbId: string, properties: object) {
-    const updatinggQuery: {page_id: string, properties: any,} = {page_id: dbId, properties};
+  static async updatePageProperties(pageId: string, properties: object) {
+    const updatinggQuery: {page_id: string, properties: any,} = {page_id: pageId, properties};
     try {
       const response = await this.notion.pages.update(updatinggQuery);
-      return (response.id===dbId);
+      return (response.id===pageId);
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;
