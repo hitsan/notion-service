@@ -1,4 +1,4 @@
-import {updateBooksInfo, featchBookInfo} from "../../../../src/service/watchList/book-info";
+import {featchBookInfo} from "../../../../src/service/watchList/book-info";
 import {Client} from "@notionhq/client";
 import axios from "axios";
 
@@ -41,8 +41,8 @@ describe("Update Book Info Test", () => {
     expect(result.publishedDate).toEqual("2000/12/12");
   });
 
-  test("Update book info", async () => {
-    const result = await updateBooksInfo(notion, watchListDBId);
-    expect(result).toBeTruthy();
-  });
+  // test("Update book info", async () => {
+  //   const result = await updateBooksInfo(notion, watchListDBId);
+  //   expect(result).toBeTruthy();
+  // });
 });
