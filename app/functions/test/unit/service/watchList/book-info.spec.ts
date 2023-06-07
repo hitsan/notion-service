@@ -1,12 +1,9 @@
 import {featchBookInfo} from "../../../../src/service/watchList/book-info";
-import {Client} from "@notionhq/client";
 import axios from "axios";
 
 jest.mock("axios");
 describe("Update Book Info Test", () => {
-  const notionToken = process.env.NOTION_TOKEN || "";
-  const notion = new Client({auth: notionToken});
-  const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
+  // const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
 
   test("Get Book info", async () => {
     const mockedData = {

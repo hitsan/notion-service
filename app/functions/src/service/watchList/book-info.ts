@@ -1,7 +1,6 @@
 import * as functions from "firebase-functions";
 import {WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
-import {Client} from "@notionhq/client";
 import {NotionHelper} from "../../../src/helper/notion-helper";
 import axios from "axios";
 
@@ -133,7 +132,7 @@ const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
   }
 };
 
-export const updateBooksInfo = async (notion: Client, watchListDBId: string) => {
+export const updateBooksInfo = async (watchListDBId: string) => {
   try {
     const targetBooks = await featcSearchTargetBooks(watchListDBId);
     await Promise.all(targetBooks.map(
