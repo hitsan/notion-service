@@ -38,11 +38,10 @@ export class NotionHelper {
   /**
   * Update page properties
   */
-  static async updatePageProperties(dbId: string, query: object) {
-    const updatinggQuery: {page_id: string, query: any,} = {page_id: dbId, query: query};
+  static async updatePageProperties(dbId: string, properties: object) {
+    const updatinggQuery: {page_id: string, properties: any,} = {page_id: dbId, properties};
     try {
-      const response = await this.notion.pages.update(updatinggQuery);
-      console.log(response);
+      await this.notion.pages.update(updatinggQuery);
       return true;
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
