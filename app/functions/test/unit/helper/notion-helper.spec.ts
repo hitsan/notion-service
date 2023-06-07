@@ -44,6 +44,7 @@ describe("Notion Helper function test", () => {
 
   test("Update page properties", async () => {
     const pageId = process.env.TEST_UPDATE_PAGE || "";
+    const icon = "📕";
     const properties = {
       Name: {
         title: [
@@ -65,7 +66,7 @@ describe("Notion Helper function test", () => {
         ],
       },
     };
-    const result = await NotionHelper.updatePageProperties(pageId, properties);
+    const result = await NotionHelper.updatePageProperties(pageId, icon, properties);
     expect(result).toBeTruthy();
   })
 });
