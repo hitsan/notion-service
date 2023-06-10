@@ -1,4 +1,4 @@
-import {featchRestrauntInfo, updateRestrauntInfo} from "../../../../src/service/restraunt/restraunt";
+import {featchRestrauntInfo} from "../../../../src/service/restraunt/restraunt";
 import axios from "axios";
 
 jest.mock("axios");
