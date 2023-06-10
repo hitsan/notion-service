@@ -123,7 +123,7 @@ const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
         },
       ],
     },
-  }
+  };
   try {
     await NotionHelper.updatePageProperties(pageId, icon, properties);
   } catch (error) {

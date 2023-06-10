@@ -61,7 +61,11 @@ export class NotionHelper {
    */
   static async createPage(databaseId: string, icon: string, properties: object) {
     const database = {database_id: databaseId};
-    const creatingQuery: {parent: {database_id: string}, icon: any, properties: any,} = {parent: database, icon: {emoji: icon}, properties};
+    const creatingQuery: {parent: {database_id: string}, icon: any, properties: any,} = {
+      parent: database,
+      icon: {emoji: icon},
+      properties,
+    };
     const response = await this.notion.pages.create(creatingQuery);
     return (!!response);
   }
