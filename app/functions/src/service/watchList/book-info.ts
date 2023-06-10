@@ -1,7 +1,6 @@
 import * as functions from "firebase-functions";
 import {WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
-import {Client} from "@notionhq/client";
 import {NotionHelper} from "../../../src/helper/notion-helper";
 import axios from "axios";
 
@@ -26,7 +25,7 @@ class BookInfo implements WatchListInfo {
 }
 
 const featcSearchTargetBooks = async (watchListDBId: string) => {
-  const query = {
+  const properties = {
     and: [
       {
         property: "Categry",
@@ -59,7 +58,7 @@ const featcSearchTargetBooks = async (watchListDBId: string) => {
     ],
   };
   try {
-    const bookList = await NotionHelper.featchPageIdsFromDB(watchListDBId, query);
+    const bookList = await NotionHelper.featchPageIdsFromDB(watchListDBId, properties);
     return bookList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
@@ -86,64 +85,60 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
   }
 };
 
-const updateBookInfo = async (notion: Client, pageId: string, bookInfo: BookInfo) => {
-  try {
-    await notion.pages.update({
-      page_id: pageId,
-      icon: {
-        emoji: "📕",
-      },
-      properties: {
-        Title: {
-          title: [
-            {
-              text: {
-                content: bookInfo.title,
-              },
-            },
-          ],
-        },
-        Author: {
-          rich_text: [
-            {
-              text: {
-                content: bookInfo.authors,
-              },
-            },
-          ],
-        },
-        PublishedDate: {
-          date: {
-            start: bookInfo.publishedDate,
-            end: null,
-            time_zone: null,
+const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
+  const icon = "📕";
+  const properties = {
+    Name: {
+      title: [
+        {
+          text: {
+            content: bookInfo.title,
           },
         },
-        Image: {
-          files: [
-            {
-              name: bookInfo.coverUrl.toString(),
-              external: {
-                url: bookInfo.coverUrl.toString(),
-              },
-            },
-          ],
+      ],
+    },
+    Author: {
+      rich_text: [
+        {
+          text: {
+            content: bookInfo.authors,
+          },
         },
+      ],
+    },
+    PublishedDate: {
+      date: {
+        start: bookInfo.publishedDate,
+        end: null,
+        time_zone: null,
       },
-    });
+    },
+    Image: {
+      files: [
+        {
+          name: bookInfo.coverUrl.toString(),
+          external: {
+            url: bookInfo.coverUrl.toString(),
+          },
+        },
+      ],
+    },
+  }
+  try {
+    await NotionHelper.updatePageProperties(pageId, icon, properties);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
 
-export const updateBooksInfo = async (notion: Client, watchListDBId: string) => {
+export const updateBooksInfo = async (watchListDBId: string) => {
   try {
     const targetBooks = await featcSearchTargetBooks(watchListDBId);
     await Promise.all(targetBooks.map(
       async (book) => {
         const BookInfo = await featchBookInfo(book.name);
-        updateBookInfo(notion, book.id, BookInfo);
+        updateBookInfo(book.id, BookInfo);
       },
     ));
     return true;

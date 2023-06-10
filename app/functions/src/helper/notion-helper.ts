@@ -14,10 +14,10 @@ export class NotionHelper {
   /**
   * Get page contents
   * @param {string} dbId ID of DB
-  * @param {object} query Filter
+  * @param {object} properties Filtering properties
   */
-  static async featchPageIdsFromDB(dbId: string, query: object): Promise<{id: string, name: string}[]> {
-    const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: query};
+  static async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, name: string}[]> {
+    const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: properties};
     try {
       const response = await this.notion.databases.query(filteringQuery);
       const properties = response.results;
@@ -29,6 +29,24 @@ export class NotionHelper {
         return {id: result.id, name: name};
       });
       return idList;
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
+      throw error;
+    }
+  }
+
+  /**
+  * Update page properties
+  * @param {string} pageId ID of page
+  * @param {string} icon icon
+  * @param {object} properties Filtering properties
+  * @todo Make Emoji Type
+  */
+  static async updatePageProperties(pageId: string, icon: string, properties: object) {
+    const updatinggQuery: {page_id: string, icon: any, properties: any,} = {page_id: pageId, icon: {emoji: icon}, properties};
+    try {
+      const response = await this.notion.pages.update(updatinggQuery);
+      return (response.id===pageId);
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;

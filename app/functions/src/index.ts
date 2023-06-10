@@ -15,7 +15,7 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
       const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID;
       if (!watchListDBId) throw new Error("Do not find NOTION_WATCHLIST_DATABASE_ID");
 
-      await updateBooksInfo(notion, watchListDBId);
+      await updateBooksInfo(watchListDBId);
       response.send("Succese update book list");
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
@@ -31,7 +31,7 @@ export const addRestrauntInfo = functions.region("asia-northeast1").https.onRequ
       const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
       if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
-      await updateRestrauntInfo(notion, restrauntDBId);
+      await updateRestrauntInfo(restrauntDBId);
       response.send("Succese update restraunt list");
     } catch (error) {
       functions.logger.error(error, {structuredData: true});

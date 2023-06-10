@@ -44,4 +44,10 @@ describe("Update shisha shop Info test", () => {
     `?maxwidth=400&photo_reference=${test_ref}&key=${apiKey}`
     expect(photoReference).toEqual(testImageRef)
   });
+
+  // test("update", () => {
+  //   const dbId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
+  //   const result = updateRestrauntInfo(dbId);
+  //   expect(result).toBeTruthy();
+  // });
 });
