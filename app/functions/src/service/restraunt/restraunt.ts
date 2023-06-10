@@ -3,7 +3,6 @@ import {initializeApp} from "firebase/app";
 import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
-import {Client} from "@notionhq/client";
 import {NotionHelper} from "../../../src/helper/notion-helper";
 
 interface recieverRestrauntInfo {
@@ -85,44 +84,42 @@ const featchTargetRestraunts = async (restrauntDBId: string) => {
   }
 };
 
-export const postRestrauntnfo = async (notion: Client, pageId: string, restrauntInfo: SenderRestrauntInfo) => {
+export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
   // TODO
   // notion api cannot update string that length over 100.
   // use dummy string.
+  const icon = "🍴";
   const website = restrauntInfo.website;
   const googleMapUrl = restrauntInfo.googleMapUrl;
   const imageUrl = restrauntInfo.imageUrl.toString();
   const testimageUrl = (imageUrl.length > 100) ? "https://aaaa.jpg" : imageUrl;
+  const properties = {
+    Image: {
+      files: [
+        {
+          name: testimageUrl,
+          external: {
+            url: testimageUrl,
+          },
+        },
+      ],
+    },
+    GoogleMap: {
+      url: googleMapUrl,
+    },
+    URL: {
+      url: website,
+    },
+  };
   try {
-    const response = await notion.pages.update({
-      page_id: pageId,
-      properties: {
-        Image: {
-          files: [
-            {
-              name: testimageUrl,
-              external: {
-                url: testimageUrl,
-              },
-            },
-          ],
-        },
-        GoogleMap: {
-          url: googleMapUrl,
-        },
-        URL: {
-          url: website,
-        },
-      },
-    });
-    return (!!response);
+    await NotionHelper.updatePageProperties(pageId, icon, properties);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
 
-export const updateRestrauntInfo = async (notion: Client, restrauntDBId: string) => {
+export const updateRestrauntInfo = async (restrauntDBId: string) => {
   try {
     const shopList = await featchTargetRestraunts(restrauntDBId);
     await Promise.all(shopList.map(
@@ -132,7 +129,7 @@ export const updateRestrauntInfo = async (notion: Client, restrauntDBId: string)
         const googleMapUrl = shopInfo.googleMapUrl;
         const website = shopInfo.website;
         const senderRestrauntInfo: SenderRestrauntInfo = {website, googleMapUrl, imageUrl};
-        postRestrauntnfo(notion, shop.id, senderRestrauntInfo);
+        await postRestrauntnfo(shop.id, senderRestrauntInfo);
       }
     ));
     return true;

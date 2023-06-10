@@ -31,7 +31,7 @@ export const addRestrauntInfo = functions.region("asia-northeast1").https.onRequ
       const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
       if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
-      await updateRestrauntInfo(notion, restrauntDBId);
+      await updateRestrauntInfo(restrauntDBId);
       response.send("Succese update restraunt list");
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
