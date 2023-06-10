@@ -43,13 +43,26 @@ export class NotionHelper {
   * @todo Make Emoji Type
   */
   static async updatePageProperties(pageId: string, icon: string, properties: object) {
-    const updatinggQuery: {page_id: string, icon: any, properties: any,} = {page_id: pageId, icon: {emoji: icon}, properties};
+    const updatingQuery: {page_id: string, icon: any, properties: any,} = {page_id: pageId, icon: {emoji: icon}, properties};
     try {
-      const response = await this.notion.pages.update(updatinggQuery);
+      const response = await this.notion.pages.update(updatingQuery);
       return (response.id===pageId);
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;
     }
+  }
+
+  /**
+   * Create page to DB
+  * @param {string} databaseId ID of DB
+  * @param {string} icon icon
+  * @param {object} properties Filtering properties
+   */
+  static async createPage(databaseId: string, icon: string, properties: object) {
+    const database = {database_id: databaseId};
+    const creatingQuery: {parent: {database_id: string}, icon: any, properties: any,} = {parent: database, icon: {emoji: icon}, properties};
+    const response = await this.notion.pages.create(creatingQuery);
+    return (!!response);
   }
 }

@@ -1,5 +1,6 @@
 import axios from "axios";
 import {Client} from "@notionhq/client";
+import {NotionHelper} from "../../src/helper/notion-helper";
 import * as functions from "firebase-functions";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
@@ -53,44 +54,39 @@ const postLigeLogPage = async (date: string, weatherInfo: string,
   const timelineUrl = process.env.GOOGLE_MAP_TIMELINE_URL + date;
   if (!databaseId) throw new Error("Not found GOOGLE_MAP_TIMELINE_URL");
   const title = date.replace(/-/g, "/");
-  try {
-    await notion.pages.create({
-      parent: {database_id: databaseId},
-      icon: {
-        emoji: "🗓️",
+  const icon = "🗓️";
+  const properties = {
+    Date: {
+      date: {
+        start: date,
+        end: null,
+        time_zone: null,
       },
-      properties: {
-        Date: {
-          date: {
-            start: date,
-            end: null,
-            time_zone: null,
+    },
+    Logs: {
+      title: [
+        {
+          text: {
+            content: title,
           },
         },
-        Logs: {
-          title: [
-            {
-              text: {
-                content: title,
-              },
-            },
-          ],
+      ],
+    },
+    Weather: {
+      rich_text: [
+        {
+          text: {
+            content: weatherInfo,
+          },
         },
-        Weather: {
-          rich_text: [
-            {
-              text: {
-                content: weatherInfo,
-              },
-            },
-          ],
-        },
-        Timeline: {
-          url: timelineUrl,
-        },
-      },
-    });
-    functions.logger.info("Success! post lifelog page:" + title, {structuredData: true});
+      ],
+    },
+    Timeline: {
+      url: timelineUrl,
+    },
+  };
+  try {
+    return await NotionHelper.createPage(databaseId, icon, properties);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
