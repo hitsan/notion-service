@@ -68,5 +68,34 @@ describe("Notion Helper function test", () => {
     };
     const result = await NotionHelper.updatePageProperties(pageId, icon, properties);
     expect(result).toBeTruthy();
-  })
+  });
+
+  test("Create page", async () => {
+    const databaseId = process.env.TEST_CREATE_PAGE_DB || "";
+    const icon = "📕";
+    const properties = {
+      Name: {
+        title: [
+          {
+            text: {
+              content: "create_test",
+            },
+          },
+        ],
+      },
+      Tags: {
+        multi_select: [
+          {
+            name: "TypeScript"
+          },
+          {
+            name: "Python"
+          },
+        ],
+      },
+    };
+
+    const result = await NotionHelper.createPage(databaseId, icon, properties);
+    expect(result).toBeTruthy();    
+  });
 });
