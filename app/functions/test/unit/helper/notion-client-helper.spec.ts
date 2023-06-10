@@ -1,4 +1,4 @@
-import {NotionHelper} from "../../../src/helper/notion-helper";
+import {NotionHelper} from "../../../src/helper/notion-client-helper";
 
 describe("Notion Helper function test", () => {
   test("featch book test", async () => {
