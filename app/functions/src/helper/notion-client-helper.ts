@@ -22,11 +22,14 @@ export class NotionHelper {
       const response = await this.notion.databases.query(filteringQuery);
       const properties = response.results;
       const idList = properties.map((result) => {
-        if (!("properties" in result && "title" in result.properties.Name)) {
-          throw new Error("Ilegal data");
+        if (!("properties" in result)) { throw new Error("Ilegal data"); }
+        for (const recode in result.properties) {
+          const property = result.properties[recode];
+          if (!("title" in property)) { continue; }
+          const name = property.title[0].plain_text;
+          return {id: result.id, name: name};
         }
-        const name = result.properties.Name.title[0].plain_text;
-        return {id: result.id, name: name};
+        throw new Error("Ilegal data");
       });
       return idList;
     } catch (error) {
