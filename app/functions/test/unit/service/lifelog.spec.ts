@@ -3,21 +3,8 @@ import axios from "axios";
 
 jest.mock("axios");
 describe("Adding Life Log Test", () => {
-  const mockedData = {
+  const nomalMockData = {
     data: {
-      latitude: 35.7,
-      longitude: 139.6875,
-      generationtime_ms: 0.15497207641601562,
-      utc_offset_seconds: 32400,
-      timezone: "Asia/Tokyo",
-      timezone_abbreviation: "JST",
-      elevation: 43.0,
-      hourly_units: {
-        time: "iso8601",
-        temperature_2m: "°C",
-        relativehumidity_2m: "%",
-        weathercode: "wmo code"
-      },
       hourly: {
         time: [
           "2023-05-03T00:00",
@@ -131,7 +118,7 @@ describe("Adding Life Log Test", () => {
   const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID || "";
 
   test("Get weather info", async () => {
-    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(mockedData);
+    (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(nomalMockData);
     const result = await addPageToLifelog(date, databaseId);
     expect(result).toBeTruthy();
   });
