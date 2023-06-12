@@ -137,7 +137,7 @@ export const updateBooksInfo = async (watchListDBId: string) => {
     const targetBooks = await featcSearchTargetBooks(watchListDBId);
     await Promise.all(targetBooks.map(
       async (book) => {
-        const BookInfo = await featchBookInfo(book.name);
+        const BookInfo = await featchBookInfo(book.title);
         updateBookInfo(book.id, BookInfo);
       },
     ));

@@ -16,7 +16,7 @@ export class NotionHelper {
   * @param {string} dbId ID of DB
   * @param {object} properties Filtering properties
   */
-  static async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, name: string}[]> {
+  static async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, title: string}[]> {
     const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: properties};
     try {
       const response = await this.notion.databases.query(filteringQuery);
@@ -26,8 +26,9 @@ export class NotionHelper {
         for (const recode in result.properties) {
           const property = result.properties[recode];
           if (!("title" in property)) { continue; }
-          const name = property.title[0].plain_text;
-          return {id: result.id, name: name};
+          const title = property.title[0].plain_text;
+          const id = result.id;
+          return {id: id, title: title};
         }
         throw new Error("Ilegal data");
       });
