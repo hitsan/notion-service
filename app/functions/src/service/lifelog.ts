@@ -95,8 +95,8 @@ const postLigeLogPage = async (date: string, weatherInfo: string,
 export const addPageToLifelog = async (date: string, databaseId: string) => {
   try {
     const weatherInfo = await featchWeatherInfo(date);
-    await postLigeLogPage(date, weatherInfo, databaseId);
-    return true;
+    const ok = await postLigeLogPage(date, weatherInfo, databaseId);
+    return ok;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
