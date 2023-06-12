@@ -21,7 +21,6 @@ const weatherCodeToIcon = (weatherCode: number): string => {
   } else if (weatherCode >= 95 && weatherCode <= 99) {
     return "🌩️";
   }
-  functions.logger.error("Iligal weather code", {structuredData: true});
   throw new Error("Iligal weather code");
 };
 
@@ -43,7 +42,6 @@ const featchWeatherInfo = async (date: string) => {
     const roundEveningTemperature = Math.round(hourlyInfo.temperature_2m[eveningTime]);
     return `${weatherNoonIcon}${roundNoonTemperature}${weatherEveningIcon}${roundEveningTemperature}`;
   } catch (error) {
-    functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
@@ -87,7 +85,6 @@ const postLigeLogPage = async (date: string, weatherInfo: string,
   try {
     return await NotionHelper.createPage(databaseId, icon, properties);
   } catch (error) {
-    functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
@@ -95,8 +92,8 @@ const postLigeLogPage = async (date: string, weatherInfo: string,
 export const addPageToLifelog = async (date: string, databaseId: string) => {
   try {
     const weatherInfo = await featchWeatherInfo(date);
-    await postLigeLogPage(date, weatherInfo, databaseId);
-    return true;
+    const ok = await postLigeLogPage(date, weatherInfo, databaseId);
+    return ok;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
