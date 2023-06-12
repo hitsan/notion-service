@@ -70,7 +70,7 @@ describe("Adding Life Log Test", () => {
     expect(result).toBeTruthy();
   });
 
-  test("Iligal weather code", async () => {
+  test("Iligal weather code", () => {
     const mockData = {
       data: {
         hourly: {
@@ -130,10 +130,7 @@ describe("Adding Life Log Test", () => {
       }
     };
     (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(mockData);
-    const IligalWeatherCodeTest = async () => {
-      await addPageToLifelog(date, databaseId);
-    }
-    // const result = await addPageToLifelog(date, databaseId);
-    expect(await IligalWeatherCodeTest).toThrowError(new Error("Iligal weather code"));
+    const addPageToLifelogPromise =  addPageToLifelog(date, databaseId);
+    expect(addPageToLifelogPromise).rejects.toThrow("Iligal weather code");
   });
 });
