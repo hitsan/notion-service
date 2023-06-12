@@ -3,23 +3,18 @@ import {initializeApp} from "firebase/app";
 import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
-import {Client} from "@notionhq/client";
+import {NotionHelper} from "../../../src/helper/notion-client-helper";
 
-export interface recieverRestrauntInfo {
+interface recieverRestrauntInfo {
   website: string,
   googleMapUrl: string,
   imageRefUrl: string,
 }
 
-export interface SenderRestrauntInfo {
+interface SenderRestrauntInfo {
   website: string,
   googleMapUrl: string,
   imageUrl: ImageUrl,
-}
-
-interface TargetRestraunt {
-  id: string,
-  name: string,
 }
 
 export const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
@@ -73,24 +68,15 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-export const featchTargetRestraunts = async (notion: Client, restrauntDBId: string):Promise<TargetRestraunt[]> => {
+const featchTargetRestraunts = async (restrauntDBId: string) => {
+  const query = {
+    property: "GoogleMap",
+    url: {
+      is_empty: true,
+    },
+  };
   try {
-    const response = await notion.databases.query({
-      database_id: restrauntDBId,
-      filter: {
-        property: "GoogleMap",
-        url: {
-          is_empty: true,
-        },
-      },
-    });
-    const shopList = response.results.map((result) => {
-      if (!("properties" in result && "title" in result.properties.Name)) {
-        throw new Error("Ilegal data");
-      }
-      const name = result.properties.Name.title[0].plain_text;
-      return {id: result.id, name: name};
-    });
+    const shopList = await NotionHelper.featchPageIdsFromDB(restrauntDBId, query);
     return shopList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
@@ -98,54 +84,52 @@ export const featchTargetRestraunts = async (notion: Client, restrauntDBId: stri
   }
 };
 
-export const postRestrauntnfo = async (notion: Client, pageId: string, restrauntInfo: SenderRestrauntInfo) => {
+export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
   // TODO
   // notion api cannot update string that length over 100.
   // use dummy string.
+  const icon = "🍴";
   const website = restrauntInfo.website;
   const googleMapUrl = restrauntInfo.googleMapUrl;
   const imageUrl = restrauntInfo.imageUrl.toString();
   const testimageUrl = (imageUrl.length > 100) ? "https://aaaa.jpg" : imageUrl;
+  const properties = {
+    Image: {
+      files: [
+        {
+          name: testimageUrl,
+          external: {
+            url: testimageUrl,
+          },
+        },
+      ],
+    },
+    GoogleMap: {
+      url: googleMapUrl,
+    },
+    URL: {
+      url: website,
+    },
+  };
   try {
-    const response = await notion.pages.update({
-      page_id: pageId,
-      properties: {
-        Image: {
-          files: [
-            {
-              name: testimageUrl,
-              external: {
-                url: testimageUrl,
-              },
-            },
-          ],
-        },
-        GoogleMap: {
-          url: googleMapUrl,
-        },
-        URL: {
-          url: website,
-        },
-      },
-    });
-    return (!!response);
+    await NotionHelper.updatePageProperties(pageId, icon, properties);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
 
-export const updateRestrauntInfo = async (notion: Client, restrauntDBId: string) => {
+export const updateRestrauntInfo = async (restrauntDBId: string) => {
   try {
-    const shopList = await featchTargetRestraunts(notion, restrauntDBId);
+    const shopList = await featchTargetRestraunts(restrauntDBId);
     await Promise.all(shopList.map(
       async (shop) => {
-        const shopInfo = await featchRestrauntInfo(shop.name);
-        const imageUrl = await uploadImage(shop.name, shopInfo.imageRefUrl);
+        const shopInfo = await featchRestrauntInfo(shop.title);
+        const imageUrl = await uploadImage(shop.title, shopInfo.imageRefUrl);
         const googleMapUrl = shopInfo.googleMapUrl;
         const website = shopInfo.website;
         const senderRestrauntInfo: SenderRestrauntInfo = {website, googleMapUrl, imageUrl};
-        postRestrauntnfo(notion, shop.id, senderRestrauntInfo);
+        await postRestrauntnfo(shop.id, senderRestrauntInfo);
       }
     ));
     return true;

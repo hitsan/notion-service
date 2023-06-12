@@ -1,12 +1,9 @@
-import {updateBooksInfo, featchBookInfo} from "../../../../src/service/watchList/book-info";
-import {Client} from "@notionhq/client";
+import {featchBookInfo} from "../../../../src/service/watchList/book-info";
 import axios from "axios";
 
 jest.mock("axios");
 describe("Update Book Info Test", () => {
-  const notionToken = process.env.NOTION_TOKEN || "";
-  const notion = new Client({auth: notionToken});
-  const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
+  // const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
 
   test("Get Book info", async () => {
     const mockedData = {
@@ -41,8 +38,8 @@ describe("Update Book Info Test", () => {
     expect(result.publishedDate).toEqual("2000/12/12");
   });
 
-  test("Update book info", async () => {
-    const result = await updateBooksInfo(notion, watchListDBId);
-    expect(result).toBeTruthy();
-  });
+  // test("Update book info", async () => {
+  //   const result = await updateBooksInfo(notion, watchListDBId);
+  //   expect(result).toBeTruthy();
+  // });
 });

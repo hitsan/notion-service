@@ -1,5 +1,4 @@
 import * as functions from "firebase-functions";
-import {Client} from "@notionhq/client";
 import {formatInTimeZone} from "date-fns-tz";
 import {updateBooksInfo} from "./service/watchList/book-info";
 import {updateRestrauntInfo} from "./service/restraunt/restraunt";
@@ -8,14 +7,10 @@ import {addPageToLifelog} from "./service/lifelog";
 export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
   async (request, response) => {
     try {
-      const notionToken = process.env.NOTION_TOKEN;
-      if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-      const notion = new Client({auth: notionToken});
-
       const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID;
       if (!watchListDBId) throw new Error("Do not find NOTION_WATCHLIST_DATABASE_ID");
 
-      await updateBooksInfo(notion, watchListDBId);
+      await updateBooksInfo(watchListDBId);
       response.send("Succese update book list");
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
@@ -28,13 +23,10 @@ export const addBookInfo = functions.region("asia-northeast1").https.onRequest(
 export const addRestrauntInfo = functions.region("asia-northeast1").https.onRequest(
   async (request, response) => {
     try {
-      const notionToken = process.env.NOTION_TOKEN;
-      if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-      const notion = new Client({auth: notionToken});
       const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
       if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
-      await updateRestrauntInfo(notion, restrauntDBId);
+      await updateRestrauntInfo(restrauntDBId);
       response.send("Succese update restraunt list");
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
@@ -52,11 +44,8 @@ exports.scheduledFunctionCrontab = functions
     try {
       const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID;
       if (!databaseId) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");
-      const notionToken = process.env.NOTION_TOKEN;
-      if (!notionToken) throw new Error("Not found NOTION_TOKEN");
-      const notion = new Client({auth: notionToken});
       const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
-      await addPageToLifelog(date, notion, databaseId);
+      await addPageToLifelog(date, databaseId);
       functions.logger.info("Succese dairy task", {structuredData: true});
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
