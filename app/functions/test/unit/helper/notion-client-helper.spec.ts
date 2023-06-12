@@ -13,7 +13,7 @@ describe("Notion Helper function test", () => {
     response.forEach((value) => {
       const id = process.env.TEST_HARRY_PAGE_ID;
       if (value.id === id) {
-        expect(value.name).toEqual("ハリー・ポッターと秘密の部屋");
+        expect(value.title).toEqual("ハリー・ポッターと秘密の部屋");
       } else {
         throw new Error("Cannot get book data!")
       }
@@ -33,9 +33,9 @@ describe("Notion Helper function test", () => {
     const stay = process.env.TEST_STAY;
     response.forEach((value) => {
       if (value.id === kannok) {
-        expect(value.name).toEqual("kannok");
+        expect(value.title).toEqual("kannok");
       } else if (value.id === stay) {
-        expect(value.name).toEqual("stay loose");
+        expect(value.title).toEqual("stay loose");
       } else {
         throw new Error("Cannot get restraunt data!")
       }

@@ -124,8 +124,8 @@ export const updateRestrauntInfo = async (restrauntDBId: string) => {
     const shopList = await featchTargetRestraunts(restrauntDBId);
     await Promise.all(shopList.map(
       async (shop) => {
-        const shopInfo = await featchRestrauntInfo(shop.name);
-        const imageUrl = await uploadImage(shop.name, shopInfo.imageRefUrl);
+        const shopInfo = await featchRestrauntInfo(shop.title);
+        const imageUrl = await uploadImage(shop.title, shopInfo.imageRefUrl);
         const googleMapUrl = shopInfo.googleMapUrl;
         const website = shopInfo.website;
         const senderRestrauntInfo: SenderRestrauntInfo = {website, googleMapUrl, imageUrl};
