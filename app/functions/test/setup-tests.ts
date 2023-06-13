@@ -8,6 +8,8 @@ dotenv.config({ path: ".env.local" });
 // Ignore functions.logger.error
 jest.spyOn(functions.logger, "error").mockImplementation();
 
+jest.setTimeout(10000);
+
 const notionToken = process.env.NOTION_TOKEN || "";
 const notion: Client = new Client({auth: notionToken});
 
