@@ -1,7 +1,12 @@
 import * as dotenv from "dotenv";
 import {Client} from "@notionhq/client";
+import * as functions from "firebase-functions";
 
+// Loading test env
 dotenv.config({ path: ".env.local" });
+
+// Ignore functions.logger.error
+jest.spyOn(functions.logger, "error").mockImplementation();
 
 const notionToken = process.env.NOTION_TOKEN || "";
 const notion: Client = new Client({auth: notionToken});
