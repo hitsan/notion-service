@@ -1,49 +1,100 @@
 import {NotionHelper} from "../../../src/helper/notion-client-helper";
 
-describe("Notion Helper function test", () => {
-  test("featch book test", async () => {
-    const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID || "";
+// Notion SDK don't throw error when using iligal property.
+// So, this test don't check iligal property case.
+// Iligal property is checked before using Notion SDK.
+describe("Notion Helper featch test", () => {
+  const id = process.env.TEST_FEATCH_DB_ID || "";
+  const test1Id = process.env.FEATCH_PAGE_TEST1 || "";
+  const test2Id = process.env.FEATCH_PAGE_TEST2 || "";
+  const test3Id = process.env.FEATCH_PAGE_TEST3 || "";
+  const test4Id = process.env.FEATCH_PAGE_TEST4 || "";
+
+  // Select
+  test("featch by Select Book", async () => {
     const properties = {
-      property: "Categry",
+      property: "Select",
       select: {
         equals: "Book",
       },
     };
-    const response = await NotionHelper.featchPageIdsFromDB(watchListDBId, properties);
-    response.forEach((value) => {
-      const id = process.env.TEST_HARRY_PAGE_ID;
-      if (value.id === id) {
-        expect(value.title).toEqual("ハリー・ポッターと秘密の部屋");
-      } else {
-        throw new Error("Cannot get book data!")
-      }
-    })
+    const response = await NotionHelper.featchPageIdsFromDB(id, properties);
+    const expectResult = expect.arrayContaining([
+      {id: test1Id, title: "test1"},
+      {id: test4Id, title: "test4"}
+    ]);
+    expect(response).toEqual(expectResult);
   });
 
-  test("featch restraunt test", async () => {
-    const DBId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
+  test("featch by Select Movie", async () => {
     const properties = {
-      property: "GoogleMap",
-      url: {
-        is_empty: true,
+      property: "Select",
+      select: {
+        equals: "Movie",
       },
     };
-    const response = await NotionHelper.featchPageIdsFromDB(DBId, properties);
-    const kannok = process.env.TEST_KANNOK;
-    const stay = process.env.TEST_STAY;
-    response.forEach((value) => {
-      if (value.id === kannok) {
-        expect(value.title).toEqual("kannok");
-      } else if (value.id === stay) {
-        expect(value.title).toEqual("stay loose");
-      } else {
-        throw new Error("Cannot get restraunt data!")
-      }
-    })
+    const response = await NotionHelper.featchPageIdsFromDB(id, properties);
+    const expectResult = expect.arrayContaining([
+      {id: test2Id, title: "test2"}
+    ]);
+    expect(response).toEqual(expectResult);
   });
 
+  test("featch by Select Web", async () => {
+    const properties = {
+      property: "Select",
+      select: {
+        equals: "Web",
+      },
+    };
+    const response = await NotionHelper.featchPageIdsFromDB(id, properties);
+    const expectResult = expect.arrayContaining([
+      {id: test3Id, title: "test3"}
+    ]);
+    expect(response).toEqual(expectResult);
+  });
+
+  test("featch by Select Movie and Web", async () => {
+    const properties = {
+      or: [
+        {
+          property: "Select",
+          select: {
+            equals: "Movie",
+          },
+        },
+        {
+          property: "Select",
+          select: {
+            equals: "Web",
+          },
+        }
+      ]
+    };
+    const response = await NotionHelper.featchPageIdsFromDB(id, properties);
+    const expectResult = expect.arrayContaining([
+      {id: test2Id, title: "test2"},
+      {id: test3Id, title: "test3"}
+    ]);
+    expect(response).toEqual(expectResult);
+  });
+
+  test("featch nocase ", async () => {
+    const properties = {
+      property: "Select",
+      select: {
+        equals: "Paper",
+      },
+    };
+    const response = await NotionHelper.featchPageIdsFromDB(id, properties);
+    const expectResult = expect.arrayContaining([]);
+    expect(response).toEqual(expectResult);
+  });
+});
+
+describe("Notion Helper update test", () => {
   test("Update page properties", async () => {
-    const pageId = process.env.TEST_UPDATE_PAGE || "";
+    const pageId = process.env.TEST_UPDATE_DB_ID || "";
     const icon = "📕";
     const properties = {
       Name: {
@@ -69,9 +120,11 @@ describe("Notion Helper function test", () => {
     const result = await NotionHelper.updatePageProperties(pageId, icon, properties);
     expect(result).toBeTruthy();
   });
+});
 
+describe("Notion Helper crate test", () => {
   test("Create page", async () => {
-    const databaseId = process.env.TEST_CREATE_PAGE_DB || "";
+    const databaseId = process.env.TEST_CREATE_DB_ID || "";
     const icon = "📕";
     const properties = {
       Name: {
