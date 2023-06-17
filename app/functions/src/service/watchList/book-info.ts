@@ -24,6 +24,11 @@ class BookInfo implements WatchListInfo {
   }
 }
 
+export type BookSearchQuery = {
+  database_id: string;
+  filter: object;
+};
+
 const featcSearchTargetBooks = async (watchListDBId: string) => {
   const properties = {
     and: [
