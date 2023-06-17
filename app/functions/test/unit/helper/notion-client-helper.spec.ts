@@ -1,5 +1,8 @@
 import {NotionHelper} from "../../../src/helper/notion-client-helper";
 
+// Notion SDK don't throw error when using iligal property.
+// So, this test don't check iligal property case.
+// Iligal property is checked before using Notion SDK.
 describe("Notion Helper featch test", () => {
   const id = process.env.TEST_FEATCH_DB_ID || "";
   const test1Id = process.env.FEATCH_PAGE_TEST1 || "";
@@ -87,19 +90,6 @@ describe("Notion Helper featch test", () => {
     const expectResult = expect.arrayContaining([]);
     expect(response).toEqual(expectResult);
   });
-
-  // TODO
-  // Gaurd iligal property
-  // test("featch iligal property", async () => {
-  //   const properties = {
-  //     property: "Sct",
-  //     select: {
-  //       equals: "Paper",
-  //     },
-  //   };
-  //   await NotionHelper.featchPageIdsFromDB(id, properties);
-  //   // expect(response).toEqual();
-  // });
 });
 
 describe("Notion Helper update test", () => {
