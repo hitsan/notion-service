@@ -20,7 +20,9 @@ describe("Notion data convert test", () => {
     };
     const mockData = {
       page_id: id,
-      icon: icon,
+      icon: {
+        emoji: icon,
+      },
       properties: {
         Name: {
           title: [

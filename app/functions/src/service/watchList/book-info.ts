@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import {WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
 import {NotionHelper} from "../../../src/helper/notion-client-helper";
+import {convertNotionData} from "../../../src/helper/notion-data-helper";
 import axios from "axios";
 
 /**
@@ -108,46 +109,17 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
 };
 
 const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
-  const icon = "📕";
-  const properties = {
-    Name: {
-      title: [
-        {
-          text: {
-            content: bookInfo.title,
-          },
-        },
-      ],
-    },
-    Author: {
-      rich_text: [
-        {
-          text: {
-            content: bookInfo.authors,
-          },
-        },
-      ],
-    },
-    PublishedDate: {
-      date: {
-        start: bookInfo.publishedDate,
-        end: null,
-        time_zone: null,
-      },
-    },
-    Image: {
-      files: [
-        {
-          name: bookInfo.coverUrl.toString(),
-          external: {
-            url: bookInfo.coverUrl.toString(),
-          },
-        },
-      ],
-    },
+  const updateProperties: BookUpdateData = {
+    pageId: pageId,
+    icon: "📕",
+    name: bookInfo.title,
+    author: bookInfo.authors,
+    publishedDate: bookInfo.publishedDate,
+    image: bookInfo.coverUrl,
   };
+  const query = convertNotionData(updateProperties);
   try {
-    await NotionHelper.updatePageProperties(pageId, icon, properties);
+    await NotionHelper.updatePageProperties(query);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;

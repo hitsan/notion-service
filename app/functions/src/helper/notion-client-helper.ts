@@ -46,11 +46,11 @@ export class NotionHelper {
   * @param {object} properties Filtering properties
   * @todo Make Emoji Type
   */
-  static async updatePageProperties(pageId: string, icon: string, properties: object) {
-    const updatingQuery: {page_id: string, icon: any, properties: any,} = {page_id: pageId, icon: {emoji: icon}, properties};
+  static async updatePageProperties(query: object) {
+    // const updatingQuery: {page_id: string, icon: any, properties: any,} = {page_id: pageId, icon: {emoji: icon}, properties};
     try {
-      const response = await this.notion.pages.update(updatingQuery);
-      return (response.id===pageId);
+      const response = await this.notion.pages.update((query as any));
+      return (("page_id" in query) && (response.id == query.page_id));
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;

@@ -8,7 +8,9 @@ export const convertNotionData: Query = (data: BookUpdateData): object => {
   if (isBookUpdateData(data)) {
     const query  = {
       page_id: data.pageId,
-      icon: data.icon,
+      icon: {
+        emoji: data.icon
+      },
       properties: {
         Name: {
           title: [
