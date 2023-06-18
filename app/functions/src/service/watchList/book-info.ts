@@ -29,6 +29,23 @@ export type BookSearchQuery = {
   filter: object;
 };
 
+export type BookUpdateData = {
+  pageId: string;
+  icon: string;
+  name: string;
+  author: string;
+  publishedDate: string;
+  image: ImageUrl;
+};
+
+export const isBookUpdateData = (item: any): item is BookUpdateData => {
+  const typed = item as BookUpdateData;
+  if (("pageId" in typed) && ("icon" in typed) && ("name" in typed) && ("author" in typed) && ("publishedDate" in typed) && ("image" in typed)) {
+    return true;
+  }
+  return false;
+}
+
 const featcSearchTargetBooks = async (watchListDBId: string) => {
   const properties = {
     and: [
