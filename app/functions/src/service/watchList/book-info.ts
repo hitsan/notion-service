@@ -109,7 +109,7 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
 };
 
 const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
-  const updateProperties: BookUpdateData = {
+  const properties: BookUpdateData = {
     pageId: pageId,
     icon: "📕",
     name: bookInfo.title,
@@ -117,7 +117,7 @@ const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
     publishedDate: bookInfo.publishedDate,
     image: bookInfo.coverUrl,
   };
-  const query = convertNotionData(updateProperties);
+  const query = convertNotionData(properties);
   try {
     await NotionHelper.updatePageProperties(query);
   } catch (error) {

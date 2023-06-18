@@ -47,7 +47,6 @@ export class NotionHelper {
   * @todo Make Emoji Type
   */
   static async updatePageProperties(query: object) {
-    // const updatingQuery: {page_id: string, icon: any, properties: any,} = {page_id: pageId, icon: {emoji: icon}, properties};
     try {
       const response = await this.notion.pages.update((query as any));
       return (("page_id" in query) && (response.id == query.page_id));
