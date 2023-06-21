@@ -1,11 +1,11 @@
-import {BookUpdateData, isBookUpdateData} from "../service/watchList/book-info"
+import {BookData, isBookData} from "../service/watchList/book-info"
 
 type Query = {
-  (data: BookUpdateData): object;
+  (data: BookData): object;
 };
   
-export const convertNotionData: Query = (data: BookUpdateData): object => {
-  if (isBookUpdateData(data)) {
+export const convertNotionData: Query = (data: BookData): object => {
+  if (isBookData(data)) {
     const query  = {
       page_id: data.pageId,
       icon: {
