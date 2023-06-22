@@ -4,6 +4,7 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
 import {NotionHelper} from "../../../src/helper/notion-client-helper";
+import { convertNotionData } from "../../helper/notion-data-helper";
 
 interface recieverRestrauntInfo {
   website: string,
@@ -15,6 +16,29 @@ interface SenderRestrauntInfo {
   website: string,
   googleMapUrl: string,
   imageUrl: ImageUrl,
+}
+
+export type RestrauntPageData = {
+  pageId: string;
+  icon: string;
+  category: string;
+  googleMap: string;
+  image: ImageUrl;
+  url: string;
+};
+
+export const isRestrauntPageData = (item: any): item is RestrauntPageData => {
+  const typed = item as RestrauntPageData;
+  if (("pageId" in typed) &&
+  ("icon" in typed) &&
+  ("name" in typed) &&
+  ("category" in typed) &&
+  ("googleMap" in typed) &&
+  ("image" in typed) &&
+  ("url" in typed)) {
+    return true;
+  }
+  return false;
 }
 
 export const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
@@ -85,34 +109,17 @@ const featchTargetRestraunts = async (restrauntDBId: string) => {
 };
 
 export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
-  // TODO
-  // notion api cannot update string that length over 100.
-  // use dummy string.
-  const icon = "🍴";
-  const website = restrauntInfo.website;
-  const googleMapUrl = restrauntInfo.googleMapUrl;
-  const imageUrl = restrauntInfo.imageUrl.toString();
-  const testimageUrl = (imageUrl.length > 100) ? "https://aaaa.jpg" : imageUrl;
-  const properties = {
-    Image: {
-      files: [
-        {
-          name: testimageUrl,
-          external: {
-            url: testimageUrl,
-          },
-        },
-      ],
-    },
-    GoogleMap: {
-      url: googleMapUrl,
-    },
-    URL: {
-      url: website,
-    },
+  const properties: RestrauntPageData = {
+    pageId: pageId,
+    icon: "🍴",
+    category: "Shisha",
+    googleMap: restrauntInfo.googleMapUrl,
+    image: restrauntInfo.imageUrl,
+    url: restrauntInfo.website,
   };
+  const query = convertNotionData(properties);
   try {
-    await NotionHelper.updatePageProperties(pageId, icon, properties);
+    await NotionHelper.updatePageProperties(query);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;

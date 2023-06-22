@@ -30,7 +30,7 @@ export type BookSearchQuery = {
   filter: object;
 };
 
-export type BookData = {
+export type BookPageData = {
   pageId: string;
   icon: string;
   name: string;
@@ -39,8 +39,8 @@ export type BookData = {
   image: ImageUrl;
 };
 
-export const isBookData = (item: any): item is BookData => {
-  const typed = item as BookData;
+export const isBookPageData = (item: any): item is BookPageData => {
+  const typed = item as BookPageData;
   if (("pageId" in typed) && ("icon" in typed) && ("name" in typed) && ("author" in typed) && ("publishedDate" in typed) && ("image" in typed)) {
     return true;
   }
@@ -109,7 +109,7 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
 };
 
 const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
-  const properties: BookData = {
+  const properties: BookPageData = {
     pageId: pageId,
     icon: "📕",
     name: bookInfo.title,

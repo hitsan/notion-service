@@ -1,4 +1,4 @@
-import {featchRestrauntInfo} from "../../../../src/service/restraunt/restraunt";
+import {featchRestrauntInfo, updateRestrauntInfo} from "../../../../src/service/restraunt/restraunt";
 import axios from "axios";
 
 jest.mock("axios");
@@ -45,9 +45,9 @@ describe("Update shisha shop Info test", () => {
     expect(photoReference).toEqual(testImageRef)
   });
 
-  // test("update", () => {
-  //   const dbId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
-  //   const result = updateRestrauntInfo(dbId);
-  //   expect(result).toBeTruthy();
-  // });
+  test("update", () => {
+    const dbId = process.env.NOTION_RESTRAUNT_DATABSE_ID || "";
+    const result = updateRestrauntInfo(dbId);
+    expect(result).toBeTruthy();
+  });
 });
