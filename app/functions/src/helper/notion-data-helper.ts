@@ -1,14 +1,20 @@
 import {BookPageData, isBookPageData} from "../service/watchList/book-info"
 import {RestrauntPageData, isRestrauntPageData} from "../service/restraunt/restraunt";
 
+export type PageProperties = {
+  page_id: string;
+  icon: object;
+  properties: object;
+}
+
 type Query = {
-  (data: BookPageData): object;
-  (data: RestrauntPageData): object;
+  (data: BookPageData): PageProperties;
+  (data: RestrauntPageData): PageProperties;
 };
   
-export const convertNotionData: Query = (data: BookPageData | RestrauntPageData): object => {
+export const convertNotionData: Query = (data: BookPageData | RestrauntPageData): PageProperties => {
   if (isBookPageData(data)) {
-    const query  = {
+    const query: PageProperties  = {
       page_id: data.pageId,
       icon: {
         emoji: data.icon
@@ -42,9 +48,9 @@ export const convertNotionData: Query = (data: BookPageData | RestrauntPageData)
         Image: {
           files: [
             {
-              name: data.image,
+              name: data.image.toString(),
               external: {
-                url: data.image,
+                url: data.image.toString(),
               },
             },
           ],
@@ -59,15 +65,6 @@ export const convertNotionData: Query = (data: BookPageData | RestrauntPageData)
         emoji: data.icon
       },
       properties: {
-        // Name: {
-        //   title: [
-        //     {
-        //       text: {
-        //         content: data.name,
-        //       },
-        //     },
-        //   ],
-        // },
         Category: {
           select: {
             name: data.category,
@@ -82,9 +79,9 @@ export const convertNotionData: Query = (data: BookPageData | RestrauntPageData)
         Image: {
           files: [
             {
-              name: data.image,
+              name: data.image.toString(),
               external: {
-                url: data.image,
+                url: data.image.toString(),
               },
             },
           ],
@@ -92,7 +89,6 @@ export const convertNotionData: Query = (data: BookPageData | RestrauntPageData)
       },
     };
     return query;
-  } else {
-    return {data};
   }
+  throw new Error("Cannot convert data");
 }

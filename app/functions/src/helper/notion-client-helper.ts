@@ -1,5 +1,6 @@
 import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
+import {PageProperties} from "../helper/notion-data-helper"
 
 /**
  * Notion Helper
@@ -41,15 +42,13 @@ export class NotionHelper {
 
   /**
   * Update page properties
-  * @param {string} pageId ID of page
-  * @param {string} icon icon
-  * @param {object} properties Filtering properties
+  * @param {PageProperties} properties Filtering properties
   * @todo Make Emoji Type
   */
-  static async updatePageProperties(query: object) {
+  static async updatePageProperties(query: PageProperties) {
     try {
-      const response = await this.notion.pages.update((query as any));
-      return (("page_id" in query) && (response.id == query.page_id));
+      const response = await this.notion.pages.update(query as any);
+      return !!response;
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;

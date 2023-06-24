@@ -4,7 +4,7 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
 import {NotionHelper} from "../../../src/helper/notion-client-helper";
-import { convertNotionData } from "../../helper/notion-data-helper";
+import {convertNotionData} from "../../helper/notion-data-helper";
 
 interface recieverRestrauntInfo {
   website: string,
@@ -31,7 +31,6 @@ export const isRestrauntPageData = (item: any): item is RestrauntPageData => {
   const typed = item as RestrauntPageData;
   if (("pageId" in typed) &&
   ("icon" in typed) &&
-  ("name" in typed) &&
   ("category" in typed) &&
   ("googleMap" in typed) &&
   ("image" in typed) &&
@@ -41,7 +40,7 @@ export const isRestrauntPageData = (item: any): item is RestrauntPageData => {
   return false;
 }
 
-export const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
+const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
   const apiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!apiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
   try {
@@ -85,7 +84,11 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
     const firestrageUrl = response.ref.toString();
     const refarense = ref(storage, firestrageUrl);
     const downloadUrl = await getDownloadURL(refarense);
-    return new ImageUrl(downloadUrl);
+    // TODO
+    // Notion SDK cannot send URL that is length over 100 charactor.
+    // So send dummy url.
+    const url = (downloadUrl.length > 100) ? "https://www.test/test.jpg" : downloadUrl;
+    return new ImageUrl(url);
   } catch (error) {
     functions.logger.error("Failed upload image", {structuredData: true});
     throw error;
@@ -108,7 +111,7 @@ const featchTargetRestraunts = async (restrauntDBId: string) => {
   }
 };
 
-export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
+const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
   const properties: RestrauntPageData = {
     pageId: pageId,
     icon: "🍴",
