@@ -28,22 +28,18 @@ const featchWeatherInfo = async (date: string) => {
   let weatherUrl = "https://api.open-meteo.com/v1/jma?latitude=35.69&longitude=139.69&hourly=" +
   "temperature_2m,weathercode&start_date=_DATE_&end_date=_DATE_&timezone=Asia%2FTokyo";
   weatherUrl = weatherUrl.replace(/_DATE_/g, date);
-  try {
-    const responseWheather = await axios.get(weatherUrl);
-    const weatherItems = responseWheather.data;
+  const responseWheather = await axios.get(weatherUrl);
+  const weatherItems = responseWheather.data;
 
-    const noonTime = 13;
-    const eveningTime = 19;
+  const noonTime = 13;
+  const eveningTime = 19;
 
-    const hourlyInfo = weatherItems.hourly;
-    const weatherNoonIcon = weatherCodeToIcon(hourlyInfo.weathercode[noonTime]);
-    const weatherEveningIcon = weatherCodeToIcon(hourlyInfo.weathercode[eveningTime]);
-    const roundNoonTemperature = Math.round(hourlyInfo.temperature_2m[noonTime]);
-    const roundEveningTemperature = Math.round(hourlyInfo.temperature_2m[eveningTime]);
-    return `${weatherNoonIcon}${roundNoonTemperature}${weatherEveningIcon}${roundEveningTemperature}`;
-  } catch (error) {
-    throw error;
-  }
+  const hourlyInfo = weatherItems.hourly;
+  const weatherNoonIcon = weatherCodeToIcon(hourlyInfo.weathercode[noonTime]);
+  const weatherEveningIcon = weatherCodeToIcon(hourlyInfo.weathercode[eveningTime]);
+  const roundNoonTemperature = Math.round(hourlyInfo.temperature_2m[noonTime]);
+  const roundEveningTemperature = Math.round(hourlyInfo.temperature_2m[eveningTime]);
+  return `${weatherNoonIcon}${roundNoonTemperature}${weatherEveningIcon}${roundEveningTemperature}`;
 };
 
 const postLigeLogPage = async (date: string, weatherInfo: string,
@@ -82,11 +78,7 @@ const postLigeLogPage = async (date: string, weatherInfo: string,
       url: timelineUrl,
     },
   };
-  try {
-    return await NotionHelper.createPage(databaseId, icon, properties);
-  } catch (error) {
-    throw error;
-  }
+  return await NotionHelper.createPage(databaseId, icon, properties);
 };
 
 export const addPageToLifelog = async (date: string, databaseId: string) => {
