@@ -121,7 +121,6 @@ export const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRest
   try {
     await NotionHelper.updatePageProperties(query);
   } catch (error) {
-    functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
