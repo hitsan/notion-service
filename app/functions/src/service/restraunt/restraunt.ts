@@ -38,7 +38,7 @@ export const isRestrauntPageData = (item: any): item is RestrauntPageData => {
     return true;
   }
   return false;
-}
+};
 
 const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
   const apiKey = process.env.GOOGLE_MAP_APIKEY;
@@ -121,11 +121,7 @@ const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntIn
     url: restrauntInfo.website,
   };
   const query = convertNotionData(properties);
-  try {
-    await NotionHelper.updatePageProperties(query);
-  } catch (error) {
-    throw error;
-  }
+  await NotionHelper.updatePageProperties(query);
 };
 
 export const updateRestrauntInfo = async (restrauntDBId: string) => {

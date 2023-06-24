@@ -1,4 +1,4 @@
-import {BookPageData, isBookPageData} from "../service/watchList/book-info"
+import {BookPageData, isBookPageData} from "../service/watchList/book-info";
 import {RestrauntPageData, isRestrauntPageData} from "../service/restraunt/restraunt";
 
 export type PageProperties = {
@@ -11,13 +11,13 @@ type Query = {
   (data: BookPageData): PageProperties;
   (data: RestrauntPageData): PageProperties;
 };
-  
+
 export const convertNotionData: Query = (data: BookPageData | RestrauntPageData): PageProperties => {
   if (isBookPageData(data)) {
-    const query: PageProperties  = {
+    const query: PageProperties = {
       page_id: data.pageId,
       icon: {
-        emoji: data.icon
+        emoji: data.icon,
       },
       properties: {
         Name: {
@@ -58,11 +58,11 @@ export const convertNotionData: Query = (data: BookPageData | RestrauntPageData)
       },
     };
     return query;
-  } else if(isRestrauntPageData(data)) {
-    const query  = {
+  } else if (isRestrauntPageData(data)) {
+    const query = {
       page_id: data.pageId,
       icon: {
-        emoji: data.icon
+        emoji: data.icon,
       },
       properties: {
         Category: {
@@ -91,4 +91,4 @@ export const convertNotionData: Query = (data: BookPageData | RestrauntPageData)
     return query;
   }
   throw new Error("Cannot convert data");
-}
+};

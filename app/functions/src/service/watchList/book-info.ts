@@ -41,11 +41,16 @@ export type BookPageData = {
 
 export const isBookPageData = (item: any): item is BookPageData => {
   const typed = item as BookPageData;
-  if (("pageId" in typed) && ("icon" in typed) && ("name" in typed) && ("author" in typed) && ("publishedDate" in typed) && ("image" in typed)) {
+  if (("pageId" in typed) &&
+    ("icon" in typed) &&
+    ("name" in typed) &&
+    ("author" in typed) &&
+    ("publishedDate" in typed) &&
+    ("image" in typed)) {
     return true;
   }
   return false;
-}
+};
 
 const featcSearchTargetBooks = async (watchListDBId: string) => {
   const properties = {

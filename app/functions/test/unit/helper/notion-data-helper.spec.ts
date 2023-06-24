@@ -1,6 +1,6 @@
 import { ImageUrl } from "../../../src/service/utils/imageUrl";
 import {BookPageData} from "../../../src/service/watchList/book-info";
-import {RestrauntPageData} from "../../../src/service/restraunt/restraunt";
+// import {RestrauntPageData} from "../../../src/service/restraunt/restraunt";
 import {convertNotionData} from "../../../src/helper/notion-data-helper";
 
 describe("Notion data convert test", () => {
@@ -10,14 +10,14 @@ describe("Notion data convert test", () => {
     const name = "test_name";
     const author = "test_author";
     const publishedDate = "2020/12/01";
-    const image = new ImageUrl("https://www.test/test.jpg");
+    const image = "https://www.test/test.jpg";
     const query: BookPageData = {
       pageId: id,
       icon: icon,
       name: name,
       author: author,
       publishedDate: publishedDate,
-      image: image,
+      image: new ImageUrl(image),
     };
     const mockData = {
       page_id: id,
