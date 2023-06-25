@@ -95,7 +95,7 @@ describe("Notion Helper featch test", () => {
 describe("Notion Helper update test", () => {
   test("Update page properties", async () => {
     const pageId = process.env.TEST_UPDATE_DB_ID || "";
-    const icon = "📕";
+    const icon = {emoji: "📕"};
     const properties = {
       Name: {
         title: [
@@ -117,7 +117,8 @@ describe("Notion Helper update test", () => {
         ],
       },
     };
-    const result = await NotionHelper.updatePageProperties(pageId, icon, properties);
+    const query = {page_id: pageId, icon: icon, properties: properties}
+    const result = await NotionHelper.updatePageProperties(query);
     expect(result).toBeTruthy();
   });
 });

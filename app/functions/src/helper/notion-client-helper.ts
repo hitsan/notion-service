@@ -1,5 +1,6 @@
 import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
+import {PageProperties} from "../helper/notion-data-helper";
 
 /**
  * Notion Helper
@@ -17,18 +18,24 @@ export class NotionHelper {
   * @param {object} properties Filtering properties
   */
   static async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, title: string}[]> {
-    const filteringQuery: {database_id: string, filter: any,} = {database_id: dbId, filter: properties};
+    const filteringQuery: {database_id: string, filter: any} = {database_id: dbId, filter: properties};
     try {
       const response = await this.notion.databases.query(filteringQuery);
       const properties = response.results;
       const idList = properties.map((result) => {
-        if (!("properties" in result)) { throw new Error("Ilegal data"); }
+        if (!("properties" in result)) {
+          throw new Error("Ilegal data");
+        }
         for (const recode in result.properties) {
+          if (!({}.hasOwnProperty.call(result.properties, recode))) {
+            continue;
+          }
           const property = result.properties[recode];
-          if (!("title" in property)) { continue; }
-          const title = property.title[0].plain_text;
-          const id = result.id;
-          return {id: id, title: title};
+          if ("title" in property) {
+            const title = property.title[0].plain_text;
+            const id = result.id;
+            return {id: id, title: title};
+          }
         }
         throw new Error("Ilegal data");
       });
@@ -41,16 +48,13 @@ export class NotionHelper {
 
   /**
   * Update page properties
-  * @param {string} pageId ID of page
-  * @param {string} icon icon
-  * @param {object} properties Filtering properties
+  * @param {PageProperties} query Filtering properties
   * @todo Make Emoji Type
   */
-  static async updatePageProperties(pageId: string, icon: string, properties: object) {
-    const updatingQuery: {page_id: string, icon: any, properties: any,} = {page_id: pageId, icon: {emoji: icon}, properties};
+  static async updatePageProperties(query: PageProperties) {
     try {
-      const response = await this.notion.pages.update(updatingQuery);
-      return (response.id===pageId);
+      const response = await this.notion.pages.update(query as any);
+      return !!response;
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
       throw error;
@@ -70,7 +74,12 @@ export class NotionHelper {
       icon: {emoji: icon},
       properties,
     };
-    const response = await this.notion.pages.create(creatingQuery);
-    return (!!response);
+    try {
+      const response = await this.notion.pages.create(creatingQuery);
+      return (!!response);
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
+      throw error;
+    }
   }
 }

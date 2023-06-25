@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import {WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
 import {NotionHelper} from "../../../src/helper/notion-client-helper";
+import {convertNotionData} from "../../../src/helper/notion-data-helper";
 import axios from "axios";
 
 /**
@@ -23,6 +24,33 @@ class BookInfo implements WatchListInfo {
     this.publishedDate = publishedDate;
   }
 }
+
+export type BookSearchQuery = {
+  database_id: string;
+  filter: object;
+};
+
+export type BookPageData = {
+  pageId: string;
+  icon: string;
+  name: string;
+  author: string;
+  publishedDate: string;
+  image: ImageUrl;
+};
+
+export const isBookPageData = (item: any): item is BookPageData => {
+  const typed = item as BookPageData;
+  if (("pageId" in typed) &&
+    ("icon" in typed) &&
+    ("name" in typed) &&
+    ("author" in typed) &&
+    ("publishedDate" in typed) &&
+    ("image" in typed)) {
+    return true;
+  }
+  return false;
+};
 
 const featcSearchTargetBooks = async (watchListDBId: string) => {
   const properties = {
@@ -86,46 +114,17 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
 };
 
 const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
-  const icon = "📕";
-  const properties = {
-    Name: {
-      title: [
-        {
-          text: {
-            content: bookInfo.title,
-          },
-        },
-      ],
-    },
-    Author: {
-      rich_text: [
-        {
-          text: {
-            content: bookInfo.authors,
-          },
-        },
-      ],
-    },
-    PublishedDate: {
-      date: {
-        start: bookInfo.publishedDate,
-        end: null,
-        time_zone: null,
-      },
-    },
-    Image: {
-      files: [
-        {
-          name: bookInfo.coverUrl.toString(),
-          external: {
-            url: bookInfo.coverUrl.toString(),
-          },
-        },
-      ],
-    },
+  const properties: BookPageData = {
+    pageId: pageId,
+    icon: "📕",
+    name: bookInfo.title,
+    author: bookInfo.authors,
+    publishedDate: bookInfo.publishedDate,
+    image: bookInfo.coverUrl,
   };
+  const query = convertNotionData(properties);
   try {
-    await NotionHelper.updatePageProperties(pageId, icon, properties);
+    await NotionHelper.updatePageProperties(query);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
