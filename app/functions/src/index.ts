@@ -55,7 +55,7 @@ exports.scheduledFunctionCrontab = functions
       const resultUpdateRestraunt = updateRestrauntInfo(restrauntDBId);
 
       await Promise.all([resultLigeLog, resultUpdateBooks, resultUpdateRestraunt]);
-  
+
       functions.logger.info("Succese dairy task", {structuredData: true});
     } catch (error) {
       functions.logger.error(error, {structuredData: true});
