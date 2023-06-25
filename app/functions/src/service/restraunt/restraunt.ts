@@ -3,7 +3,7 @@ import {initializeApp} from "firebase/app";
 import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
-import {NotionHelper} from "../../../src/helper/notion-client-helper";
+import {NotionHelper} from "../../helper/notion-client-helper";
 import {convertNotionData} from "../../helper/notion-data-helper";
 
 interface recieverRestrauntInfo {
