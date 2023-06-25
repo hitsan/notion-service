@@ -74,7 +74,12 @@ export class NotionHelper {
       icon: {emoji: icon},
       properties,
     };
-    const response = await this.notion.pages.create(creatingQuery);
-    return (!!response);
+    try {
+      const response = await this.notion.pages.create(creatingQuery);
+      return (!!response);
+    } catch (error) {
+      functions.logger.error(error, {structuredData: true});
+      throw error;
+    }
   }
 }
