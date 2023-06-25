@@ -1,8 +1,8 @@
 import * as functions from "firebase-functions";
 import {WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
-import {NotionHelper} from "../../../src/helper/notion-client-helper";
-import {convertNotionData} from "../../../src/helper/notion-data-helper";
+import {NotionHelper} from "../../helper/notion-client-helper";
+import {convertNotionData} from "../../helper/notion-data-helper";
 import axios from "axios";
 
 /**
