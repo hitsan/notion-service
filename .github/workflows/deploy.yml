@@ -19,13 +19,17 @@ jobs:
       - name: Install dependencies
         working-directory: ./app/functions
         run: npm install && npm run build
-      - name: Make .env
-        working-directory: ./app/functions
-        run: echo "${{ secrets.CONFIG_VALUES }}" > .env
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only functions
-        env:
-          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-          PROJECT_PATH: ./app
+    env:
+      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+      NOTION_LIFELOG_DATABASE_ID: ${{ secrets.NOTION_LIFELOG_DATABASE_ID }}
+      NOTION_WATCHLIST_DATABASE_ID: ${{ secrets.NOTION_WATCHLIST_DATABASE_ID }}
+      NOTION_RESTRAUNT_DATABSE_ID: ${{ secrets.NOTION_RESTRAUNT_DATABSE_ID }}
+      GOOGLE_MAP_TIMELINE_URL: ${{ secrets.GOOGLE_MAP_TIMELINE_URL }}
+      GOOGLE_MAP_APIKEY: ${{ secrets.GOOGLE_MAP_APIKEY }}
+      FIRESTORAGE_BUCKET: ${{ secrets.FIRESTORAGE_BUCKET }}
+      PROJECT_PATH: ./app
