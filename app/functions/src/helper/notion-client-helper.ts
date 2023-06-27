@@ -6,18 +6,26 @@ import {PageProperties} from "../helper/notion-data-helper";
  * Notion Helper
  */
 export class NotionHelper {
-  private static notion: Client = (()=>{
-    const notionToken = process.env.NOTION_TOKEN;
-    if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-    return new Client({auth: notionToken});
-  })();
+  // private static notion: Client = (()=>{
+  //   const notionToken = process.env.NOTION_TOKEN;
+  //   if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+  //   return new Client({auth: notionToken});
+  // })();
+  notion;
+
+  /**
+   * Set varialbe
+   */
+  constructor(notionToken: string) {
+    this.notion = new Client({auth: notionToken});
+  }
 
   /**
   * Get page contents
   * @param {string} dbId ID of DB
   * @param {object} properties Filtering properties
   */
-  static async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, title: string}[]> {
+  async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, title: string}[]> {
     const filteringQuery: {database_id: string, filter: any} = {database_id: dbId, filter: properties};
     try {
       const response = await this.notion.databases.query(filteringQuery);
@@ -51,7 +59,7 @@ export class NotionHelper {
   * @param {PageProperties} query Filtering properties
   * @todo Make Emoji Type
   */
-  static async updatePageProperties(query: PageProperties) {
+  async updatePageProperties(query: PageProperties) {
     try {
       const response = await this.notion.pages.update(query as any);
       return !!response;
@@ -67,7 +75,7 @@ export class NotionHelper {
   * @param {string} icon icon
   * @param {object} properties Filtering properties
    */
-  static async createPage(databaseId: string, icon: string, properties: object) {
+  async createPage(databaseId: string, icon: string, properties: object) {
     const database = {database_id: databaseId};
     const creatingQuery: {parent: {database_id: string}, icon: any, properties: any,} = {
       parent: database,
