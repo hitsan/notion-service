@@ -1,8 +1,5 @@
 import {addPageToLifelog} from "../../../src/service/lifelog";
 import axios from "axios";
-import {NotionHelper} from "../../../src/helper/notion-client-helper";
-
-NotionHelper.init(process.env.NOTION_TOKEN);
 
 jest.mock("axios");
 describe("Adding Life Log Test", () => {
