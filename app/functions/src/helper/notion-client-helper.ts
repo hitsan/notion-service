@@ -6,11 +6,16 @@ import {PageProperties} from "../helper/notion-data-helper";
  * Notion Helper
  */
 export class NotionHelper {
-  private static notion: Client = (()=>{
-    const notionToken = process.env.NOTION_TOKEN;
+  private static notion: Client;
+
+  /**
+  * init
+  * @param {string | undefined} notionToken Access token
+  */
+  static init(notionToken: string | undefined) {
     if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
-    return new Client({auth: notionToken});
-  })();
+    this.notion = new Client({auth: notionToken});
+  }
 
   /**
   * Get page contents
