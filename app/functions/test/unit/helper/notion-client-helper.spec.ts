@@ -1,5 +1,7 @@
 import {NotionHelper} from "../../../src/helper/notion-client-helper";
 
+NotionHelper.init(process.env.NOTION_TOKEN);
+
 // Notion SDK don't throw error when using iligal property.
 // So, this test don't check iligal property case.
 // Iligal property is checked before using Notion SDK.
