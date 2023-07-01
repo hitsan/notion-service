@@ -3,7 +3,7 @@ import {formatInTimeZone} from "date-fns-tz";
 import {updateBooksInfo} from "./service/watchList/book-info";
 import {updateRestrauntInfo} from "./service/restraunt/restraunt";
 import {addPageToLifelog} from "./service/lifelog";
-import {NotionHelper} from "./helper/notion-client-helper"
+import {NotionHelper} from "./helper/notion-client-helper";
 
 NotionHelper.init(process.env.NOTION_TOKEN);
 
