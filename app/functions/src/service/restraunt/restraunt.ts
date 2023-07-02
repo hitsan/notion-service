@@ -4,7 +4,7 @@ import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
 import {convertNotionData} from "../../helper/notion-data-helper";
-import {NotionClientHelper} from "../../helper/notion-client-helper";
+import {ClientHelper} from "../../helper/notion-client-helper";
 
 interface recieverRestrauntInfo {
   website: string,
@@ -95,7 +95,7 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-const featchTargetRestraunts = async (notionClient: NotionClientHelper,restrauntDBId: string) => {
+const featchTargetRestraunts = async (notionClient: ClientHelper,restrauntDBId: string) => {
   const query = {
     property: "GoogleMap",
     url: {
@@ -111,7 +111,7 @@ const featchTargetRestraunts = async (notionClient: NotionClientHelper,restraunt
   }
 };
 
-const postRestrauntnfo = async (notionClient: typeof NotionClientHelper, pageId: string, restrauntInfo: SenderRestrauntInfo) => {
+const postRestrauntnfo = async (notionClient: ClientHelper, pageId: string, restrauntInfo: SenderRestrauntInfo) => {
   const properties: RestrauntPageData = {
     pageId: pageId,
     icon: "🍴",
@@ -121,10 +121,10 @@ const postRestrauntnfo = async (notionClient: typeof NotionClientHelper, pageId:
     url: restrauntInfo.website,
   };
   const query = convertNotionData(properties);
-  await NotionHelper.updatePageProperties(query);
+  await notionClient.updatePageProperties(query);
 };
 
-export const updateRestrauntInfo = async (notionClient: NotionClientHelper, restrauntDBId: string) => {
+export const updateRestrauntInfo = async (notionClient: ClientHelper, restrauntDBId: string) => {
   try {
     const shopList = await featchTargetRestraunts(notionClient, restrauntDBId);
     await Promise.all(shopList.map(

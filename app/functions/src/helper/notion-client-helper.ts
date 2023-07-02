@@ -2,9 +2,8 @@ import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
 import {PageProperties} from "../helper/notion-data-helper";
 
-interface ClientHelper {
+export interface ClientHelper {
   notion: Client;
-  init: (notionToken: string | undefined) => void;
   featchPageIdsFromDB: (dbId: string, properties: object) => Promise<{id: string, title: string}[]>;
   updatePageProperties: (query: PageProperties) => void;
   createPage: (databaseId: string, icon: string, properties: object) => void;
@@ -13,8 +12,8 @@ interface ClientHelper {
 /**
  * Notion Helper
  */
-export const NotionClientHelper = class {
-  private notion: Client;
+export class NotionClientHelper implements ClientHelper {
+  notion: Client;
   /**
   * constructor
   * @param {string | undefined} notionToken Access token

@@ -1,5 +1,5 @@
 import {updateRestrauntInfo} from "../../../../src/service/restraunt/restraunt";
-import {NotionClientHelper} from "../../../../src/helper/notion-client-helper"
+import {NotionClientHelper} from "../../../../src/helper/notion-client-helper";
 
 describe("Update shisha shop Info test", () => {
   const notionClient = new NotionClientHelper(process.env.NOTION_TOKEN);
