@@ -21,9 +21,9 @@ exports.scheduledFunctionCrontab = functions
       if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
       const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
-      const resultLigeLog = addPageToLifelog(date, databaseId);
-      const resultUpdateBooks = updateBooksInfo(watchListDBId);
-      const resultUpdateRestraunt = updateRestrauntInfo(restrauntDBId);
+      const resultLigeLog = addPageToLifelog(notionClientHelper, date, databaseId);
+      const resultUpdateBooks = updateBooksInfo(notionClientHelper, watchListDBId);
+      const resultUpdateRestraunt = updateRestrauntInfo(notionClientHelper, restrauntDBId);
 
       await Promise.all([resultLigeLog, resultUpdateBooks, resultUpdateRestraunt]);
 
