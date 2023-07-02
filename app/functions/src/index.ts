@@ -5,14 +5,13 @@ import {updateRestrauntInfo} from "./service/restraunt/restraunt";
 import {addPageToLifelog} from "./service/lifelog";
 import {NotionHelper} from "./helper/notion-client-helper";
 
-NotionHelper.init(process.env.NOTION_TOKEN);
-
 const timeZone = "Asia/Tokyo";
 exports.scheduledFunctionCrontab = functions
   .region("asia-northeast1").pubsub
   .schedule("0 6 * * *")
   .timeZone(timeZone)
   .onRun(async () => {
+    NotionHelper.init(process.env.NOTION_TOKEN);
     try {
       const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID;
       if (!databaseId) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");
