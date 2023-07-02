@@ -2,6 +2,14 @@ import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
 import {PageProperties} from "../helper/notion-data-helper";
 
+interface ClientHelper {
+  notion: Client;
+  init: (notionToken: string | undefined) => void;
+  featchPageIdsFromDB: (dbId: string, properties: object) => Promise<{id: string, title: string}[]>;
+  updatePageProperties: (query: PageProperties) => void;
+  createPage: (databaseId: string, icon: string, properties: object) => void;
+}
+
 /**
  * Notion Helper
  */

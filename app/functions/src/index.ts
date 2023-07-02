@@ -3,7 +3,7 @@ import {formatInTimeZone} from "date-fns-tz";
 import {updateBooksInfo} from "./service/watchList/book-info";
 import {updateRestrauntInfo} from "./service/restraunt/restraunt";
 import {addPageToLifelog} from "./service/lifelog";
-import {NotionHelper} from "./helper/notion-client-helper";
+import {NotionClientHelper} from "./helper/notion-client-helper";
 
 const timeZone = "Asia/Tokyo";
 exports.scheduledFunctionCrontab = functions
@@ -11,7 +11,7 @@ exports.scheduledFunctionCrontab = functions
   .schedule("0 6 * * *")
   .timeZone(timeZone)
   .onRun(async () => {
-    NotionHelper.init(process.env.NOTION_TOKEN);
+    const notionClientHelper = new NotionClientHelper(process.env.NOTION_TOKEN);
     try {
       const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID;
       if (!databaseId) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");

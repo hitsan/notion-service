@@ -1,5 +1,4 @@
 import axios from "axios";
-import {NotionHelper} from "../helper/notion-client-helper";
 import * as functions from "firebase-functions";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
