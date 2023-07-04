@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import {WatchListInfo} from "./watchList";
 import {ImageUrl} from "../utils/imageUrl";
-import {NotionHelper} from "../../helper/notion-client-helper";
+import {ClientHelper} from "../../helper/notion-client-helper";
 import {convertNotionData} from "../../helper/notion-data-helper";
 import axios from "axios";
 
@@ -52,7 +52,7 @@ export const isBookPageData = (item: any): item is BookPageData => {
   return false;
 };
 
-const featcSearchTargetBooks = async (watchListDBId: string) => {
+const featcSearchTargetBooks = async (notionClient: ClientHelper, watchListDBId: string) => {
   const properties = {
     and: [
       {
@@ -86,7 +86,7 @@ const featcSearchTargetBooks = async (watchListDBId: string) => {
     ],
   };
   try {
-    const bookList = await NotionHelper.featchPageIdsFromDB(watchListDBId, properties);
+    const bookList = await notionClient.featchPageIdsFromDB(watchListDBId, properties);
     return bookList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
@@ -94,7 +94,7 @@ const featcSearchTargetBooks = async (watchListDBId: string) => {
   }
 };
 
-export const featchBookInfo = async (title: string): Promise<BookInfo> => {
+const featchBookInfo = async (title: string): Promise<BookInfo> => {
   const googleBooksUrl = `https://www.googleapis.com/books/v1/volumes?q=${title}`;
   try {
     const googleBooksResponse = await axios.get(googleBooksUrl);
@@ -113,7 +113,7 @@ export const featchBookInfo = async (title: string): Promise<BookInfo> => {
   }
 };
 
-const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
+const updateBookInfo = async (notionClient: ClientHelper, pageId: string, bookInfo: BookInfo) => {
   const properties: BookPageData = {
     pageId: pageId,
     icon: "📕",
@@ -124,20 +124,20 @@ const updateBookInfo = async (pageId: string, bookInfo: BookInfo) => {
   };
   const query = convertNotionData(properties);
   try {
-    await NotionHelper.updatePageProperties(query);
+    await notionClient.updatePageProperties(query);
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
     throw error;
   }
 };
 
-export const updateBooksInfo = async (watchListDBId: string) => {
+export const updateBooksInfo = async (notionClient: ClientHelper, watchListDBId: string) => {
   try {
-    const targetBooks = await featcSearchTargetBooks(watchListDBId);
+    const targetBooks = await featcSearchTargetBooks(notionClient, watchListDBId);
     await Promise.all(targetBooks.map(
       async (book) => {
         const BookInfo = await featchBookInfo(book.title);
-        updateBookInfo(book.id, BookInfo);
+        updateBookInfo(notionClient, book.id, BookInfo);
       },
     ));
     return true;

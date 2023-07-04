@@ -2,18 +2,24 @@ import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
 import {PageProperties} from "../helper/notion-data-helper";
 
+export interface ClientHelper {
+  notion: Client;
+  featchPageIdsFromDB: (dbId: string, properties: object) => Promise<{id: string, title: string}[]>;
+  updatePageProperties: (query: PageProperties) => void;
+  createPage: (databaseId: string, icon: string, properties: object) => void;
+}
+
 /**
  * Notion Helper
  */
-export class NotionHelper {
-  private static notion: Client;
-
+export class NotionClientHelper implements ClientHelper {
+  notion: Client;
   /**
-  * init
+  * constructor
   * @param {string | undefined} notionToken Access token
   */
-  static init(notionToken: string | undefined) {
-    if (!notionToken) throw new Error("Do not find NOTION_TOKEN");
+  constructor(notionToken: string | undefined) {
+    if (!notionToken) throw new Error("Do not set NOTION_TOKEN");
     this.notion = new Client({auth: notionToken});
   }
 
@@ -22,7 +28,7 @@ export class NotionHelper {
   * @param {string} dbId ID of DB
   * @param {object} properties Filtering properties
   */
-  static async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, title: string}[]> {
+  async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, title: string}[]> {
     const filteringQuery: {database_id: string, filter: any} = {database_id: dbId, filter: properties};
     try {
       const response = await this.notion.databases.query(filteringQuery);
@@ -56,7 +62,7 @@ export class NotionHelper {
   * @param {PageProperties} query Filtering properties
   * @todo Make Emoji Type
   */
-  static async updatePageProperties(query: PageProperties) {
+  async updatePageProperties(query: PageProperties) {
     try {
       const response = await this.notion.pages.update(query as any);
       return !!response;
@@ -72,7 +78,7 @@ export class NotionHelper {
   * @param {string} icon icon
   * @param {object} properties Filtering properties
    */
-  static async createPage(databaseId: string, icon: string, properties: object) {
+  async createPage(databaseId: string, icon: string, properties: object) {
     const database = {database_id: databaseId};
     const creatingQuery: {parent: {database_id: string}, icon: any, properties: any,} = {
       parent: database,

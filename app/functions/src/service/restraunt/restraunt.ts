@@ -3,8 +3,8 @@ import {initializeApp} from "firebase/app";
 import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
-import {NotionHelper} from "../../helper/notion-client-helper";
 import {convertNotionData} from "../../helper/notion-data-helper";
+import {ClientHelper} from "../../helper/notion-client-helper";
 
 interface recieverRestrauntInfo {
   website: string,
@@ -95,7 +95,7 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-const featchTargetRestraunts = async (restrauntDBId: string) => {
+const featchTargetRestraunts = async (notionClient: ClientHelper, restrauntDBId: string) => {
   const query = {
     property: "GoogleMap",
     url: {
@@ -103,7 +103,7 @@ const featchTargetRestraunts = async (restrauntDBId: string) => {
     },
   };
   try {
-    const shopList = await NotionHelper.featchPageIdsFromDB(restrauntDBId, query);
+    const shopList = await notionClient.featchPageIdsFromDB(restrauntDBId, query);
     return shopList;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});
@@ -111,7 +111,7 @@ const featchTargetRestraunts = async (restrauntDBId: string) => {
   }
 };
 
-const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntInfo) => {
+const postRestrauntnfo = async (notionClient: ClientHelper, pageId: string, restrauntInfo: SenderRestrauntInfo) => {
   const properties: RestrauntPageData = {
     pageId: pageId,
     icon: "🍴",
@@ -121,12 +121,12 @@ const postRestrauntnfo = async (pageId: string, restrauntInfo: SenderRestrauntIn
     url: restrauntInfo.website,
   };
   const query = convertNotionData(properties);
-  await NotionHelper.updatePageProperties(query);
+  await notionClient.updatePageProperties(query);
 };
 
-export const updateRestrauntInfo = async (restrauntDBId: string) => {
+export const updateRestrauntInfo = async (notionClient: ClientHelper, restrauntDBId: string) => {
   try {
-    const shopList = await featchTargetRestraunts(restrauntDBId);
+    const shopList = await featchTargetRestraunts(notionClient, restrauntDBId);
     await Promise.all(shopList.map(
       async (shop) => {
         const shopInfo = await featchRestrauntInfo(shop.title);
@@ -134,7 +134,7 @@ export const updateRestrauntInfo = async (restrauntDBId: string) => {
         const googleMapUrl = shopInfo.googleMapUrl;
         const website = shopInfo.website;
         const senderRestrauntInfo: SenderRestrauntInfo = {website, googleMapUrl, imageUrl};
-        await postRestrauntnfo(shop.id, senderRestrauntInfo);
+        await postRestrauntnfo(notionClient, shop.id, senderRestrauntInfo);
       }
     ));
     return true;

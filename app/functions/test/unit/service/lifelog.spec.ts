@@ -1,8 +1,10 @@
+import {NotionClientHelper} from "../../../src/helper/notion-client-helper";
 import {addPageToLifelog} from "../../../src/service/lifelog";
 import axios from "axios";
 
 jest.mock("axios");
 describe("Adding Life Log Test", () => {
+  const notionClientHelper = new NotionClientHelper(process.env.NOTION_TOKEN);
   const date: string = "2023-05-03"
   const databaseId = process.env.NOTION_LIFELOG_DATABASE_ID || "";
 
@@ -66,7 +68,7 @@ describe("Adding Life Log Test", () => {
       }
     };
     (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(nomalMockData);
-    const result = await addPageToLifelog(date, databaseId);
+    const result = await addPageToLifelog(notionClientHelper,date, databaseId);
     expect(result).toBeTruthy();
   });
 
@@ -130,7 +132,7 @@ describe("Adding Life Log Test", () => {
       }
     };
     (axios.get as jest.MockedFunction<typeof axios.get>).mockResolvedValueOnce(mockData);
-    const addPageToLifelogPromise =  addPageToLifelog(date, databaseId);
+    const addPageToLifelogPromise =  addPageToLifelog(notionClientHelper, date, databaseId);
     expect(addPageToLifelogPromise).rejects.toThrow("Iligal weather code");
   });
 });

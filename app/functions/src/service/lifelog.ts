@@ -1,6 +1,6 @@
 import axios from "axios";
-import {NotionHelper} from "../helper/notion-client-helper";
 import * as functions from "firebase-functions";
+import {ClientHelper} from "../helper/notion-client-helper";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
   // Weather Icon ☀️🌧️☁️❄️🌩️🌫️🌪️;
@@ -42,7 +42,7 @@ const featchWeatherInfo = async (date: string) => {
   return `${weatherNoonIcon}${roundNoonTemperature}${weatherEveningIcon}${roundEveningTemperature}`;
 };
 
-const postLigeLogPage = async (date: string, weatherInfo: string,
+const postLifeLogPage = async (notionClientHelper: ClientHelper, date: string, weatherInfo: string,
   databaseId: string) => {
   const timelineUrl = process.env.GOOGLE_MAP_TIMELINE_URL + date;
   if (!databaseId) throw new Error("Not found GOOGLE_MAP_TIMELINE_URL");
@@ -78,13 +78,13 @@ const postLigeLogPage = async (date: string, weatherInfo: string,
       url: timelineUrl,
     },
   };
-  return await NotionHelper.createPage(databaseId, icon, properties);
+  return await notionClientHelper.createPage(databaseId, icon, properties);
 };
 
-export const addPageToLifelog = async (date: string, databaseId: string) => {
+export const addPageToLifelog = async (notionClientHelper: ClientHelper, date: string, databaseId: string) => {
   try {
     const weatherInfo = await featchWeatherInfo(date);
-    const ok = await postLigeLogPage(date, weatherInfo, databaseId);
+    const ok = await postLifeLogPage(notionClientHelper, date, weatherInfo, databaseId);
     return ok;
   } catch (error) {
     functions.logger.error(error, {structuredData: true});

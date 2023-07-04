@@ -1,7 +1,6 @@
 import * as dotenv from "dotenv";
 import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
-import {NotionHelper} from "../src/helper/notion-client-helper";
 
 // Loading test env
 dotenv.config({ path: ".env.local" });
@@ -13,8 +12,6 @@ jest.setTimeout(10000);
 
 const notionToken = process.env.NOTION_TOKEN || "";
 const notion: Client = new Client({auth: notionToken});
-
-NotionHelper.init(process.env.NOTION_TOKEN);
 
 const clearUpdateDb = () => {
   const updatePage = process.env.TEST_UPDATE_PAGE || "";
