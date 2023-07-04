@@ -95,7 +95,7 @@ export const uploadImage = async (imageName: string, imageUrl: string): Promise<
   }
 };
 
-const featchTargetRestraunts = async (notionClient: ClientHelper,restrauntDBId: string) => {
+const featchTargetRestraunts = async (notionClient: ClientHelper, restrauntDBId: string) => {
   const query = {
     property: "GoogleMap",
     url: {
