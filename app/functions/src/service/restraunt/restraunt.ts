@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
-import {initializeApp} from "firebase/app";
-import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
+// import {initializeApp} from "firebase/app";
+// import {ref, getStorage, uploadBytes, getDownloadURL} from "firebase/storage";
 import {ImageUrl} from "../utils/imageUrl";
 import axios from "axios";
 import {NotionHelper} from "../../helper/notion-client-helper";
@@ -68,22 +68,23 @@ const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntI
 };
 
 export const uploadImage = async (imageName: string, imageUrl: string): Promise<ImageUrl> => {
-  const storageBucket = process.env.FIRESTORAGE_BUCKET;
-  if (!storageBucket) throw new Error("Do not find FIRESTORAGE_BUCKET");
-  const firebaseConfig = {
-    storageBucket: storageBucket,
-  };
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app);
-  const filePath = `test/images/${imageName}.jpg`;
-  const imageRef = ref(storage, filePath);
+  // const storageBucket = process.env.FIRESTORAGE_BUCKET;
+  // if (!storageBucket) throw new Error("Do not find FIRESTORAGE_BUCKET");
+  // const firebaseConfig = {
+  //   storageBucket: storageBucket,
+  // };
+  // const app = initializeApp(firebaseConfig);
+  // const storage = getStorage(app);
+  // const filePath = `test/images/${imageName}.jpg`;
+  // const imageRef = ref(storage, filePath);
 
   try {
-    const imageArray = await axios.get(imageUrl, {responseType: "arraybuffer"});
-    const response = await uploadBytes(imageRef, imageArray.data);
-    const firestrageUrl = response.ref.toString();
-    const refarense = ref(storage, firestrageUrl);
-    const downloadUrl = await getDownloadURL(refarense);
+    // const imageArray = await axios.get(imageUrl, {responseType: "arraybuffer"});
+    // const response = await uploadBytes(imageRef, imageArray.data);
+    // const firestrageUrl = response.ref.toString();
+    // const refarense = ref(storage, firestrageUrl);
+    // const downloadUrl = await getDownloadURL(refarense);
+    const downloadUrl = "https://www.dummy/dummy.jpg"
     // TODO
     // Notion SDK cannot send URL that is length over 100 charactor.
     // So send dummy url.
