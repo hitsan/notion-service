@@ -1,6 +1,8 @@
 import axios from "axios";
 import * as functions from "firebase-functions";
-import {ClientHelper} from "../helper/notion-client-helper";
+import { ClientHelper } from "../helper/notion-client-helper";
+import { formatInTimeZone } from "date-fns-tz";
+import { timeZone } from "..";
 
 const weatherCodeToIcon = (weatherCode: number): string => {
   // Weather Icon ☀️🌧️☁️❄️🌩️🌫️🌪️;
@@ -24,28 +26,23 @@ const weatherCodeToIcon = (weatherCode: number): string => {
   throw new Error("Iligal weather code");
 };
 
+const getIconAndTemp = (weatherItems: any, time: number): String => {
+  const hourlyInfo = weatherItems.hourly;
+  const icon = weatherCodeToIcon(hourlyInfo.weathercode[time])
+  const temperature = Math.round(hourlyInfo.temperature_2m[time]);
+  return icon + temperature
+}
+
 const featchWeatherInfo = async (date: string) => {
   let weatherUrl = "https://api.open-meteo.com/v1/jma?latitude=35.69&longitude=139.69&hourly=" +
-  "temperature_2m,weathercode&start_date=_DATE_&end_date=_DATE_&timezone=Asia%2FTokyo";
-  weatherUrl = weatherUrl.replace(/_DATE_/g, date);
+    `temperature_2m,weathercode&start_date=${date}&end_date=_DATE_&timezone=Asia%2FTokyo`;
   const responseWheather = await axios.get(weatherUrl);
   const weatherItems = responseWheather.data;
-
-  const noonTime = 13;
-  const eveningTime = 19;
-
-  const hourlyInfo = weatherItems.hourly;
-  const weatherNoonIcon = weatherCodeToIcon(hourlyInfo.weathercode[noonTime]);
-  const weatherEveningIcon = weatherCodeToIcon(hourlyInfo.weathercode[eveningTime]);
-  const roundNoonTemperature = Math.round(hourlyInfo.temperature_2m[noonTime]);
-  const roundEveningTemperature = Math.round(hourlyInfo.temperature_2m[eveningTime]);
-  return `${weatherNoonIcon}${roundNoonTemperature}${weatherEveningIcon}${roundEveningTemperature}`;
+  const [noonInfo, eveningInfo] = [13, 19].map(time => getIconAndTemp(weatherItems, time))
+  return `${noonInfo}${eveningInfo}`;
 };
 
-const postLifeLogPage = async (notionClientHelper: ClientHelper, date: string, weatherInfo: string,
-  databaseId: string) => {
-  const timelineUrl = process.env.GOOGLE_MAP_TIMELINE_URL + date;
-  if (!databaseId) throw new Error("Not found GOOGLE_MAP_TIMELINE_URL");
+const postLifeLogPage = async (notionClientHelper: ClientHelper, date: String, timelineUrl: String, weatherInfo: string) => {
   const title = date.replace(/-/g, "/");
   const icon = "🗓️";
   const properties = {
@@ -78,16 +75,25 @@ const postLifeLogPage = async (notionClientHelper: ClientHelper, date: string, w
       url: timelineUrl,
     },
   };
+  const databaseId = notionClientHelper.lifelogDabase;
   return await notionClientHelper.createPage(databaseId, icon, properties);
 };
 
-export const addPageToLifelog = async (notionClientHelper: ClientHelper, date: string, databaseId: string) => {
+const getTimelineUrl = (date: String): String => {
+  if (!process.env.GOOGLE_MAP_TIMELINE_URL) throw new Error("Not found GOOGLE_MAP_TIMELINE_URL");
+  const timelineUrl = process.env.GOOGLE_MAP_TIMELINE_URL + date;
+  return timelineUrl;
+}
+
+export const addPageToLifelog = async (notionClientHelper: ClientHelper) => {
+  const date = formatInTimeZone(new Date(), timeZone, "yyyy-MM-dd");
   try {
     const weatherInfo = await featchWeatherInfo(date);
-    const ok = await postLifeLogPage(notionClientHelper, date, weatherInfo, databaseId);
+    const timelineUrl = getTimelineUrl(date);
+    const ok = await postLifeLogPage(notionClientHelper, date, timelineUrl, weatherInfo);
     return ok;
   } catch (error) {
-    functions.logger.error(error, {structuredData: true});
+    functions.logger.error(error, { structuredData: true });
     throw error;
   }
 };

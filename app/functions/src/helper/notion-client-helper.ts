@@ -2,8 +2,11 @@ import {Client} from "@notionhq/client";
 import * as functions from "firebase-functions";
 import {PageProperties} from "../helper/notion-data-helper";
 
+type DatabaseId = string;
+
 export interface ClientHelper {
   notion: Client;
+  lifelogDabase: DatabaseId;
   featchPageIdsFromDB: (dbId: string, properties: object) => Promise<{id: string, title: string}[]>;
   updatePageProperties: (query: PageProperties) => void;
   createPage: (databaseId: string, icon: string, properties: object) => void;
@@ -14,13 +17,20 @@ export interface ClientHelper {
  */
 export class NotionClientHelper implements ClientHelper {
   notion: Client;
+  lifelogDabase: DatabaseId;
   /**
   * constructor
   * @param {string | undefined} notionToken Access token
   */
-  constructor(notionToken: string | undefined) {
+  constructor(notionToken: string | undefined, lifelogDabase: DatabaseId | undefined) {
     if (!notionToken) throw new Error("Do not set NOTION_TOKEN");
     this.notion = new Client({auth: notionToken});
+    if (!lifelogDabase) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");
+    this.lifelogDabase = lifelogDabase;
+  }
+
+  getString(dbId: DatabaseId): String {
+    return dbId
   }
 
   /**
@@ -74,11 +84,11 @@ export class NotionClientHelper implements ClientHelper {
 
   /**
    * Create page to DB
-  * @param {string} databaseId ID of DB
+  * @param {DatabaseId} databaseId ID of DB
   * @param {string} icon icon
   * @param {object} properties Filtering properties
    */
-  async createPage(databaseId: string, icon: string, properties: object) {
+  async createPage(databaseId: DatabaseId, icon: string, properties: object) {
     const database = {database_id: databaseId};
     const creatingQuery: {parent: {database_id: string}, icon: any, properties: any,} = {
       parent: database,
