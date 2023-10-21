@@ -7,6 +7,7 @@ type DatabaseId = string;
 export interface ClientHelper {
   notion: Client;
   lifelogDabase: DatabaseId;
+  restrauntDBId: DatabaseId;
   featchPageIdsFromDB: (dbId: string, properties: object) => Promise<{id: string, title: string}[]>;
   updatePageProperties: (query: PageProperties) => void;
   createPage: (databaseId: string, icon: string, properties: object) => void;
@@ -18,15 +19,19 @@ export interface ClientHelper {
 export class NotionClientHelper implements ClientHelper {
   notion: Client;
   lifelogDabase: DatabaseId;
+  restrauntDBId: DatabaseId;
   /**
   * constructor
   * @param {string | undefined} notionToken Access token
   */
-  constructor(notionToken: string | undefined, lifelogDabase: DatabaseId | undefined) {
+  constructor(notionToken: string | undefined, lifelogDabase: DatabaseId | undefined,
+    restrauntDBId: DatabaseId | undefined) {
     if (!notionToken) throw new Error("Do not set NOTION_TOKEN");
     this.notion = new Client({auth: notionToken});
     if (!lifelogDabase) throw new Error("Not found NOTION_LIFELOG_DATABASE_ID");
     this.lifelogDabase = lifelogDabase;
+    if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
+    this.restrauntDBId = restrauntDBId
   }
 
   getString(dbId: DatabaseId): String {
@@ -37,6 +42,7 @@ export class NotionClientHelper implements ClientHelper {
   * Get page contents
   * @param {string} dbId ID of DB
   * @param {object} properties Filtering properties
+  * @todo (databaseName: String, f(propertie: object)=>Boolean) => Promise<{id: string, title: string}[]>
   */
   async featchPageIdsFromDB(dbId: string, properties: object): Promise<{id: string, title: string}[]> {
     const filteringQuery: {database_id: string, filter: any} = {database_id: dbId, filter: properties};

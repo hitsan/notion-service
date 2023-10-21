@@ -11,16 +11,16 @@ exports.scheduledFunctionCrontab = functions
   .schedule("0 6 * * *")
   .timeZone(timeZone)
   .onRun(async () => {
-    const notionClientHelper = new NotionClientHelper(process.env.NOTION_TOKEN, process.env.NOTION_LIFELOG_DATABASE_ID);
+    const notionClientHelper = new NotionClientHelper(process.env.NOTION_TOKEN,
+      process.env.NOTION_LIFELOG_DATABASE_ID,
+      process.env.NOTION_RESTRAUNT_DATABSE_ID);
     try {
       const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID;
       if (!watchListDBId) throw new Error("Do not find NOTION_WATCHLIST_DATABASE_ID");
-      const restrauntDBId = process.env.NOTION_RESTRAUNT_DATABSE_ID;
-      if (!restrauntDBId) throw new Error("Do not find NOTION_RESTRAUNT_DATABSE_ID");
 
       const resultLigeLog = addPageToLifelog(notionClientHelper);
       const resultUpdateBooks = updateBooksInfo(notionClientHelper, watchListDBId);
-      const resultUpdateRestraunt = updateRestrauntInfo(notionClientHelper, restrauntDBId);
+      const resultUpdateRestraunt = updateRestrauntInfo(notionClientHelper);
 
       await Promise.all([resultLigeLog, resultUpdateBooks, resultUpdateRestraunt]);
 

@@ -41,6 +41,9 @@ export const isRestrauntPageData = (item: any): item is RestrauntPageData => {
 };
 
 const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntInfo> => {
+  // todo
+  // move this function to google map APIs
+  // (shopName: String) => (googleMapUrl, website, imageRefUrl)
   const apiKey = process.env.GOOGLE_MAP_APIKEY;
   if (!apiKey) throw new Error("Do not find GOOGLE_MAP_APIKEY");
   try {
@@ -68,6 +71,9 @@ const featchRestrauntInfo = async (shopName: string): Promise<recieverRestrauntI
 };
 
 export const uploadImage = async (imageName: string, imageUrl: string): Promise<ImageUrl> => {
+  // todo
+  // move this function to cloud APIs
+  // shoud make cloud interface
   const storageBucket = process.env.FIRESTORAGE_BUCKET;
   if (!storageBucket) throw new Error("Do not find FIRESTORAGE_BUCKET");
   const firebaseConfig = {
@@ -124,7 +130,8 @@ const postRestrauntnfo = async (notionClient: ClientHelper, pageId: string, rest
   await notionClient.updatePageProperties(query);
 };
 
-export const updateRestrauntInfo = async (notionClient: ClientHelper, restrauntDBId: string) => {
+export const updateRestrauntInfo = async (notionClient: ClientHelper) => {
+  const restrauntDBId = notionClient.restrauntDBId
   try {
     const shopList = await featchTargetRestraunts(notionClient, restrauntDBId);
     await Promise.all(shopList.map(
