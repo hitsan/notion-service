@@ -1,4 +1,4 @@
-import {ImageUrl} from "../utils/imageUrl";
+import { ImageUrl } from "../utils/imageUrl";
 
 export interface WatchListInfo {
   authors: string;
