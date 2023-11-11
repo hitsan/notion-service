@@ -1,4 +1,4 @@
-import {NotionClientHelper} from "../../../src/helper/notion-client-helper";
+import { NotionClientHelper } from "../../../src/helper/notion-client-helper";
 
 // Notion SDK don't throw error when using iligal property.
 // So, this test don't check iligal property case.
@@ -10,7 +10,7 @@ describe("Notion Helper featch test", () => {
   const test3Id = process.env.FEATCH_PAGE_TEST3 || "";
   const test4Id = process.env.FEATCH_PAGE_TEST4 || "";
 
-  const notionClient = new NotionClientHelper(process.env.NOTION_TOKEN);
+  const notionClient = new NotionClientHelper(process.env.NOTION_TOKEN, process.env.NOTION_LIFELOG_DATABASE_ID, process.env.NOTION_RESTRAUNT_DATABSE_ID);
 
   // Select
   test("featch by Select Book", async () => {
@@ -22,8 +22,8 @@ describe("Notion Helper featch test", () => {
     };
     const response = await notionClient.featchPageIdsFromDB(id, properties);
     const expectResult = expect.arrayContaining([
-      {id: test1Id, title: "test1"},
-      {id: test4Id, title: "test4"}
+      { id: test1Id, title: "test1" },
+      { id: test4Id, title: "test4" }
     ]);
     expect(response).toEqual(expectResult);
   });
@@ -37,7 +37,7 @@ describe("Notion Helper featch test", () => {
     };
     const response = await notionClient.featchPageIdsFromDB(id, properties);
     const expectResult = expect.arrayContaining([
-      {id: test2Id, title: "test2"}
+      { id: test2Id, title: "test2" }
     ]);
     expect(response).toEqual(expectResult);
   });
@@ -51,7 +51,7 @@ describe("Notion Helper featch test", () => {
     };
     const response = await notionClient.featchPageIdsFromDB(id, properties);
     const expectResult = expect.arrayContaining([
-      {id: test3Id, title: "test3"}
+      { id: test3Id, title: "test3" }
     ]);
     expect(response).toEqual(expectResult);
   });
@@ -75,8 +75,8 @@ describe("Notion Helper featch test", () => {
     };
     const response = await notionClient.featchPageIdsFromDB(id, properties);
     const expectResult = expect.arrayContaining([
-      {id: test2Id, title: "test2"},
-      {id: test3Id, title: "test3"}
+      { id: test2Id, title: "test2" },
+      { id: test3Id, title: "test3" }
     ]);
     expect(response).toEqual(expectResult);
   });
@@ -95,10 +95,10 @@ describe("Notion Helper featch test", () => {
 });
 
 describe("Notion Helper update test", () => {
-  const notionClient = new NotionClientHelper(process.env.NOTION_TOKEN);
+  const notionClient = new NotionClientHelper(process.env.NOTION_TOKEN, process.env.NOTION_LIFELOG_DATABASE_ID, process.env.NOTION_RESTRAUNT_DATABSE_ID);
   test("Update page properties", async () => {
     const pageId = process.env.TEST_UPDATE_DB_ID || "";
-    const icon = {emoji: "📕"};
+    const icon = { emoji: "📕" };
     const properties = {
       Name: {
         title: [
@@ -120,14 +120,14 @@ describe("Notion Helper update test", () => {
         ],
       },
     };
-    const query = {page_id: pageId, icon: icon, properties: properties}
+    const query = { page_id: pageId, icon: icon, properties: properties }
     const result = await notionClient.updatePageProperties(query);
     expect(result).toBeTruthy();
   });
 });
 
 describe("Notion Helper crate test", () => {
-  const notionClient = new NotionClientHelper(process.env.NOTION_TOKEN);
+  const notionClient = new NotionClientHelper(process.env.NOTION_TOKEN, process.env.NOTION_LIFELOG_DATABASE_ID, process.env.NOTION_RESTRAUNT_DATABSE_ID);
   test("Create page", async () => {
     const databaseId = process.env.TEST_CREATE_DB_ID || "";
     const icon = "📕";
@@ -154,6 +154,6 @@ describe("Notion Helper crate test", () => {
     };
 
     const result = await notionClient.createPage(databaseId, icon, properties);
-    expect(result).toBeTruthy();    
+    expect(result).toBeTruthy();
   });
 });
