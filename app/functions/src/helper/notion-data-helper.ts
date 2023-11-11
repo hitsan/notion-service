@@ -6,7 +6,6 @@ import {
 
 export type PageProperties = {
   page_id: string;
-  icon: object;
   properties: object;
 };
 
@@ -21,9 +20,6 @@ export const convertNotionData: Query = (
   if (isBookPageData(data)) {
     const query: PageProperties = {
       page_id: data.pageId,
-      icon: {
-        emoji: data.icon,
-      },
       properties: {
         Name: {
           title: [
@@ -66,15 +62,7 @@ export const convertNotionData: Query = (
   } else if (isRestrauntPageData(data)) {
     const query = {
       page_id: data.pageId,
-      icon: {
-        emoji: data.icon,
-      },
       properties: {
-        Category: {
-          select: {
-            name: data.category,
-          },
-        },
         GoogleMap: {
           url: data.googleMap,
         },

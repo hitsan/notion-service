@@ -4,7 +4,7 @@ import { updateRestrauntInfo } from "./service/restraunt/restraunt";
 import { addPageToLifelog } from "./service/lifelog";
 import { NotionClientHelper } from "./helper/notion-client-helper";
 import { retry } from "./helper/types";
-// import { onRequest } from "firebase-functions/v2/https";
+import { onRequest } from "firebase-functions/v2/https";
 
 export const timeZone = "Asia/Tokyo";
 const region = "asia-northeast1";
@@ -21,6 +21,17 @@ const region = "asia-northeast1";
 //   },
 // );
 
+exports.shop = onRequest(
+  { timeoutSeconds: 1200, region: [region] },
+  (req, res) => {
+  const notionClientHelper = new NotionClientHelper(
+    process.env.NOTION_TOKEN,
+    process.env.NOTION_LIFELOG_DATABASE_ID,
+    process.env.NOTION_RESTRAUNT_DATABSE_ID,
+  );
+  updateRestrauntInfo(notionClientHelper);
+});
+
 exports.scheduledFunctionCrontab = functions
   .region(region)
   .pubsub.schedule("0 6 * * *")
@@ -36,7 +47,7 @@ exports.scheduledFunctionCrontab = functions
       if (!watchListDBId)
         throw new Error("Do not find NOTION_WATCHLIST_DATABASE_ID");
 
-      const resultLigeLog = retry(addPageToLifelog, notionClientHelper, 3);
+      const resultLigeLog = retry(addPageToLifelog, notionClientHelper, 3, 5);
       const resultUpdateBooks = updateBooksInfo(
         notionClientHelper,
         watchListDBId,
