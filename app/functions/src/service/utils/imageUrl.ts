@@ -4,8 +4,8 @@
 export class ImageUrl {
   private url: string;
   /**
-    * @param {string} url Image file URL
-  */
+   * @param {string} url Image file URL
+   */
   constructor(url: string) {
     const imageUrl = new URL(url);
     const imageExtension = new RegExp(".jpg|.jpeg|.png", "g");
@@ -16,7 +16,7 @@ export class ImageUrl {
 
   /**
    *  @return {string} Image file URL
-  */
+   */
   toString(): string {
     return this.url;
   }

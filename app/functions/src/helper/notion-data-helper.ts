@@ -1,18 +1,23 @@
-import {BookPageData, isBookPageData} from "../service/watchList/book-info";
-import {RestrauntPageData, isRestrauntPageData} from "../service/restraunt/restraunt";
+import { BookPageData, isBookPageData } from "../service/watchList/book-info";
+import {
+  RestrauntPageData,
+  isRestrauntPageData,
+} from "../service/restraunt/restraunt";
 
 export type PageProperties = {
   page_id: string;
   icon: object;
   properties: object;
-}
+};
 
 type Query = {
   (data: BookPageData): PageProperties;
   (data: RestrauntPageData): PageProperties;
 };
 
-export const convertNotionData: Query = (data: BookPageData | RestrauntPageData): PageProperties => {
+export const convertNotionData: Query = (
+  data: BookPageData | RestrauntPageData,
+): PageProperties => {
   if (isBookPageData(data)) {
     const query: PageProperties = {
       page_id: data.pageId,
