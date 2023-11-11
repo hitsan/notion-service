@@ -20,8 +20,6 @@ interface SenderRestrauntInfo {
 
 export type RestrauntPageData = {
   pageId: string;
-  icon: string;
-  category: string;
   googleMap: string;
   image: ImageUrl;
   url: string;
@@ -143,8 +141,6 @@ const postRestrauntnfo = async (
 ) => {
   const properties: RestrauntPageData = {
     pageId: pageId,
-    icon: "🍴",
-    category: "Shisha",
     googleMap: restrauntInfo.googleMapUrl,
     image: restrauntInfo.imageUrl,
     url: restrauntInfo.website,

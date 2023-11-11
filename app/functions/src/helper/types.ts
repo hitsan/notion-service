@@ -20,15 +20,19 @@ export class Failure<E> {
   }
 }
 
+const sleep = (time: number) =>
+  new Promise((resolve) => setTimeout(resolve, time * 60 * 1000));
 export const retry = async (
   f: (client: NotionClientHelper) => Promise<Result<boolean, string>>,
   notionClientHelper: NotionClientHelper,
   times: number,
+  minuts: number,
 ) => {
   let time = times;
   while (time > 0) {
     const ok = await f(notionClientHelper);
     if (ok.isSuccess) break;
+    await sleep(minuts);
     console.log(time);
     time--;
   }
