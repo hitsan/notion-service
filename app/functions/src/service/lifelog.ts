@@ -35,7 +35,7 @@ const getIconAndTemp = (weatherItems: any, time: number): String => {
 
 const featchWeatherInfo = async (date: string) => {
   let weatherUrl = "https://api.open-meteo.com/v1/jma?latitude=35.69&longitude=139.69&hourly=" +
-    `temperature_2m,weathercode&start_date=${date}&end_date=_DATE_&timezone=Asia%2FTokyo`;
+    `temperature_2m,weathercode&start_date=${date}&end_date=${date}&timezone=Asia%2FTokyo`;
   const responseWheather = await axios.get(weatherUrl);
   const weatherItems = responseWheather.data;
   const [noonInfo, eveningInfo] = [13, 19].map(time => getIconAndTemp(weatherItems, time))

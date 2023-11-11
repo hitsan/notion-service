@@ -7,16 +7,19 @@ import {onRequest} from "firebase-functions/v2/https";
 
 export const timeZone = "Asia/Tokyo";
 const region = "asia-northeast1"
-const notionClientHelper = new NotionClientHelper(
-  process.env.NOTION_TOKEN,
-  process.env.NOTION_LIFELOG_DATABASE_ID,
-  process.env.NOTION_RESTRAUNT_DATABSE_ID);
 
 exports.addPageToLifelog = onRequest(
   {timeoutSeconds: 1200, region: [region]},
   (req, res) => {
-    addPageToLifelog(notionClientHelper);
-    res.status(200).send("Success");
+    const notionClientHelper = new NotionClientHelper(
+      process.env.NOTION_TOKEN,
+      process.env.NOTION_LIFELOG_DATABASE_ID,
+      process.env.NOTION_RESTRAUNT_DATABSE_ID);
+    addPageToLifelog(notionClientHelper).then(
+      () => res.status(200).send("Success")
+    ).catch(
+      () => res.status(404).send("failed")
+    )
 });
 
 exports.scheduledFunctionCrontab = functions
@@ -24,6 +27,10 @@ exports.scheduledFunctionCrontab = functions
   .schedule("0 6 * * *")
   .timeZone(timeZone)
   .onRun(async () => {
+    const notionClientHelper = new NotionClientHelper(
+      process.env.NOTION_TOKEN,
+      process.env.NOTION_LIFELOG_DATABASE_ID,
+      process.env.NOTION_RESTRAUNT_DATABSE_ID);
     try {
       const watchListDBId = process.env.NOTION_WATCHLIST_DATABASE_ID;
       if (!watchListDBId) throw new Error("Do not find NOTION_WATCHLIST_DATABASE_ID");
