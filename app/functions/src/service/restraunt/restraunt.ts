@@ -22,15 +22,13 @@ export type RestrauntPageData = {
   pageId: string;
   googleMap: string;
   image: ImageUrl;
-  url: string;
+  url?: string;
 };
 
 export const isRestrauntPageData = (item: any): item is RestrauntPageData => {
   const typed = item as RestrauntPageData;
   if (
     "pageId" in typed &&
-    "icon" in typed &&
-    "category" in typed &&
     "googleMap" in typed &&
     "image" in typed &&
     "url" in typed
@@ -143,7 +141,7 @@ const postRestrauntnfo = async (
     pageId: pageId,
     googleMap: restrauntInfo.googleMapUrl,
     image: restrauntInfo.imageUrl,
-    url: restrauntInfo.website,
+    url: restrauntInfo.website ? restrauntInfo.website : "empty",
   };
   const query = convertNotionData(properties);
   await notionClient.updatePageProperties(query);
