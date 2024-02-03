@@ -1,0 +1,27 @@
+version: '3.5'
+
+services:
+  notion:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+        USER: ${USER}
+    user: ${USER_ID}:${GROUP_ID}
+    container_name: notion
+    volumes:
+      - ${ROOT_DIR}:${HOME}/app:cache
+      - /etc/group:/etc/group:ro
+      - /etc/passwd:/etc/passwd:ro
+      - $SSH_AUTH_SOCK:/ssh-agent
+    ports:
+      - 9099:9099 # Auth
+      - 4000:4000 # Emulator Suite UI
+      - 5001:5001 # Cloud Functions
+      - 8080:8080 # Cloud Firestore
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent
+    working_dir: ${HOME}/app
+    tty: true
