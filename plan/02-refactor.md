@@ -1,98 +1,125 @@
-# Plan 02: Clean Architecture リファクタリング
+# Plan 02: Cloudflare Workers + Hono + Clean Architecture 移行
 
 ## 目的
 
-現在のフラットな構造を Clean Architecture に再編する。
-依存の方向: `index → usecases → domain ← infrastructure`
+Firebase Cloud Functions を廃止し、Cloudflare Workers + Hono + Clean Architecture に移行する。
+
+- **Book / Restaurant**: `POST /books/:id`, `POST /restaurants/:id` で個別更新
+- **Lifelog**: cron trigger（scheduled）のまま
+- 画像は Notion Files API で Notion に直接アップロード（Firebase Storage 廃止）
+- HTTP クライアントは native fetch（axios 廃止）
+- `app/` ディレクトリを廃止し、ルートに新構造を作る
 
 ---
 
-## 現在の構造
+## 最終的なディレクトリ構成
 
 ```
-app/functions/src/
-  index.ts
-  service/
-    lifelog.ts
-    watchList/
-      watchList.ts
-      book-info.ts
-    restraunt/
-      restraunt.ts
-      utils/imageUrl.ts
-  helper/
-    notion-client-helper.ts
-    notion-data-helper.ts
-    types.ts
-```
-
----
-
-## 移行後の構造
-
-```
-app/functions/src/
-  domain/
-    entities/
-      ImageUrl.ts          ← utils/imageUrl.ts から移動
-      Restaurant.ts        ← RestrauntPageData 等の型定義
-      Book.ts              ← 書籍エンティティ
-      Lifelog.ts           ← ライフログエンティティ
-    repositories/
-      INotionRepository.ts ← NotionClientHelper の interface を抽出
-      IStorageRepository.ts
-  usecases/
-    AddPageToLifelog.ts    ← service/lifelog.ts のロジックを移植
-    UpdateRestaurantInfo.ts ← service/restraunt/restraunt.ts のロジックを移植
-    UpdateBooksInfo.ts     ← service/watchList/book-info.ts のロジックを移植
-  infrastructure/
-    notion/
-      NotionRepository.ts  ← notion-client-helper.ts + notion-data-helper.ts を実装
-    storage/
-      FirebaseStorageRepository.ts  ← uploadImage を移植
-    api/
-      GoogleMapsApiClient.ts        ← featchRestrauntInfo を移植
-      GoogleBooksApiClient.ts       ← 書籍情報取得を移植
-      OpenMeteoApiClient.ts         ← 天気情報取得を移植
-  index.ts                 ← 依存注入 + エントリーポイント（Firebase Cron のまま）
+notion-service/
+  src/
+    domain/
+      entities/
+        Restaurant.ts       ← imagePath: string を含む
+        Book.ts             ← imagePath: string を含む
+        Lifelog.ts
+      repositories/
+        IBookRepository.ts
+        IRestaurantRepository.ts
+        ILifelogRepository.ts
+    usecases/
+      UpdateBookInfo.ts        ← execute(pageId: string)
+      UpdateRestaurantInfo.ts  ← execute(pageId: string)
+      AddPageToLifelog.ts      ← execute()
+    infrastructure/
+      notion/
+        NotionBookRepository.ts
+        NotionRestaurantRepository.ts  ← 画像を Notion Files API でアップロード
+        NotionLifelogRepository.ts
+      api/
+        GoogleMapsApiClient.ts
+        GoogleBooksApiClient.ts
+        OpenMeteoApiClient.ts
+    index.ts   ← Hono + scheduled handler
+  test/
+    unit/
+      infrastructure/notion/
+      usecases/
+  wrangler.toml
+  package.json
+  tsconfig.json
+  flake.nix
+  .envrc
 ```
 
 ---
 
-## 各レイヤーの責務
+## 設計の要点
 
-| レイヤー | 内容 | 外部依存 |
-|---------|------|---------|
-| `domain/entities/` | 値オブジェクト・型定義 | なし |
-| `domain/repositories/` | インフラ層への interface | なし |
-| `usecases/` | ビジネスロジック | domain のみ |
-| `infrastructure/` | 外部 API・SDK の具体実装 | 何でも可 |
-| `index.ts` | 依存注入・エントリーポイント | 全レイヤー |
+### エントリーポイント（index.ts）
+
+```typescript
+const app = new Hono<{ Bindings: Env }>()
+
+app.post('/books/:id', async (c) => {
+  const bookRepo = new NotionBookRepository(c.env.NOTION_TOKEN, c.env.WATCHLIST_DB_ID)
+  await new UpdateBookInfo(bookRepo, new GoogleBooksApiClient()).execute(c.req.param('id'))
+  return c.json({ ok: true })
+})
+
+app.post('/restaurants/:id', async (c) => {
+  const restaurantRepo = new NotionRestaurantRepository(c.env.NOTION_TOKEN, c.env.RESTAURANT_DB_ID)
+  await new UpdateRestaurantInfo(restaurantRepo, new GoogleMapsApiClient(c.env.GOOGLE_MAP_APIKEY)).execute(c.req.param('id'))
+  return c.json({ ok: true })
+})
+
+export default {
+  fetch: app.fetch,
+  async scheduled(_event: ScheduledEvent, env: Env, _ctx: ExecutionContext) {
+    const lifelogRepo = new NotionLifelogRepository(env.NOTION_TOKEN, env.LIFELOG_DB_ID)
+    await new AddPageToLifelog(lifelogRepo, new OpenMeteoApiClient()).execute()
+  },
+}
+```
+
+### リポジトリ interface（Notion 非依存）
+
+```typescript
+// IBookRepository.ts
+interface IBookRepository {
+  findBook(id: string): Promise<Book>;
+  updateBook(id: string, book: Book): Promise<void>;
+}
+
+// IRestaurantRepository.ts
+interface IRestaurantRepository {
+  findRestaurant(id: string): Promise<Restaurant>;
+  updateRestaurant(id: string, restaurant: Restaurant): Promise<void>;
+}
+
+// ILifelogRepository.ts
+interface ILifelogRepository {
+  createLifelog(lifelog: Lifelog): Promise<void>;
+}
+```
 
 ---
 
-## 移行手順（TDD サイクルで進める）
+## 実装手順（TDD サイクル）
 
-1. `domain/entities/` にエンティティを抽出（型の移動のみ）
-2. `domain/repositories/` に interface を定義
-3. `infrastructure/` に具体実装を移植（テストが通ることを確認）
-4. `usecases/` にロジックを移植（repository mock でテスト）
-5. `index.ts` を依存注入のみに簡略化
-6. `service/` と `helper/` を削除
-
----
-
-## テスト再編
-
-| 移行前 | 移行後 |
-|-------|-------|
-| `test/unit/helper/` | `test/unit/infrastructure/notion/` |
-| `test/unit/service/` | `test/unit/usecases/` |
-
-usecase のテストは `INotionRepository` / `IStorageRepository` の mock を注入してテストする。
+1. **ルートにプロジェクト初期化** — `package.json`（hono, wrangler, @cloudflare/workers-types）, `tsconfig.json`, `wrangler.toml`
+2. **domain/entities/** — 既存 `app/` から型を抽出。`ImageUrl` は廃止し `imagePath: string` に
+3. **domain/repositories/** — interface を定義（Notion 非依存のドメイン語）
+4. **infrastructure/notion/** — 各 `Notion*Repository` を実装。テストを `test/unit/infrastructure/notion/` に作成
+5. **infrastructure/api/** — `axios` → `fetch` で各 API クライアントを移植
+6. **usecases/** — constructor injection で repository を受け取る。repository mock でテスト
+7. **index.ts** — Hono + scheduled として実装
+8. **app/ を削除**
 
 ---
 
 ## 検証
 
-リファクタリング前後で `npm test` が全件グリーンであること。
+```sh
+npm test             # 全件グリーン
+npx wrangler dev     # ローカル動作確認
+```
