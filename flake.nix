@@ -9,8 +9,7 @@
       let pkgs = nixpkgs.legacyPackages.${system}; in {
         devShells.default = pkgs.mkShell {
           packages = [
-            pkgs.nodejs_20
-            pkgs.nodePackages.npm
+            pkgs.nodejs_22
           ];
         };
       });
