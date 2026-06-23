@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
+    "login": "wrangler login",
     "test": "jest"
   },
   "dependencies": {
