@@ -1,4 +1,4 @@
-import { PageId, Path } from "../types";
+import { PageId, Url } from "../types";
 
 export type BookRecord = {
   readonly kind: "BookRecord";
@@ -12,5 +12,5 @@ export type Book = {
   name: string;
   author: string;
   publishedDate: Date;
-  imagePath: Path;
+  imageUrl: Url;
 };

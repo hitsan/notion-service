@@ -2,6 +2,7 @@ import { Client } from "@notionhq/client";
 import { IRestaurantRepository } from "../../domain/repositories/IRestaurantRepository";
 import { Restaurant, RestaurantRecord } from "../../domain/entities/Restaurant";
 import { PageId, PageIdSchema } from "../../domain/types";
+import { uploadImageToNotion } from "./uploadImageToNotion";
 
 export const createNotionRestaurantRepository = (client: Client) =>
   ({
@@ -17,12 +18,16 @@ export const createNotionRestaurantRepository = (client: Client) =>
     },
 
     async updateRestaurant(id: PageId, restaurant: Restaurant): Promise<void> {
+      const filename = `${restaurant.pageId}.jpg`;
+      const fileUploadId = await uploadImageToNotion(client, restaurant.imageUrl, filename);
       await client.pages.update({
         page_id: id,
         properties: {
           GoogleMap: { url: restaurant.googleMapUrl },
           URL: { url: restaurant.websiteUrl ?? null },
-          // TODO: upload image via Notion Files API using restaurant.imagePath
+          Image: {
+            files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
+          },
         } as any,
       });
     },

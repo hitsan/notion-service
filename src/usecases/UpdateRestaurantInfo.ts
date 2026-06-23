@@ -15,7 +15,7 @@ export const createUpdateRestaurantInfo = (
       pageId: record.pageId,
       name: record.name,
       googleMapUrl: result.googleMapUrl,
-      imagePath: `/tmp/${record.pageId}.jpg` as const,
+      imageUrl: result.imageRefUrl,
       websiteUrl: result.websiteUrl,
     };
     await restaurantRepo.updateRestaurant(pageId, restaurant);

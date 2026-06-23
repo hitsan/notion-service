@@ -1,4 +1,4 @@
-import { PageId, Url, Path } from "../types";
+import { PageId, Url } from "../types";
 
 export type RestaurantRecord = {
   readonly kind: "RestaurantRecord";
@@ -11,6 +11,6 @@ export type Restaurant = {
   pageId: PageId;
   name: string;
   googleMapUrl: Url;
-  imagePath: Path;
+  imageUrl: Url;
   websiteUrl?: Url;
 };

@@ -16,7 +16,7 @@ export const createUpdateBookInfo = (
       name: result.title,
       author: result.author,
       publishedDate: result.publishedDate,
-      imagePath: `/tmp/${record.pageId}.jpg` as const,
+      imageUrl: result.coverImageUrl,
     };
     await bookRepo.updateBook(pageId, book);
   },

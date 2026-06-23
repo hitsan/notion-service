@@ -5,5 +5,3 @@ export type PageId = z.infer<typeof PageIdSchema>;
 
 export const UrlSchema = z.string().url();
 export type Url = z.infer<typeof UrlSchema>;
-
-export type Path = `/${string}`;

@@ -3,6 +3,7 @@ import { IBookRepository } from "../../domain/repositories/IBookRepository";
 import { Book, BookRecord } from "../../domain/entities/Book";
 import { PageId, PageIdSchema } from "../../domain/types";
 import { format } from "date-fns";
+import { uploadImageToNotion } from "./uploadImageToNotion";
 
 export const createNotionBookRepository = (client: Client) =>
   ({
@@ -18,6 +19,8 @@ export const createNotionBookRepository = (client: Client) =>
     },
 
     async updateBook(id: PageId, book: Book): Promise<void> {
+      const filename = `${book.pageId}.jpg`;
+      const fileUploadId = await uploadImageToNotion(client, book.imageUrl, filename);
       await client.pages.update({
         page_id: id,
         icon: { type: "emoji", emoji: "📕" },
@@ -27,7 +30,9 @@ export const createNotionBookRepository = (client: Client) =>
           PublishedDate: {
             date: { start: format(book.publishedDate, "yyyy-MM-dd"), end: null, time_zone: null },
           },
-          // TODO: upload image via Notion Files API using book.imagePath
+          Image: {
+            files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
+          },
         } as any,
       });
     },
