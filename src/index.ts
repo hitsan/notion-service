@@ -1,3 +1,4 @@
+/// <reference types="@cloudflare/workers-types" />
 import { Hono } from "hono";
 import { Client } from "@notionhq/client";
 import { createNotionBookRepository } from "./infrastructure/notion/NotionBookRepository";
