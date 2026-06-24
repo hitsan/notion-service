@@ -20,4 +20,17 @@ describe("AddPageToLifelog", () => {
       expect.objectContaining({ weatherInfo: "☀️25🌧️20" }),
     );
   });
+
+  it("JST の日付で天気を取得する（UTC 夜は JST 翌日）", async () => {
+    // 2026-06-25T21:30Z は JST 2026-06-26 06:30（cron 実行時刻に相当）
+    const fixedNow = new Date("2026-06-25T21:30:00Z");
+    const usecase = createAddPageToLifelog(
+      mockLifelogRepo,
+      mockWeatherApiClient,
+      () => fixedNow,
+    );
+    await usecase.execute();
+
+    expect(mockWeatherApiClient.fetchWeatherInfo).toHaveBeenLastCalledWith("2026-06-26");
+  });
 });

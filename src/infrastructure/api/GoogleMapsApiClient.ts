@@ -11,7 +11,11 @@ export const createGoogleMapsApiClient = (apiKey: string) => ({
     const searchRes = await fetch(searchUrl);
     if (!searchRes.ok) throw new Error(`Google Maps Text Search error: ${searchRes.status}`);
     const searchData = await searchRes.json() as any;
-    const placeId = searchData.results[0].place_id;
+    const results = searchData.results;
+    if (!results || results.length === 0) {
+      throw new Error(`Google Maps: no results for "${shopName}"`);
+    }
+    const placeId = results[0].place_id;
 
     const detailUrl =
       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`;
@@ -20,7 +24,11 @@ export const createGoogleMapsApiClient = (apiKey: string) => ({
     const detailData = await detailRes.json() as any;
     const result = detailData.result;
 
-    const photoRef = result.photos[0].photo_reference;
+    const photos = result.photos as { photo_reference: string }[] | undefined;
+    if (!photos || photos.length === 0) {
+      throw new Error(`Google Maps: no photo for "${shopName}"`);
+    }
+    const photoRef = photos[0].photo_reference;
     const imageRefUrl =
       `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoRef}&key=${apiKey}`;
 

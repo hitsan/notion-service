@@ -6,7 +6,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "login": "wrangler login",
-    "test": "jest"
+    "test": "TZ=UTC jest"
   },
   "dependencies": {
     "@notionhq/client": "^5.22.0",
