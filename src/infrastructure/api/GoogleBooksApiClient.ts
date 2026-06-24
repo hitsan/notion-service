@@ -16,11 +16,13 @@ export const createGoogleBooksApiClient = () => ({
       throw new Error(`Google Books: no results for "${title}"`);
     }
     const info = items[0].volumeInfo;
-    const ids = info.industryIdentifiers as { identifier: string }[] | undefined;
+    const ids = info.industryIdentifiers as
+      | { type?: string; identifier: string }[]
+      | undefined;
     if (!ids || ids.length === 0) {
       throw new Error(`Google Books: no ISBN for "${title}"`);
     }
-    const isbn = ids.at(-1)!.identifier;
+    const isbn = (ids.find((i) => i.type === "ISBN_13") ?? ids.at(-1)!).identifier;
     return {
       title: info.title,
       author: ((info.authors as string[] | undefined) ?? []).join(", "),

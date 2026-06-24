@@ -11,16 +11,19 @@ import { createUpdateBookInfo } from "./usecases/UpdateBookInfo";
 import { createUpdateRestaurantInfo } from "./usecases/UpdateRestaurantInfo";
 import { createAddPageToLifelog } from "./usecases/AddPageToLifelog";
 import { PageIdSchema } from "./domain/types";
+import { apiSecretAuth } from "./middleware/auth";
 
 type Env = {
   NOTION_TOKEN: string;
-  NOTION_WATCHLIST_DB_ID: string;
-  NOTION_RESTAURANT_DB_ID: string;
   NOTION_LIFELOG_DB_ID: string;
   GOOGLE_MAP_APIKEY: string;
+  API_SECRET: string;
 };
 
 const app = new Hono<{ Bindings: Env }>();
+
+app.use("/books/:id", apiSecretAuth);
+app.use("/restaurants/:id", apiSecretAuth);
 
 app.post("/books/:id", async (c) => {
   const pageId = PageIdSchema.parse(c.req.param("id"));

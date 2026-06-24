@@ -1,7 +1,7 @@
 import { Client } from "@notionhq/client";
 import { IRestaurantRepository } from "../../domain/repositories/IRestaurantRepository";
 import { Restaurant, RestaurantRecord } from "../../domain/entities/Restaurant";
-import { PageId, PageIdSchema } from "../../domain/types";
+import { PageId } from "../../domain/types";
 import { uploadImageToNotion } from "./uploadImageToNotion";
 
 export const createNotionRestaurantRepository = (client: Client) =>
@@ -14,7 +14,7 @@ export const createNotionRestaurantRepository = (client: Client) =>
       if (nameProp.type !== "title") throw new Error("Name property not found");
       const name = nameProp.title[0]?.plain_text ?? "";
 
-      return { kind: "RestaurantRecord", pageId: PageIdSchema.parse(id), name };
+      return { kind: "RestaurantRecord", pageId: id, name };
     },
 
     async updateRestaurant(id: PageId, restaurant: Restaurant): Promise<void> {
@@ -28,7 +28,7 @@ export const createNotionRestaurantRepository = (client: Client) =>
           Image: {
             files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
           },
-        } as any,
+        },
       });
     },
   }) satisfies IRestaurantRepository;

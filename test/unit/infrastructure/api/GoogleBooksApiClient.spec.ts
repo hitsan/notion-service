@@ -36,6 +36,26 @@ describe("GoogleBooksApiClient", () => {
     );
   });
 
+  it("ISBN_10 と ISBN_13 が混在する場合は ISBN_13 を選ぶ", async () => {
+    globalThis.fetch = mockFetch({
+      items: [
+        {
+          volumeInfo: {
+            title: "t",
+            authors: ["a"],
+            publishedDate: "2000",
+            industryIdentifiers: [
+              { type: "ISBN_13", identifier: "9784101010014" },
+              { type: "ISBN_10", identifier: "4101010013" },
+            ],
+          },
+        },
+      ],
+    });
+    const result = await createGoogleBooksApiClient().search("t");
+    expect(result.coverImageUrl).toBe("https://cover.openbd.jp/9784101010014.jpg");
+  });
+
   it("ISBN が無ければ明確なエラーを投げる", async () => {
     globalThis.fetch = mockFetch({
       items: [{ volumeInfo: { title: "t", authors: ["a"], publishedDate: "2000" } }],

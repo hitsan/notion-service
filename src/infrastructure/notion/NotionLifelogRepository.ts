@@ -16,7 +16,7 @@ export const createNotionLifelogRepository = (client: Client, dbId: string) =>
           Logs: { title: [{ text: { content: date.replaceAll("-", "/") } }] },
           Date: { date: { start: date, end: null, time_zone: null } },
           Weather: { rich_text: [{ text: { content: lifelog.weatherInfo } }] },
-        } as any,
+        },
       });
     },
   }) satisfies ILifelogRepository;
