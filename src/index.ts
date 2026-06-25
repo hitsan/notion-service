@@ -12,6 +12,7 @@ import { createUpdateRestaurantInfo } from "./usecases/UpdateRestaurantInfo";
 import { createAddPageToLifelog } from "./usecases/AddPageToLifelog";
 import { PageIdSchema } from "./domain/types";
 import { apiSecretAuth } from "./middleware/auth";
+import { onError } from "./middleware/onError";
 
 type Env = {
   NOTION_TOKEN: string;
@@ -20,7 +21,9 @@ type Env = {
   API_SECRET: string;
 };
 
-const app = new Hono<{ Bindings: Env }>();
+export const app = new Hono<{ Bindings: Env }>();
+
+app.onError(onError);
 
 app.use("/books/:id", apiSecretAuth);
 app.use("/restaurants/:id", apiSecretAuth);
