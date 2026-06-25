@@ -6,6 +6,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "login": "wrangler login",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "test": "TZ=UTC jest"
   },
   "dependencies": {
