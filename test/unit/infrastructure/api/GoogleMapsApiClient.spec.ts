@@ -33,15 +33,15 @@ describe("GoogleMapsApiClient", () => {
     );
   });
 
-  it("写真が無ければ明確なエラーを投げる", async () => {
+  it("写真が無ければ imageRefUrl は undefined（throw しない）", async () => {
     globalThis.fetch = jest
       .fn()
       .mockResolvedValueOnce(jsonRes({ results: [{ place_id: "pid" }] }))
       .mockResolvedValueOnce(
         jsonRes({ result: { url: "https://maps.google.com/?cid=123" } }),
       );
-    await expect(createGoogleMapsApiClient("key").search("店")).rejects.toThrow(
-      /no photo/i,
-    );
+    const result = await createGoogleMapsApiClient("key").search("店");
+    expect(result.imageRefUrl).toBeUndefined();
+    expect(result.googleMapUrl).toBe("https://maps.google.com/?cid=123");
   });
 });

@@ -19,15 +19,19 @@ export const createNotionRestaurantRepository = (client: Client) =>
 
     async updateRestaurant(id: PageId, restaurant: Restaurant): Promise<void> {
       const filename = `${restaurant.pageId}.jpg`;
-      const fileUploadId = await uploadImageToNotion(client, restaurant.imageUrl, filename);
+      const fileUploadId = restaurant.imageUrl
+        ? await uploadImageToNotion(client, restaurant.imageUrl, filename)
+        : undefined;
       await client.pages.update({
         page_id: id,
         properties: {
           GoogleMap: { url: restaurant.googleMapUrl },
           URL: { url: restaurant.websiteUrl ?? null },
-          Image: {
-            files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
-          },
+          ...(fileUploadId !== undefined && {
+            Image: {
+              files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
+            },
+          }),
         },
       });
     },

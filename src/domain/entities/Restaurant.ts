@@ -11,6 +11,6 @@ export type Restaurant = {
   pageId: PageId;
   name: string;
   googleMapUrl: Url;
-  imageUrl: Url;
+  imageUrl?: Url;
   websiteUrl?: Url;
 };

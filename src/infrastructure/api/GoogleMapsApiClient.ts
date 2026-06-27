@@ -1,6 +1,16 @@
+import { z } from "zod";
+
+const searchResultsSchema = z.array(z.object({ place_id: z.string() }));
+
+const detailResultSchema = z.object({
+  url: z.string(),
+  website: z.string().optional(),
+  photos: z.array(z.object({ photo_reference: z.string() })).optional(),
+});
+
 type RestaurantSearchResult = {
   googleMapUrl: string;
-  imageRefUrl: string;
+  imageRefUrl?: string;
   websiteUrl?: string;
 };
 
@@ -10,9 +20,9 @@ export const createGoogleMapsApiClient = (apiKey: string) => ({
       `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(shopName)}&key=${apiKey}`;
     const searchRes = await fetch(searchUrl);
     if (!searchRes.ok) throw new Error(`Google Maps Text Search error: ${searchRes.status}`);
-    const searchData = await searchRes.json() as any;
-    const results = searchData.results;
-    if (!results || results.length === 0) {
+    const searchData = (await searchRes.json()) as any;
+    const results = searchResultsSchema.parse(searchData.results ?? []);
+    if (results.length === 0) {
       throw new Error(`Google Maps: no results for "${shopName}"`);
     }
     const placeId = results[0].place_id;
@@ -21,16 +31,13 @@ export const createGoogleMapsApiClient = (apiKey: string) => ({
       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${apiKey}`;
     const detailRes = await fetch(detailUrl);
     if (!detailRes.ok) throw new Error(`Google Maps Place Details error: ${detailRes.status}`);
-    const detailData = await detailRes.json() as any;
-    const result = detailData.result;
+    const detailData = (await detailRes.json()) as any;
+    const result = detailResultSchema.parse(detailData.result);
 
-    const photos = result.photos as { photo_reference: string }[] | undefined;
-    if (!photos || photos.length === 0) {
-      throw new Error(`Google Maps: no photo for "${shopName}"`);
-    }
-    const photoRef = photos[0].photo_reference;
-    const imageRefUrl =
-      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoRef}&key=${apiKey}`;
+    const photoRef = result.photos?.[0]?.photo_reference;
+    const imageRefUrl = photoRef
+      ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${photoRef}&key=${apiKey}`
+      : undefined;
 
     return {
       googleMapUrl: result.url,
