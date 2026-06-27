@@ -26,13 +26,17 @@ export const createNotionBookRepository = (client: Client) =>
         icon: { type: "emoji", emoji: "📕" },
         properties: {
           Name: { title: [{ text: { content: book.name } }] },
-          Author: { rich_text: [{ text: { content: book.author } }] },
-          PublishedDate: {
-            date: { start: format(book.publishedDate, "yyyy-MM-dd"), end: null, time_zone: null },
-          },
           Image: {
             files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
           },
+          ...(book.author !== undefined && {
+            Author: { rich_text: [{ text: { content: book.author } }] },
+          }),
+          ...(book.publishedDate !== undefined && {
+            PublishedDate: {
+              date: { start: format(book.publishedDate, "yyyy-MM-dd"), end: null, time_zone: null },
+            },
+          }),
         },
       });
     },

@@ -10,7 +10,7 @@ export type Book = {
   readonly kind: "Book";
   pageId: PageId;
   name: string;
-  author: string;
-  publishedDate: Date;
+  author?: string;
+  publishedDate?: Date;
   imageUrl: Url;
 };

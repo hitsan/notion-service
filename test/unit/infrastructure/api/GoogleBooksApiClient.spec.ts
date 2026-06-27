@@ -67,4 +67,66 @@ describe("GoogleBooksApiClient", () => {
     globalThis.fetch = mockFetch({}, false, 503);
     await expect(createGoogleBooksApiClient().search("t")).rejects.toThrow(/503/);
   });
+
+  it("title が無ければエラーを投げる", async () => {
+    globalThis.fetch = mockFetch({
+      items: [
+        {
+          volumeInfo: {
+            authors: ["a"],
+            industryIdentifiers: [{ type: "ISBN_13", identifier: "9784101010014" }],
+          },
+        },
+      ],
+    });
+    await expect(createGoogleBooksApiClient().search("t")).rejects.toThrow();
+  });
+
+  it("authors が無ければ author は undefined", async () => {
+    globalThis.fetch = mockFetch({
+      items: [
+        {
+          volumeInfo: {
+            title: "t",
+            publishedDate: "2000",
+            industryIdentifiers: [{ type: "ISBN_13", identifier: "9784101010014" }],
+          },
+        },
+      ],
+    });
+    const result = await createGoogleBooksApiClient().search("t");
+    expect(result.author).toBeUndefined();
+  });
+
+  it("publishedDate が無ければ publishedDate は undefined", async () => {
+    globalThis.fetch = mockFetch({
+      items: [
+        {
+          volumeInfo: {
+            title: "t",
+            authors: ["a"],
+            industryIdentifiers: [{ type: "ISBN_13", identifier: "9784101010014" }],
+          },
+        },
+      ],
+    });
+    const result = await createGoogleBooksApiClient().search("t");
+    expect(result.publishedDate).toBeUndefined();
+  });
+
+  it("publishedDate が解析不能なら undefined を返す（throw しない）", async () => {
+    globalThis.fetch = mockFetch({
+      items: [
+        {
+          volumeInfo: {
+            title: "t",
+            publishedDate: "不明",
+            industryIdentifiers: [{ type: "ISBN_13", identifier: "9784101010014" }],
+          },
+        },
+      ],
+    });
+    const result = await createGoogleBooksApiClient().search("t");
+    expect(result.publishedDate).toBeUndefined();
+  });
 });
