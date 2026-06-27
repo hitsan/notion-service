@@ -1,0 +1,9 @@
+name = "notion-service"
+main = "src/index.ts"
+compatibility_date = "2024-06-20"
+
+[observability]
+enabled = true
+
+[triggers]
+crons = ["0 21 * * *"]
