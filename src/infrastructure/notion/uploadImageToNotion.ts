@@ -4,9 +4,9 @@ export const uploadImageToNotion = async (
   client: Client,
   imageUrl: string,
   filename: string,
-): Promise<string> => {
+): Promise<string | undefined> => {
   const res = await fetch(imageUrl);
-  if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
+  if (!res.ok) return undefined;
   const blob = await res.blob();
 
   const upload = await client.fileUploads.create({

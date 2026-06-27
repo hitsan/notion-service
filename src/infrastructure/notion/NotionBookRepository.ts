@@ -26,9 +26,11 @@ export const createNotionBookRepository = (client: Client) =>
         icon: { type: "emoji", emoji: "📕" },
         properties: {
           Name: { title: [{ text: { content: book.name } }] },
-          Image: {
-            files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
-          },
+          ...(fileUploadId !== undefined && {
+            Image: {
+              files: [{ type: "file_upload", name: filename, file_upload: { id: fileUploadId } }],
+            },
+          }),
           ...(book.author !== undefined && {
             Author: { rich_text: [{ text: { content: book.author } }] },
           }),

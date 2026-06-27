@@ -1,6 +1,7 @@
 import { Client } from "@notionhq/client";
 import { createNotionBookRepository } from "../../../../src/infrastructure/notion/NotionBookRepository";
 import { Book } from "../../../../src/domain/entities/Book";
+import { uploadImageToNotion } from "../../../../src/infrastructure/notion/uploadImageToNotion";
 
 jest.mock("../../../../src/infrastructure/notion/uploadImageToNotion", () => ({
   uploadImageToNotion: jest.fn().mockResolvedValue("upload-id"),
@@ -29,6 +30,16 @@ describe("NotionBookRepository.updateBook", () => {
     expect(props.Image).toBeDefined();
     expect(props.Author).toBeUndefined();
     expect(props.PublishedDate).toBeUndefined();
+  });
+
+  it("画像取得に失敗したら Image プロパティを送らない", async () => {
+    (uploadImageToNotion as jest.Mock).mockResolvedValueOnce(undefined);
+    const { client, update } = createClient();
+    await createNotionBookRepository(client).updateBook(baseBook.pageId, baseBook);
+
+    const props = update.mock.calls[0][0].properties;
+    expect(props.Image).toBeUndefined();
+    expect(props.Name).toBeDefined();
   });
 
   it("author/publishedDate があればプロパティを送る", async () => {
