@@ -18,4 +18,56 @@ describe("app routing", () => {
     );
     expect(res.status).toBe(401);
   });
+
+  it("POST /books は認証ヘッダが無ければ 401", async () => {
+    const res = await app.request(
+      "/books",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageId: "a".repeat(32) }),
+      },
+      { API_SECRET: "s" } as any,
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("POST /books は body の pageId が不正なら 400", async () => {
+    const res = await app.request(
+      "/books",
+      {
+        method: "POST",
+        headers: { "X-Api-Secret": "s", "Content-Type": "application/json" },
+        body: JSON.stringify({ pageId: "too-short" }),
+      },
+      { API_SECRET: "s" } as any,
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it("POST /restaurants は認証ヘッダが無ければ 401", async () => {
+    const res = await app.request(
+      "/restaurants",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pageId: "a".repeat(32) }),
+      },
+      { API_SECRET: "s" } as any,
+    );
+    expect(res.status).toBe(401);
+  });
+
+  it("POST /restaurants は body の pageId が不正なら 400", async () => {
+    const res = await app.request(
+      "/restaurants",
+      {
+        method: "POST",
+        headers: { "X-Api-Secret": "s", "Content-Type": "application/json" },
+        body: JSON.stringify({ pageId: "too-short" }),
+      },
+      { API_SECRET: "s" } as any,
+    );
+    expect(res.status).toBe(400);
+  });
 });

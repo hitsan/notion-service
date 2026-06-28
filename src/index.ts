@@ -1,5 +1,5 @@
 /// <reference types="@cloudflare/workers-types" />
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { Client } from "@notionhq/client";
 import { createNotionBookRepository } from "./infrastructure/notion/NotionBookRepository";
 import { createNotionRestaurantRepository } from "./infrastructure/notion/NotionRestaurantRepository";
@@ -10,9 +10,12 @@ import { createOpenMeteoApiClient } from "./infrastructure/api/OpenMeteoApiClien
 import { createUpdateBookInfo } from "./usecases/UpdateBookInfo";
 import { createUpdateRestaurantInfo } from "./usecases/UpdateRestaurantInfo";
 import { createAddPageToLifelog } from "./usecases/AddPageToLifelog";
-import { PageIdSchema } from "./domain/types";
+import { z } from "zod";
+import { PageIdSchema, type PageId } from "./domain/types";
 import { apiSecretAuth } from "./middleware/auth";
 import { onError } from "./middleware/onError";
+
+const PageRequestSchema = z.object({ pageId: PageIdSchema });
 
 type Env = {
   NOTION_TOKEN: string;
@@ -25,20 +28,20 @@ export const app = new Hono<{ Bindings: Env }>();
 
 app.onError(onError);
 
+app.use("/books", apiSecretAuth);
 app.use("/books/:id", apiSecretAuth);
+app.use("/restaurants", apiSecretAuth);
 app.use("/restaurants/:id", apiSecretAuth);
 
-app.post("/books/:id", async (c) => {
-  const pageId = PageIdSchema.parse(c.req.param("id"));
+const updateBook = async (c: Context<{ Bindings: Env }>, pageId: PageId) => {
   const client = new Client({ auth: c.env.NOTION_TOKEN });
   const bookRepo = createNotionBookRepository(client);
   const updateBookInfo = createUpdateBookInfo(bookRepo, createGoogleBooksApiClient());
   await updateBookInfo.execute(pageId);
   return c.json({ ok: true });
-});
+};
 
-app.post("/restaurants/:id", async (c) => {
-  const pageId = PageIdSchema.parse(c.req.param("id"));
+const updateRestaurant = async (c: Context<{ Bindings: Env }>, pageId: PageId) => {
   const client = new Client({ auth: c.env.NOTION_TOKEN });
   const restaurantRepo = createNotionRestaurantRepository(client);
   const updateRestaurantInfo = createUpdateRestaurantInfo(
@@ -47,7 +50,19 @@ app.post("/restaurants/:id", async (c) => {
   );
   await updateRestaurantInfo.execute(pageId);
   return c.json({ ok: true });
-});
+};
+
+app.post("/books/:id", (c) => updateBook(c, PageIdSchema.parse(c.req.param("id"))));
+app.post("/books", async (c) =>
+  updateBook(c, PageRequestSchema.parse(await c.req.json()).pageId),
+);
+
+app.post("/restaurants/:id", (c) =>
+  updateRestaurant(c, PageIdSchema.parse(c.req.param("id"))),
+);
+app.post("/restaurants", async (c) =>
+  updateRestaurant(c, PageRequestSchema.parse(await c.req.json()).pageId),
+);
 
 export default {
   fetch: app.fetch,
