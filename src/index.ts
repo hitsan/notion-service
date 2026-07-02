@@ -7,9 +7,11 @@ import { createNotionLifelogRepository } from "./infrastructure/notion/NotionLif
 import { createGoogleBooksApiClient } from "./infrastructure/api/GoogleBooksApiClient";
 import { createGoogleMapsApiClient } from "./infrastructure/api/GoogleMapsApiClient";
 import { createOpenMeteoApiClient } from "./infrastructure/api/OpenMeteoApiClient";
+import { createNotionEmotionRepository } from "./infrastructure/notion/NotionEmotionRepository";
 import { createUpdateBookInfo } from "./usecases/UpdateBookInfo";
 import { createUpdateRestaurantInfo } from "./usecases/UpdateRestaurantInfo";
 import { createAddPageToLifelog } from "./usecases/AddPageToLifelog";
+import { createBackfillEmotionDates } from "./usecases/BackfillEmotionDates";
 import { z } from "zod";
 import { PageIdSchema, type PageId } from "./domain/types";
 import { apiSecretAuth } from "./middleware/auth";
@@ -20,6 +22,7 @@ const PageRequestSchema = z.object({ pageId: PageIdSchema });
 type Env = {
   NOTION_TOKEN: string;
   NOTION_LIFELOG_DB_ID: string;
+  NOTION_EMOTION_DATA_SOURCE_ID: string;
   GOOGLE_MAP_APIKEY: string;
   API_SECRET: string;
 };
@@ -68,6 +71,11 @@ export default {
   fetch: app.fetch,
   async scheduled(_event: ScheduledEvent, env: Env, _ctx: ExecutionContext): Promise<void> {
     const client = new Client({ auth: env.NOTION_TOKEN });
+
+    const emotionRepo = createNotionEmotionRepository(client, env.NOTION_EMOTION_DATA_SOURCE_ID);
+    const backfillEmotionDates = createBackfillEmotionDates(emotionRepo);
+    await backfillEmotionDates.execute();
+
     const lifelogRepo = createNotionLifelogRepository(client, env.NOTION_LIFELOG_DB_ID);
     const addPageToLifelog = createAddPageToLifelog(lifelogRepo, createOpenMeteoApiClient());
     await addPageToLifelog.execute();
